@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="" method="post">
+        {%csrf_token%}
+        <table>
+            <tr>
+                <td>Name</td>
+                <td><input type="text" name="txt_name" id="txt_name"></td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td><textarea name="txt_address" id="txt_address" rows="3"></textarea></td>
+            </tr>
+            <tr>
+                <td>Phone</td>
+                <td><input type="number" name="txt_phone" id="txt_phone"></td>
+            </tr>
+            <tr>
+                <td>Email</td>
+                <td><input type="email" name="txt_email" id="txt_email"></td>
+            </tr>
+            <tr>
+                <td>Age</td>
+                <td><input type="number" name="txt_age" id="txt_age"></td>
+            </tr>
+            <tr>
+                <td>Gender</td>
+                <td><input type="radio" name="txt_gender" id="">Male
+                <input type="radio" name="txt_gender" id="">Female
+                <input type="radio" name="txt_gender" id="">Others</td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td><input type="password" name="txt_password" id="txt_password"></td>
+            </tr>
+            <tr>
+                <td>Re-Password</td>
+                <td><input type="password" name="txt_password" id="txt_password"></td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="Register">
+                <input type="reset" value="Cancel"></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

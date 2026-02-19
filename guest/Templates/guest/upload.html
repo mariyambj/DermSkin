@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Derm</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .result-box { margin-top: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h2>Upload Skin Image</h2>
+
+    <form method="POST" enctype="multipart/form-data" action="{% url 'upload_image' %}">
+        {% csrf_token %}
+        <input type="file" name="image" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+        <div class="result-box">
+            <h3>Result</h3>
+            <p><b>Disease:</b> {{ prediction.label }}</p>
+            <p><b>Confidence:</b> {{ prediction.confidence }}%</p>
+        </div>
+    {% elif request.method == "POST" %}
+        <p style="color: red;">Analysis failed. Please try a different image.</p>
+    {% endif %}
+</body>
+</html>
