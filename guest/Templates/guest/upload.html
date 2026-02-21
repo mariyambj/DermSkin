@@ -458,6 +458,7 @@
             cursor: pointer;
             width: 100%;
             font-size: 0;
+            z-index: 2;
         }
 
         .dz-content {
@@ -1278,9 +1279,11 @@
 
         // Loading state
         form.addEventListener('submit', () => {
-            submitBtn.disabled = true;
-            btnText.textContent = 'Analysing…';
-            spinner.style.display = 'block';
+            setTimeout(() => {
+                submitBtn.disabled = true;
+                btnText.textContent = 'Analysing…';
+                spinner.style.display = 'block';
+            }, 10);
         });
 
         // Animate confidence bar
