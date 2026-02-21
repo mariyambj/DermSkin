@@ -10,6 +10,6 @@ class GuestConfig(AppConfig):
 
     def ready(self):
         # Matches your screenshot structure: guest -> model -> file
-        model_path = os.path.join(settings.BASE_DIR, 'guest', 'model', 'densenet169_skin_cancer_model.h5')
+        model_path = os.path.join(settings.BASE_DIR, 'guest', 'models', 'restored.keras')
         if os.path.exists(model_path):
-            GuestConfig.model = load_model(model_path)
+            GuestConfig.model = load_model(model_path, compile=False)
