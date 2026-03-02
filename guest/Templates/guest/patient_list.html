@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Patients</title>
+</head>
+<body>
+    <h2>Registered Patients</h2>
+   <form action="" method="post">
+    {%csrf_token%}
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>address</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Age</th>
+            <th>Gender</th>
+        </tr>
+        {% for patient in patients%}
+        <tr>
+            <td>{{ forloop.counter}}</td>
+            <td>{{patient.first_name}}</td>
+            <td>{{patient.address}}</td>
+            <td>{{patient.phone}}</td>
+            <td>{{patient.email}}</td>
+            <td>{{patient.age}}</td>
+            <td>{{patient.get_gender_display}}</td>
+        </tr>
+        {% endfor%}
+    </table>
+   </form> 
+</body>
+</html>
