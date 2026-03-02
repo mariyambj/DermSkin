@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Profile</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            width: 450px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-item {
+            margin-bottom: 15px;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div>Patient Dashboard</div>
+    <div>Welcome, {{ patient.first_name }}</div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>My Profile</h2>
+
+        <div class="profile-item">
+            <span>Name:</span> {{ patient.first_name }}
+        </div>
+
+        <div class="profile-item">
+            <span>Address:</span> {{ patient.address }}
+        </div>
+
+        <div class="profile-item">
+            <span>Phone:</span> {{ patient.phone }}
+        </div>
+
+        <div class="profile-item">
+            <span>Age:</span> {{ patient.age }}
+        </div>
+
+        <div class="profile-item">
+            <span>Gender:</span> {{ patient.get_gender_display }}
+        </div>
+
+        <div class="btn-container">
+            <a href="{% url 'edit_profile' %}" class="btn">Edit Profile</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

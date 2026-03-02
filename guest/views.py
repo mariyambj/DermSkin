@@ -4,6 +4,7 @@ from django.shortcuts import render,redirect
 from django.conf import settings
 from PIL import Image
 from .models import *
+from django.contrib.auth.hashers import check_password
 
 import keras
 import tensorflow as tf
@@ -108,6 +109,18 @@ def upload_image(request):
 
 # Other views
 def login(request):
+    if request.method=='POST':
+        username=request.POST.get('txt_name')
+        password=request.POST.get('txt_password')
+        try:
+            patient=tbl_patient.objects.get(first_name=username)
+            if password == patient.pass_word:  # ✅ correct
+                request.session['patient_id']=patient.id
+                return redirect('patient_homepage')
+            else:
+                return render(request,"guest/login.html",{"error":"Invalid Password"})
+        except tbl_patient.DoesNotExist:
+            return render(request,'guest/login.html',{"error":"User not found"})
     return render(request, 'guest/login.html')
 
 #patient registration
