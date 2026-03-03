@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('guest.urls')), # <--- If this is empty '', there is no 'guest/' prefix!
     path('',include('patient.urls')),
+    path('',include('clinicadmin.urls')),
+    path('',include('doctor.urls')),
 ]

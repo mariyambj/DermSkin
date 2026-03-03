@@ -5,6 +5,7 @@ from django.conf import settings
 from PIL import Image
 from .models import *
 from django.contrib.auth.hashers import check_password
+from clinicadmin.models import tbl_admin
 
 import keras
 import tensorflow as tf
@@ -110,18 +111,22 @@ def upload_image(request):
 # Other views
 def login(request):
     if request.method=='POST':
-        username=request.POST.get('txt_name')
+        email=request.POST.get('txt_email')
         password=request.POST.get('txt_password')
-        try:
-            patient=tbl_patient.objects.get(first_name=username)
-            if password == patient.pass_word:  # ✅ correct
-                request.session['patient_id']=patient.id
-                return redirect('patient_homepage')
-            else:
-                return render(request,"guest/login.html",{"error":"Invalid Password"})
-        except tbl_patient.DoesNotExist:
-            return render(request,'guest/login.html',{"error":"User not found"})
+        patient_count=tbl_patient.objects.filter(email=email,pass_word=password).count()
+        admin_count=tbl_admin.objects.filter(email=email,password=password).count()
+        if patient_count>0:
+            patient_data=tbl_patient.objects.get(email=email,pass_word=password)
+            request.session['pid']=patient_data.id
+            return redirect('webpatient:patient_homepage')
+        if admin_count>0:
+            admin_data=tbl_admin.objects.get(email=email,password=password)
+            request.session['aid']=admin_data.id
+            return redirect('webadmin:admin_homepage')
+   
     return render(request, 'guest/login.html')
+
+
 
 #patient registration
 def registration(request):
@@ -144,7 +149,7 @@ def registration(request):
                             pass_word=password,
                             gender=gender)
         patient.save()
-        return redirect('registration')
+        return redirect('webguest:registration')
     return render(request, 'guest/patient_registration.html')
 
 
