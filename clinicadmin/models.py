@@ -20,5 +20,6 @@ class tbl_doctor(models.Model):
     specialization=models.CharField(max_length=30)
     qualification = models.CharField(max_length=50, blank=True, null=True)
     medical_registration_number=models.CharField(max_length=20,unique=True)
+    password=models.CharField(max_length=128,blank=True)
 
     

@@ -1,0 +1,55 @@
+<!-- templates/edit_profile.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Doctor Profile</title>
+</head>
+<body>
+    <h1>Edit Profile</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" value="{{ doctor.name }}"><br><br>
+        
+        <label for="age">Age:</label><br>
+        <input type="number" id="age" name="age" value="{{ doctor.age }}"><br><br>
+        
+        <label for="gender">Gender:</label><br>
+        <select id="gender" name="gender">
+            <option value="Male" {% if doctor.gender == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if doctor.gender == "Female" %}selected{% endif %}>Female</option>
+            <option value="Other" {% if doctor.gender == "Other" %}selected{% endif %}>Other</option>
+        </select><br><br>
+        
+        <label for="phone_number">Phone Number:</label><br>
+        <input type="text" id="phone_number" name="phone_number" value="{{ doctor.phone_number }}"><br><br>
+        
+        <label for="address">Address:</label><br>
+        <textarea id="address" name="address">{{ doctor.address }}</textarea><br><br>
+        
+        <label for="specialization">Specialization:</label><br>
+        <input type="text" id="specialization" name="specialization" value="{{ doctor.specialization }}"><br><br>
+        
+        <label for="qualification">Qualification:</label><br>
+        <input type="text" id="qualification" name="qualification" value="{{ doctor.qualification }}"><br><br>
+        
+        <label for="medical_registration_number">Medical Registration Number:</label><br>
+        <input type="text" id="medical_registration_number" name="medical_registration_number" value="{{ doctor.medical_registration_number }}"><br><br>
+        
+        <label for="profile_picture">Profile Picture:</label><br>
+        {% if doctor.profile_picture %}
+            <img src="{{ doctor.profile_picture.url }}" width="100"><br>
+        {% endif %}
+        <input type="file" id="profile_picture" name="profile_picture"><br><br>
+        
+        <label for="identification">Identification Proof:</label><br>
+        {% if doctor.identification %}
+            <img src="{{ doctor.identification.url }}" width="100"><br>
+        {% endif %}
+        <input type="file" id="identification" name="identification"><br><br>
+        
+        <button type="submit">Update Profile</button>
+    </form>
+</body>
+</html>

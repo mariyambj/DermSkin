@@ -31,6 +31,7 @@ def doctor_registration(request):
                 specialization=request.POST['specialization'],
                 qualification=request.POST['qualification'],
                 medical_registration_number=reg_no,
+                password=request.POST['password'],
                 profile_picture=request.FILES.get('profile_picture'),
                 identification=request.FILES.get('identification_proof')
             )

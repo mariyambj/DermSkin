@@ -1,10 +1,10 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from guest.models import *
 
 
 #homepage
 def home_page(request):
-    patient_id = request.session.get('patient_id')
+    patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('login')
 
@@ -15,15 +15,15 @@ def home_page(request):
 #Patient Profile
 
 def patient_profile(request):
-    patient_id=request.session.get('patient_id')
+    patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('login')
-    patient=tbl_patient.objects.get(id=patient_id)
-    return render(request,'patient/patient_profile.html',{'patient':patient})
+    patient = get_object_or_404(tbl_patient, id=patient_id)
+    return render(request, 'patient/patient_profile.html', {'patient': patient})
 
 
 def edit_profile(request):
-    patient_id=request.session.get('patient_id')
+    patient_id=request.session.get('pid')
     if not patient_id:
         return redirect('login')
     patient=tbl_patient.objects.get(id=patient_id)
@@ -33,15 +33,13 @@ def edit_profile(request):
         patient.phone = request.POST.get('txt_phone')
         patient.age = request.POST.get('txt_age')
         patient.gender = request.POST.get('txt_gender')
-
         patient.save()
         return redirect('patient_homepage')
-
     return render(request, 'patient/edit_profile.html', {'patient': patient})
 
 
 def change_password(request):
-    patient_id=request.session.get('patient_id')
+    patient_id=request.session.get('pid')
     if not patient_id:
         return redirect('login')
     patient=tbl_patient.objects.get(id=patient_id)

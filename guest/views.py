@@ -5,7 +5,7 @@ from django.conf import settings
 from PIL import Image
 from .models import *
 from django.contrib.auth.hashers import check_password
-from clinicadmin.models import tbl_admin
+from clinicadmin.models import tbl_admin,tbl_doctor
 
 import keras
 import tensorflow as tf
@@ -115,6 +115,7 @@ def login(request):
         password=request.POST.get('txt_password')
         patient_count=tbl_patient.objects.filter(email=email,pass_word=password).count()
         admin_count=tbl_admin.objects.filter(email=email,password=password).count()
+        doctor_count=tbl_doctor.objects.filter(email=email,password=password).count()
         if patient_count>0:
             patient_data=tbl_patient.objects.get(email=email,pass_word=password)
             request.session['pid']=patient_data.id
@@ -123,6 +124,10 @@ def login(request):
             admin_data=tbl_admin.objects.get(email=email,password=password)
             request.session['aid']=admin_data.id
             return redirect('webadmin:admin_homepage')
+        if doctor_count>0:
+            doctor_data=tbl_doctor.objects.get(email=email,password=password)
+            request.session['did']=doctor_data.id
+            return redirect('webdoctor:doctor_homepage')
    
     return render(request, 'guest/login.html')
 

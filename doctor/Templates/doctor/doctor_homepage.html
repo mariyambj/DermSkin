@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Dashboard</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f6f9;
+        }
+
+        .container{
+            width:800px;
+            margin:auto;
+            margin-top:50px;
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:white;
+            padding:20px;
+            margin:15px;
+            border-radius:8px;
+            box-shadow:0 0 8px rgba(0,0,0,0.1);
+            text-align:center;
+        }
+
+        .card a{
+            text-decoration:none;
+            font-size:18px;
+            color:#007bff;
+        }
+
+        .card:hover{
+            background:#f1f1f1;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Doctor Dashboard</h2>
+
+<div class="card">
+    <a href="{% url 'webdoctor:doctor_profile' %}">👨‍⚕️ View Profile</a>
+</div>
+
+<div class="card">
+    <a href="{% url 'webdoctor:doctor_changepassword' %}">📅 Change Password</a>
+</div>
+
+<div class="card">
+    <a href="#">🧴 Skin Disease Records</a>
+</div>
+
+<div class="card">
+    <a href="#">💊 Patient Prescriptions</a>
+</div>
+
+<div class="card">
+    <a href="#">🚪 Logout</a>
+</div>
+
+</div>
+
+</body>
+</html>
