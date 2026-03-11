@@ -1,5 +1,8 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from clinicadmin.models import *
+from .models import *
+from datetime import datetime, timedelta, date
+
 
 # Create your views here.
 
@@ -19,9 +22,7 @@ def doctor_profile(request):
     return render(request, 'doctor/doctor_profile.html', {'doctor': doctor})
 
 
-
-
-
+#edit profile
 def doctor_editprofile(request):
     doctor_id = request.session.get('did')  
     if not doctor_id:
@@ -69,5 +70,122 @@ def doctor_changepassword(request):
 
 
 
+
+from datetime import datetime, timedelta, date
+from django.shortcuts import render, redirect
+from .models import tbl_doctor, tbl_schedule, tbl_slot
+
+
+def doctor_schedule(request):
+
+    doctor_id = request.session.get('did')
+    doctor = tbl_doctor.objects.get(id=doctor_id)
+
+    days = [
+        ('mon','Monday'),
+        ('tue','Tuesday'),
+        ('wed','Wednesday'),
+        ('thu','Thursday'),
+        ('fri','Friday'),
+        ('sat','Saturday')
+    ]
+
+    # already scheduled days
+    scheduled_days = tbl_schedule.objects.filter(
+        doctor=doctor
+    ).values_list('day_of_week', flat=True)
+
+
+    if request.method == 'POST':
+
+        for key, day in days:
+
+            if day in scheduled_days:
+                continue
+
+            available = True if request.POST.get(f'{key}_available') else False
+            start = request.POST.get(f'{key}_start')
+            end = request.POST.get(f'{key}_end')
+            slot = request.POST.get(f'{key}_slot')
+            break_start = request.POST.get(f'{key}_break_start')
+            break_end = request.POST.get(f'{key}_break_end')
+
+            if available and start and end:
+
+                schedule = tbl_schedule.objects.create(
+                    doctor=doctor,
+                    day_of_week=day,
+                    schedule_date=date.today(),
+                    is_available=available,
+                    start_time=start,
+                    end_time=end,
+                    slot_duration=slot,
+                    break_start_time=break_start if break_start else None,
+                    break_end_time=break_end if break_end else None
+                )
+
+                start_time = datetime.strptime(start,"%H:%M")
+                end_time = datetime.strptime(end,"%H:%M")
+                duration = int(slot)
+
+                current = start_time
+
+                while current < end_time:
+
+                    slot_end = current + timedelta(minutes=duration)
+
+                    if break_start and break_end:
+
+                        bstart = datetime.strptime(break_start,"%H:%M")
+                        bend = datetime.strptime(break_end,"%H:%M")
+
+                        if current >= bstart and current < bend:
+                            current = bend
+                            continue
+
+                    tbl_slot.objects.create(
+                        doctor=doctor,
+                        schedule=schedule,
+                        day_of_week=day,
+                        slot_start=current.time(),
+                        slot_end=slot_end.time()
+                    )
+
+                    current = slot_end
+
+        return redirect('webdoctor:doctor_schedule')
+
+
+    # remove already scheduled days from form
+    remaining_days = [d for d in days if d[1] not in scheduled_days]
+
+
+    # get saved schedules
+    saved_schedules = tbl_schedule.objects.filter(doctor=doctor)
+
+
+    # attach slot count for each schedule
+    schedule_data = []
+
+    for schedule in saved_schedules:
+
+        slot_count = tbl_slot.objects.filter(
+            doctor=doctor,
+            schedule=schedule
+        ).count()
+
+        schedule_data.append({
+            "day": schedule.day_of_week,
+            "start": schedule.start_time,
+            "end": schedule.end_time,
+            "duration": schedule.slot_duration,
+            "slots": slot_count
+        })
+
+
+    return render(request,'doctor/schedule.html',{
+        'days': remaining_days,
+        'saved_schedules': schedule_data
+    })
 
 

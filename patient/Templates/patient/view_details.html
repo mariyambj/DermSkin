@@ -1,0 +1,74 @@
+{% load static %}
+{% block content %}
+
+<style>
+.doctor-card {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.doctor-card img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.doctor-card h2 {
+    margin-bottom: 10px;
+    color: #2f80ed;
+}
+
+.doctor-card p {
+    margin: 6px 0;
+    font-size: 16px;
+}
+
+.doctor-card .info-label {
+    font-weight: bold;
+    color: #555;
+}
+
+.doctor-card button {
+    margin-top: 20px;
+    padding: 10px 25px;
+    background: #2f80ed;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.doctor-card button:hover {
+    background: #1c60d6;
+}
+</style>
+
+<div class="doctor-card">
+    {% if doctor.profile_picture %}
+        <img src="{{ doctor.profile_picture.url }}" alt="{{ doctor.name }}">
+    {% else %}
+        <img src="{% static 'default_doctor.png' %}" alt="No Image">
+    {% endif %}
+
+    <h2>{{ doctor.name }}</h2>
+
+    <p><span class="info-label">Specialization:</span> {{ doctor.specialization }}</p>
+    <p><span class="info-label">Qualification:</span> {{ doctor.qualification }}</p>
+    <p><span class="info-label">Medical Registration No.:</span> {{ doctor.medical_registration_number }}</p>
+
+
+    <br>
+    <a href="{% url 'webpatient:book_appointment' doctor.id%}" class="button">Book Now</a>
+</div>
+
+{% endblock %}

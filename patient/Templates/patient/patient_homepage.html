@@ -44,7 +44,7 @@
     <div>Patient Dashboard</div>
     <div>
         Welcome, {{ patient.first_name }}
-        <a href="{% url 'login' %}" class="btn" style="margin-left:15px;">Logout</a>
+        <a href="{% url 'webguest:login' %}" class="btn" style="margin-left:15px;">Logout</a>
     </div>
 </div>
 
@@ -55,8 +55,9 @@
         <p>Welcome {{ patient.first_name }}</p>
     </div>
     <div class="card">
-        <a href="{% url 'patient_profile' %}" class="btn" style="margin-left:15px;">My Profile</a>
-        <a href="{% url 'change_password' %}" class="btn" style="margin-left:15px;">Change Password</a>
+        <a href="{% url 'webpatient:patient_profile' %}" class="btn" style="margin-left:15px;">My Profile</a>
+        <a href="{% url 'webpatient:change_password' %}" class="btn" style="margin-left:15px;">Change Password</a>
+        <a href="{% url 'webpatient:doctor_list' %}" class="btn" style="margin-left:15px;">View Doctors</a>
     </div>
     <div class="card">
         <h2>Medical Records</h2>

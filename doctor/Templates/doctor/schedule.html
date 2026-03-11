@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Doctor Schedule Manager</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f5f7fb;
+}
+
+.container{
+    width:1100px;
+    margin:auto;
+    margin-top:40px;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:gray;
+    margin-bottom:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:linear-gradient(to right,#2f80ed,#1c60d6);
+    color:white;
+    padding:12px;
+    text-align:center;
+}
+
+td{
+    padding:10px;
+    text-align:center;
+    border-bottom:1px solid #eee;
+}
+
+input,select{
+    padding:6px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+.slots{
+    background:#e7f0ff;
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+button{
+    background:#2f80ed;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:6px;
+    cursor:pointer;
+    float:right;
+    margin-bottom:15px;
+}
+
+button:hover{
+    background:#1c60d6;
+}
+
+.summary{
+margin-top:40px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+margin-top:15px;
+}
+
+.card{
+border:1px solid #4caf50;
+border-radius:8px;
+padding:15px;
+background:#eef7f0;
+}
+
+.card.closed{
+background:#f2f2f2;
+border:1px solid #ccc;
+}
+
+.capacity{
+margin-top:30px;
+padding:25px;
+text-align:center;
+background:linear-gradient(90deg,#5a6fd8,#8a59b6);
+color:white;
+border-radius:10px;
+}
+
+.capacity h1{
+margin:0;
+font-size:40px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📅 Doctor Schedule Manager</h2>
+<div class="subtitle">Set your consulting hours and generate patient appointment slots</div>
+
+<form method="POST">
+{% csrf_token %}
+
+<button type="submit">Save Schedule</button>
+
+<table>
+
+<tr>
+<th>Day</th>
+<th>Available</th>
+<th>Start Time</th>
+<th>End Time</th>
+<th>Slot Duration</th>
+<th>Break Start</th>
+<th>Break End</th>
+<th>Total Slots</th>
+</tr>
+
+{% for key,day in days %}
+
+<tr class="schedule-row">
+
+<td class="day">{{day}}</td>
+
+<td>
+<input type="checkbox" name="{{key}}_available">
+</td>
+
+<td>
+<input type="time" name="{{key}}_start" class="start">
+</td>
+
+<td>
+<input type="time" name="{{key}}_end" class="end">
+</td>
+
+<td>
+<select name="{{key}}_slot" class="slot">
+<option value="15">15</option>
+<option value="20">20</option>
+<option value="30" selected>30</option>
+<option value="45">45</option>
+<option value="60">60</option>
+</select>
+</td>
+
+<td>
+<input type="time" name="{{key}}_break_start" class="break_start">
+</td>
+
+<td>
+<input type="time" name="{{key}}_break_end" class="break_end">
+</td>
+
+<td>
+<span class="slots">0 slots</span>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</form>
+
+
+<!-- WEEKLY SUMMARY -->
+
+<div class="summary">
+
+<h3>Weekly Schedule Summary</h3>
+
+<div class="cards" id="summaryCards">
+
+<!-- SAVED SCHEDULES FROM DATABASE -->
+
+{% for s in saved_schedules %}
+
+<div class="card saved-slot" data-slots="{{s.slots}}">
+
+<strong>{{s.day}}</strong><br>
+
+{{s.start}} - {{s.end}}<br>
+
+Total Slots : {{s.slots}}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<!-- WEEKLY CAPACITY -->
+
+<div class="capacity">
+
+<h1 id="weeklyTotal">0</h1>
+
+<p>slots available per week</p>
+
+</div>
+
+</div>
+
+
+<script>
+
+function calculateSlots(row){
+
+let start = row.querySelector(".start").value
+let end = row.querySelector(".end").value
+let slot = row.querySelector(".slot").value
+let breakStart = row.querySelector(".break_start").value
+let breakEnd = row.querySelector(".break_end").value
+
+if(!start || !end){
+row.querySelector(".slots").innerText="0 slots"
+updateSummary()
+return
+}
+
+let startTime = new Date("1970-01-01T"+start+":00")
+let endTime = new Date("1970-01-01T"+end+":00")
+
+let totalMinutes = (endTime-startTime)/60000
+
+let breakMinutes = 0
+
+if(breakStart && breakEnd){
+
+let bStart = new Date("1970-01-01T"+breakStart+":00")
+let bEnd = new Date("1970-01-01T"+breakEnd+":00")
+
+breakMinutes = (bEnd-bStart)/60000
+
+}
+
+let availableMinutes = totalMinutes-breakMinutes
+
+let slots = Math.floor(availableMinutes/slot)
+
+if(slots<0){
+slots=0
+}
+
+row.querySelector(".slots").innerText=slots+" slots"
+
+updateSummary()
+
+}
+
+
+
+function updateSummary(){
+
+let total=0
+
+// slots from current form rows
+document.querySelectorAll(".schedule-row").forEach(function(row){
+
+let slotText=row.querySelector(".slots").innerText
+let slots=parseInt(slotText)
+
+if(!isNaN(slots)){
+total+=slots
+}
+
+})
+
+
+// slots from saved schedules
+document.querySelectorAll(".saved-slot").forEach(function(card){
+
+let slots=parseInt(card.dataset.slots)
+
+if(!isNaN(slots)){
+total+=slots
+}
+
+})
+
+document.getElementById("weeklyTotal").innerText=total
+
+}
+
+
+
+document.querySelectorAll(".schedule-row").forEach(function(row){
+
+row.querySelectorAll("input,select").forEach(function(input){
+
+input.addEventListener("change",function(){
+calculateSlots(row)
+})
+
+})
+
+})
+
+
+window.onload=updateSummary
+
+</script>
+
+</body>
+</html>

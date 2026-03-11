@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Doctors</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f7fb;
+}
+
+.container{
+width:1100px;
+margin:auto;
+margin-top:40px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.card img{
+width:120px;
+height:120px;
+border-radius:50%;
+object-fit:cover;
+}
+
+button{
+margin-top:10px;
+padding:8px 15px;
+background:#2f80ed;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1c60d6;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Available Doctors</h2>
+
+<div class="cards">
+
+{% for d in doctors %}
+
+<div class="card">
+
+<h3>{{d.name}}</h3>
+
+<p>{{d.specialization}}</p>
+
+<a href="{% url 'webpatient:doctor_details' d.id %}">
+<button>View Details</button>
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</body>
+</html>
