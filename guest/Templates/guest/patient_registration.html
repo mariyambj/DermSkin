@@ -1,53 +1,454 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --teal-deep:    #0d6e6e;
+    --teal-mid:     #1a9090;
+    --teal-light:   #4dbdbd;
+    --teal-pale:    #e6f7f7;
+    --teal-ghost:   #f0fbfb;
+    --cream:        #fdf9f4;
+    --warm-tan:     #e8dfd3;
+    --warm-brown:   #8a7560;
+    --warm-amber:   #e8a838;
+    --text-dark:    #1c2b2b;
+    --text-mid:     #4a6060;
+    --text-muted:   #8aabab;
+    --border:       rgba(13,110,110,0.15);
+    --border-focus: rgba(13,110,110,0.5);
+    --shadow:       0 20px 60px rgba(13,110,110,0.1), 0 4px 16px rgba(0,0,0,0.05);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    background-color: var(--cream);
+    background-image:
+        radial-gradient(ellipse 80% 60% at 0% 0%, rgba(13,110,110,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 100% 100%, rgba(232,168,56,0.08) 0%, transparent 55%),
+        url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%230d6e6e' fill-opacity='0.06'/%3E%3C/svg%3E");
+    background-size: auto, auto, 40px 40px;
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 640px;
+    animation: rise 0.7s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes rise {
+    from { opacity:0; transform: translateY(28px); }
+    to   { opacity:1; transform: translateY(0); }
+}
+
+/* Header section */
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: var(--teal-deep);
+    border-radius: 20px 20px 0 0;
+    padding: 28px 36px;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::after {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    right: 60px; bottom: -50px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+}
+
+.header-icon {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.2);
+    position: relative; z-index: 1;
+}
+
+.header-text { position: relative; z-index: 1; }
+
+.header-text h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.01em;
+}
+
+.header-text p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 3px;
+    font-weight: 300;
+}
+
+/* Step indicator */
+.step-bar {
+    background: rgba(255,255,255,0.1);
+    padding: 12px 36px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.step-bar span {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+}
+.step-dot.active { background: var(--warm-amber); }
+
+/* Form card */
+.card {
+    background: white;
+    border-radius: 0 0 20px 20px;
+    box-shadow: var(--shadow);
+    padding: 36px;
+}
+
+/* Section labels */
+.section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin: 24px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-label:first-child { margin-top: 0; }
+
+.section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* Grid */
+form { display: contents; }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 18px;
+}
+
+.full { grid-column: span 2; }
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    animation: fadeSlide 0.5s ease both;
+}
+
+@keyframes fadeSlide {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+}
+
+.form-group:nth-child(1) { animation-delay: 0.05s; }
+.form-group:nth-child(2) { animation-delay: 0.10s; }
+.form-group:nth-child(3) { animation-delay: 0.15s; }
+.form-group:nth-child(4) { animation-delay: 0.20s; }
+.form-group:nth-child(5) { animation-delay: 0.25s; }
+.form-group:nth-child(6) { animation-delay: 0.30s; }
+.form-group:nth-child(7) { animation-delay: 0.35s; }
+.form-group:nth-child(8) { animation-delay: 0.40s; }
+
+label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 7px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--warm-tan);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 400;
+    color: var(--text-dark);
+    background: var(--teal-ghost);
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+
+input::placeholder, textarea::placeholder { color: var(--text-muted); font-weight: 300; }
+
+input:focus, textarea:focus {
+    border-color: var(--teal-mid);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(13,110,110,0.08);
+}
+
+textarea { resize: none; }
+
+/* Gender */
+.gender-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.gender-option {
+    flex: 1;
+    min-width: 70px;
+}
+
+.gender-option input[type="radio"] { display: none; }
+
+.gender-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 10px;
+    border: 1.5px solid var(--warm-tan);
+    border-radius: 10px;
+    background: var(--teal-ghost);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.gender-option input[type="radio"]:checked + label {
+    background: var(--teal-pale);
+    border-color: var(--teal-mid);
+    color: var(--teal-deep);
+    font-weight: 700;
+    box-shadow: 0 0 0 3px rgba(13,110,110,0.1);
+}
+
+.gender-option label:hover {
+    border-color: var(--teal-light);
+    color: var(--teal-deep);
+}
+
+/* Password strength hint */
+.hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    font-weight: 400;
+}
+
+/* Buttons */
+.btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--teal-deep) 0%, var(--teal-mid) 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(13,110,110,0.35);
+    flex: 2;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(13,110,110,0.45);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+    background: var(--teal-ghost);
+    color: var(--warm-brown);
+    border: 1.5px solid var(--warm-tan);
+}
+
+.btn-secondary:hover {
+    background: var(--warm-tan);
+    color: var(--text-dark);
+}
+
+/* Footer note */
+.form-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.form-footer a { color: var(--teal-mid); text-decoration: none; font-weight: 600; }
+.form-footer a:hover { text-decoration: underline; }
+
+@media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+    .full { grid-column: span 1; }
+    .card { padding: 24px 20px; }
+    .card-header { padding: 22px 20px; }
+    .step-bar { padding: 10px 20px; }
+}
+</style>
 </head>
 <body>
-    <form action="" method="post">
-        {%csrf_token%}
-        <table>
-            <tr>
-                <td>Name</td>
-                <td><input type="text" name="txt_name" id="txt_name"></td>
-            </tr>
-            <tr>
-                <td>Address</td>
-                <td><textarea name="txt_address" id="txt_address" rows="3"></textarea></td>
-            </tr>
-            <tr>
-                <td>Phone</td>
-                <td><input type="number" name="txt_phone" id="txt_phone"></td>
-            </tr>
-            <tr>
-                <td>Email</td>
-                <td><input type="email" name="txt_email" id="txt_email"></td>
-            </tr>
-            <tr>
-                <td>Age</td>
-                <td><input type="number" name="txt_age" id="txt_age"></td>
-            </tr>
-            <tr>
-                <td>Gender</td>
-                <td><input type="radio" name="txt_gender" id="" value="M">Male
-                <input type="radio" name="txt_gender" id="" value="F">Female
-                <input type="radio" name="txt_gender" id="" value="O">Others</td>
-            </tr>
-            <tr>
-                <td>Password</td>
-                <td><input type="password" name="txt_password" id="txt_password"></td>
-            </tr>
-            <tr>
-                <td>Re-Password</td>
-                <td><input type="password" name="txt_repassword" id="txt_password"></td>
-            </tr>
-            <tr>
-                <td><input type="submit" value="Register">
-                <input type="reset" value="Cancel"></td>
-            </tr>
-        </table>
-    </form>
+
+<div class="wrapper">
+
+    <div class="card-header">
+        <div class="header-icon">🏥</div>
+        <div class="header-text">
+            <h2>Patient Registration</h2>
+            <p>Please enter the patient details accurately</p>
+        </div>
+    </div>
+
+    <div class="step-bar" style="background:var(--teal-deep);">
+        <span style="color:rgba(255,255,255,0.55); font-size:11px;">Step 1 of 1</span>
+        <div style="flex:1; display:flex; gap:4px; margin-left:12px;">
+            <div class="step-dot active" style="flex:1; border-radius:4px; height:4px; width:auto;"></div>
+            <div class="step-dot" style="flex:1; border-radius:4px; height:4px; width:auto;"></div>
+            <div class="step-dot" style="flex:1; border-radius:4px; height:4px; width:auto;"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="section-label">Personal Information</div>
+            <div class="grid">
+                <div class="form-group full">
+                    <label>Full Name</label>
+                    <input type="text" name="txt_name" placeholder="Full Name">
+                </div>
+
+                <div class="form-group full">
+                    <label>Address</label>
+                    <textarea name="txt_address" rows="2" placeholder="Enter Address"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" name="txt_age" placeholder="Years">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div class="gender-group">
+                        <div class="gender-option">
+                            <input type="radio" name="txt_gender" id="male" value="M">
+                            <label for="male">♂ Male</label>
+                        </div>
+                        <div class="gender-option">
+                            <input type="radio" name="txt_gender" id="female" value="F">
+                            <label for="female">♀ Female</label>
+                        </div>
+                        <div class="gender-option">
+                            <input type="radio" name="txt_gender" id="other" value="O">
+                            <label for="other">◎ Other</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-label">Contact Details</div>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="number" name="txt_phone" placeholder="+91 XXXXX XXXXX">
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="txt_email" placeholder="example@mail.com">
+                </div>
+            </div>
+
+            <div class="section-label">Account Security</div>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="txt_password" placeholder="Min. 8 characters">
+                    <span class="hint">Use letters, numbers & symbols</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="txt_repassword" placeholder="Re-enter password">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="reset" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Account →</button>
+            </div>
+        </form>
+
+
+    </div>
+
+</div>
+
 </body>
 </html>

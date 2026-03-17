@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from clinicadmin.models import *
+from django.shortcuts import redirect, get_object_or_404
 
 def admin_homepage(request):
     return render(request, 'clinicadmin/admin_homepage.html')
@@ -42,6 +43,11 @@ def doctor_registration(request):
     })
 
 
-def doctor_list(request):
+def admin_doctor_list(request):
     doctors = tbl_doctor.objects.all()
     return render(request,'clinicadmin/doctor_list.html',{'doctors':doctors})
+
+def delete_doctor(request,id):
+    doctor = get_object_or_404(tbl_doctor, id=id)
+    doctor.delete()
+    return redirect('webadmin:admin_doctor_list')

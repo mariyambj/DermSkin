@@ -1,30 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>View Doctors</title>
-    <style>
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
+<title>View Doctors</title>
 
-        th, td{
-            border:1px solid #ddd;
-            padding:10px;
-            text-align:left;
-        }
+<style>
 
-        th{
-            background:#007bff;
-            color:white;
-        }
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
 
-        img{
-            width:60px;
-            height:60px;
-            border-radius:50%;
-        }
-    </style>
+h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+table{
+    width:90%;
+    margin:auto;
+    border-collapse:collapse;
+    background:white;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+th, td{
+    border:1px solid #ddd;
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#007bff;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f2f2f2;
+}
+
+img{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+</style>
 </head>
 
 <body>
@@ -33,6 +56,7 @@
 
 <table>
 
+<thead>
 <tr>
     <th>Profile</th>
     <th>Name</th>
@@ -41,26 +65,39 @@
     <th>Phone</th>
     <th>Qualification</th>
     <th>Medical ID</th>
+    <th>Action</th>
 </tr>
+</thead>
+
+<tbody>
 
 {% for doctor in doctors %}
 
 <tr>
-    <td>
-        {% if doctor.profile_picture %}
-            <img src="{{ doctor.profile_picture.url }}">
-        {% endif %}
-    </td>
 
-    <td>{{ doctor.name }}</td>
-    <td>{{ doctor.specialization }}</td>
-    <td>{{ doctor.email }}</td>
-    <td>{{ doctor.phone_number }}</td>
-    <td>{{ doctor.qualification }}</td>
-    <td>{{ doctor.medical_registration_number }}</td>
+<td>
+{% if doctor.profile_picture %}
+<img src="{{ doctor.profile_picture.url }}">
+{% else %}
+No Image
+{% endif %}
+</td>
+
+<td>{{ doctor.name }}</td>
+<td>{{ doctor.specialization }}</td>
+<td>{{ doctor.email }}</td>
+<td>{{ doctor.phone_number }}</td>
+<td>{{ doctor.qualification }}</td>
+<td>{{ doctor.medical_registration_number }}</td>
+<td>
+<a href="{% url 'webadmin:delete_doctor' doctor.id %}" onclick="return confirm('Are you sure you want to delete this doctor?')"
+class="delete-btn"> Delete</a>
+</td>
 </tr>
 
 {% endfor %}
+
+</tbody>
 
 </table>
 

@@ -145,7 +145,7 @@ def registration(request):
         password=request.POST.get('txt_password')
         repassword=request.POST.get('txt_repassword')
         if password!= repassword:
-            return render(request,'registration.html',{'error':'Password do not match'})
+            return render(request,'guest/patient_registration.html',{'error':'Password do not match'})
         patient=tbl_patient(first_name=first_name,
                             address=address,
                             phone=phone,
@@ -163,3 +163,6 @@ def registration(request):
 def patient_list(request):
     patients=tbl_patient.objects.all()
     return render(request,'guest/patient_list.html',{'patients':patients})
+
+def home_page(request):
+    return render(request,'guest/home_page.html')

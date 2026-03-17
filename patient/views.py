@@ -4,7 +4,7 @@ from guest.models import *
 from doctor.models import *
 from clinicadmin.models import *
 from .models import *
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time,date
 
 
 
@@ -82,31 +82,44 @@ def doctor_details(request, id):
 
 #Booking
 
-
 def book_appointment(request, doctor_id):
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
 
     # Get patient from session
     patient_id = request.session.get('pid')
     if not patient_id:
-        return redirect('webguest:login')
+        return redirect('webguest:login')  # redirect if not logged in
+
     try:
         patient = tbl_patient.objects.get(id=patient_id)
     except tbl_patient.DoesNotExist:
         return redirect('create_patient_profile')
-    # Define default time slots (9 AM to 5 PM, 30 min each)
-    
+
+    # Default time slots (9 AM to 5 PM, 30 min)
     default_start = time(9, 0)
     default_end = time(17, 0)
     slot_duration = timedelta(minutes=30)
 
-    # Generate list of all slots
     slots = []
     current_time = datetime.combine(datetime.today(), default_start)
     end_datetime = datetime.combine(datetime.today(), default_end)
+
+    # If a date is selected, check booked slots
+    selected_date = request.POST.get("appointment_date") or date.today()
+    booked_appointments = tbl_appointment.objects.filter(
+        doctor=doctor,
+        appointment_date=selected_date
+    ).values_list('start_time', flat=True)
+
     while current_time < end_datetime:
-        slot_str = f"{current_time.time().strftime('%H:%M')} to {(current_time + slot_duration).time().strftime('%H:%M')}"
-        slots.append(slot_str)
+        start_time = current_time.time()
+        end_time = (current_time + slot_duration).time()
+        is_booked = start_time in booked_appointments
+
+        slots.append({
+            'time_range': f"{start_time.strftime('%H:%M')} to {end_time.strftime('%H:%M')}",
+            'booked': is_booked
+        })
         current_time += slot_duration
 
     if request.method == "POST":
@@ -125,14 +138,12 @@ def book_appointment(request, doctor_id):
         start_time = datetime.strptime(start_str, "%H:%M").time()
         end_time = datetime.strptime(end_str, "%H:%M").time()
 
-        # Check if this doctor already has an appointment at the same time
-        exists = tbl_appointment.objects.filter(
+        # Check if slot is still available
+        if tbl_appointment.objects.filter(
             doctor=doctor,
             appointment_date=appointment_date,
             start_time=start_time
-        ).exists()
-
-        if exists:
+        ).exists():
             return render(request, "patient/booking_appointment.html", {
                 "doctor": doctor,
                 "time_slots": slots,
@@ -150,9 +161,10 @@ def book_appointment(request, doctor_id):
             status="pending"
         )
 
-        return redirect("appointment_success")  # redirect to a success page
+        return redirect('webpatient:booking_appointment')
 
     return render(request, "patient/booking_appointment.html", {
-        "doctor": doctor,
-        "time_slots": slots
+    "doctor": doctor,
+    "time_slots": slots,
+    "today": date.today()
     })

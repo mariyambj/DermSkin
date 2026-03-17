@@ -2,75 +2,360 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body{
-            font-family: Arial;
-            background:#f4f4f4;
-            text-align:center;
+        :root {
+            --teal-deep:   #0d6e6e;
+            --teal-mid:    #1a9090;
+            --teal-light:  #4dbdbd;
+            --teal-pale:   #e6f7f7;
+            --teal-ghost:  #f0fbfb;
+            --cream:       #fdf9f4;
+            --warm-tan:    #e8dfd3;
+            --warm-brown:  #8a7560;
+            --warm-amber:  #e8a838;
+            --text-dark:   #1c2b2b;
+            --text-mid:    #4a6060;
+            --text-muted:  #8aabab;
+            --border:      rgba(13,110,110,0.12);
+            --shadow:      0 4px 24px rgba(13,110,110,0.08), 0 1px 4px rgba(0,0,0,0.04);
         }
 
-        h1{
-            background:#2c3e50;
-            color:white;
-            padding:15px;
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--cream);
+            background-image:
+                radial-gradient(ellipse 70% 50% at 0% 0%, rgba(13,110,110,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 100% 100%, rgba(232,168,56,0.07) 0%, transparent 55%),
+                url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%230d6e6e' fill-opacity='0.05'/%3E%3C/svg%3E");
+            background-size: auto, auto, 40px 40px;
+            min-height: 100vh;
         }
 
-        .container{
-            margin-top:40px;
+        /* ── Navbar ── */
+        .navbar {
+            background: var(--teal-deep);
+            padding: 0 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            box-shadow: 0 2px 20px rgba(13,110,110,0.25);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .card{
-            display:inline-block;
-            width:200px;
-            padding:20px;
-            margin:15px;
-            background:white;
-            border-radius:10px;
-            box-shadow:0px 0px 10px gray;
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        a{
-            text-decoration:none;
-            font-weight:bold;
-            color:#2c3e50;
+        .brand-icon {
+            width: 34px; height: 34px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .card:hover{
-            background:#ecf0f1;
+        .navbar-brand span {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .admin-badge {
+            background: rgba(232,168,56,0.25);
+            border: 1px solid rgba(232,168,56,0.4);
+            color: var(--warm-amber);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        /* ── Container ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+
+        /* ── Page heading ── */
+        .page-heading {
+            margin-bottom: 36px;
+            animation: rise 0.5s ease both;
+        }
+
+        .page-heading h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .page-heading p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        @keyframes rise {
+            from { opacity:0; transform:translateY(16px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ── Section label ── */
+        .section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--teal-mid);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: rise 0.5s 0.05s ease both;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── Cards grid ── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .cards-grid-bottom {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .nav-card {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 28px 16px 22px;
+            background: white;
+            border: 1.5px solid var(--warm-tan);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.22s ease;
+            animation: rise 0.5s ease both;
+        }
+
+        .nav-card:nth-child(1) { animation-delay: 0.08s; }
+        .nav-card:nth-child(2) { animation-delay: 0.14s; }
+        .nav-card:nth-child(3) { animation-delay: 0.20s; }
+        .nav-card:nth-child(4) { animation-delay: 0.26s; }
+
+        .nav-card:hover {
+            border-color: var(--teal-light);
+            background: var(--teal-ghost);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 32px rgba(13,110,110,0.14);
+        }
+
+        .nav-card .card-icon {
+            width: 52px; height: 52px;
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            background: var(--teal-ghost);
+            border: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .nav-card:hover .card-icon {
+            background: var(--teal-pale);
+        }
+
+        .nav-card .card-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-mid);
+            text-align: center;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-card .card-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            font-weight: 300;
+            margin-top: -8px;
+        }
+
+        /* Logout card — warm tone */
+        .nav-card.danger {
+            border-color: rgba(232,168,56,0.3);
+            background: #fffdf7;
+        }
+
+        .nav-card.danger:hover {
+            border-color: var(--warm-amber);
+            background: #fff8e8;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 32px rgba(232,168,56,0.15);
+        }
+
+        .nav-card.danger .card-icon {
+            background: #fff8e8;
+            border-color: rgba(232,168,56,0.2);
+        }
+
+        .nav-card.danger .card-label { color: #b07d20; }
+
+        /* ── Stats strip ── */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 28px;
+            animation: rise 0.5s 0.02s ease both;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: var(--teal-ghost);
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .stat-info .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-info .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-top: 1px;
+        }
+
+        @media (max-width: 700px) {
+            .cards-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-strip { grid-template-columns: 1fr; }
+            .cards-grid-bottom { grid-template-columns: 1fr; }
+            .navbar { padding: 0 18px; }
+        }
+
+        @media (max-width: 420px) {
+            .cards-grid { grid-template-columns: 1fr; }
         }
     </style>
-
 </head>
-
 <body>
 
-<h1>Clinic Admin Dashboard</h1>
+<div class="navbar">
+    <div class="navbar-brand">
+        <div class="brand-icon">🏥</div>
+        <span>Clinic Admin</span>
+    </div>
+    <div class="admin-badge">Administrator</div>
+</div>
 
 <div class="container">
 
-    <div class="card">
-        <a href="#">Add Doctor</a>
+    <div class="page-heading">
+        <h1>Admin Dashboard</h1>
+        <p>Manage your clinic's doctors, patients, and appointments</p>
     </div>
 
-    <div class="card">
-        <a href="{% url 'webadmin:doctor_registration' %}">Add Doctors</a>
+    <!-- Stats -->
+    <div class="stats-strip">
+        <div class="stat-card">
+            <div class="stat-icon">🩺</div>
+            <div class="stat-info">
+                <div class="stat-value">—</div>
+                <div class="stat-label">Total Doctors</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🧑‍⚕️</div>
+            <div class="stat-info">
+                <div class="stat-value">—</div>
+                <div class="stat-label">Total Patients</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-info">
+                <div class="stat-value">—</div>
+                <div class="stat-label">Appointments Today</div>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <a href="#">Manage Schedule</a>
+    <div class="section-label">Manage</div>
+
+    <!-- Main nav cards -->
+    <div class="cards-grid">
+        <a href="{% url 'webadmin:doctor_registration' %}" class="nav-card">
+            <div class="card-icon">➕</div>
+            <span class="card-label">Add Doctor</span>
+            <span class="card-desc">Register new staff</span>
+        </a>
+        <a href="{% url 'webadmin:admin_doctor_list' %}" class="nav-card">
+            <div class="card-icon">🩺</div>
+            <span class="card-label">View Doctors</span>
+            <span class="card-desc">All registered doctors</span>
+        </a>
+        <a href="#" class="nav-card">
+            <div class="card-icon">🧑‍⚕️</div>
+            <span class="card-label">View Patients</span>
+            <span class="card-desc">Patient records</span>
+        </a>
+        <a href="#" class="nav-card">
+            <div class="card-icon">📅</div>
+            <span class="card-label">Appointments</span>
+            <span class="card-desc">Schedule & bookings</span>
+        </a>
     </div>
 
-    <div class="card">
-        <a href="#">View Patients</a>
-    </div>
-
-    <div class="card">
-        <a href="#">Appointments</a>
-    </div>
-
-    <div class="card">
-        <a href="#">Logout</a>
+    <div class="cards-grid-bottom" style="margin-top:16px;">
+        <a href="#" class="nav-card danger">
+            <div class="card-icon">🚪</div>
+            <span class="card-label">Logout</span>
+            <span class="card-desc">End admin session</span>
+        </a>
     </div>
 
 </div>

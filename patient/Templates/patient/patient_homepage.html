@@ -2,66 +2,348 @@
 <html>
 <head>
     <title>Patient Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
+        :root {
+            --teal-deep:   #0d6e6e;
+            --teal-mid:    #1a9090;
+            --teal-light:  #4dbdbd;
+            --teal-pale:   #e6f7f7;
+            --teal-ghost:  #f0fbfb;
+            --cream:       #fdf9f4;
+            --warm-tan:    #e8dfd3;
+            --warm-brown:  #8a7560;
+            --warm-amber:  #e8a838;
+            --text-dark:   #1c2b2b;
+            --text-mid:    #4a6060;
+            --text-muted:  #8aabab;
+            --border:      rgba(13,110,110,0.12);
+            --shadow:      0 4px 24px rgba(13,110,110,0.08), 0 1px 4px rgba(0,0,0,0.04);
         }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--cream);
+            background-image:
+                radial-gradient(ellipse 70% 50% at 0% 0%, rgba(13,110,110,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 100% 100%, rgba(232,168,56,0.07) 0%, transparent 55%),
+                url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%230d6e6e' fill-opacity='0.05'/%3E%3C/svg%3E");
+            background-size: auto, auto, 40px 40px;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
         .navbar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px;
+            background: var(--teal-deep);
+            padding: 0 36px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(13,110,110,0.25);
         }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand .brand-icon {
+            width: 34px; height: 34px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .navbar-brand span {
+            font-family: 'Playfair Display', serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: white;
+            letter-spacing: 0.02em;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .welcome-pill {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+        }
+
+        .welcome-pill span { color: var(--warm-amber); font-weight: 700; }
+
+        .btn-logout {
+            text-decoration: none;
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.22);
+            color: white;
+        }
+
+        /* ── Container ── */
         .container {
-            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 36px 24px 60px;
         }
+
+        /* ── Page heading ── */
+        .page-heading {
+            margin-bottom: 28px;
+            animation: rise 0.5s ease both;
+        }
+
+        .page-heading h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .page-heading p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 300;
+        }
+
+        @keyframes rise {
+            from { opacity:0; transform:translateY(16px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ── Quick Actions card ── */
         .card {
             background: white;
-            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 24px 28px;
             margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: rise 0.5s ease both;
         }
-        .btn {
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.12s; }
+        .card:nth-child(3) { animation-delay: 0.19s; }
+
+        .card-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--teal-mid);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Appointments card */
+        .appt-banner {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: var(--teal-ghost);
+            border: 1px solid rgba(13,110,110,0.1);
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .appt-icon {
+            width: 48px; height: 48px;
+            background: var(--teal-pale);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            border: 1px solid rgba(13,110,110,0.12);
+        }
+
+        .appt-text h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .appt-text p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 3px;
+            font-weight: 300;
+        }
+
+        /* Quick actions grid */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .action-btn {
             text-decoration: none;
-            color: white;
-            background-color: #3498db;
-            padding: 8px 12px;
-            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 14px;
+            border-radius: 14px;
+            border: 1.5px solid var(--warm-tan);
+            background: var(--teal-ghost);
+            transition: all 0.22s ease;
+            text-align: center;
         }
-        .btn:hover {
-            background-color: #2980b9;
+
+        .action-btn:hover {
+            border-color: var(--teal-light);
+            background: var(--teal-pale);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13,110,110,0.12);
+        }
+
+        .action-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            background: white;
+            border: 1px solid var(--border);
+        }
+
+        .action-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-mid);
+            letter-spacing: 0.02em;
+        }
+
+        /* Medical records */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 36px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .empty-state small {
+            font-size: 12px;
+            font-weight: 300;
+        }
+
+        @media (max-width: 560px) {
+            .navbar { padding: 0 18px; }
+            .container { padding: 24px 14px 48px; }
+            .actions-grid { grid-template-columns: 1fr; }
+            .welcome-pill { display: none; }
         }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div>Patient Dashboard</div>
-    <div>
-        Welcome, {{ patient.first_name }}
-        <a href="{% url 'webguest:login' %}" class="btn" style="margin-left:15px;">Logout</a>
+    <div class="navbar-brand">
+        <div class="brand-icon">🏥</div>
+        <span>Patient Dashboard</span>
+    </div>
+    <div class="navbar-right">
+        <div class="welcome-pill">Hello, <span>{{ patient.first_name }}</span></div>
+        <a href="{% url 'webguest:login' %}" class="btn-logout">Logout</a>
     </div>
 </div>
 
 <div class="container">
 
-    <div class="card">
-        <h2>Appointments</h2>
-        <p>Welcome {{ patient.first_name }}</p>
+    <div class="page-heading">
+        <h1>Good day, {{ patient.first_name }} 👋</h1>
+        <p>Here's an overview of your health dashboard</p>
     </div>
+
+    <!-- Appointments -->
     <div class="card">
-        <a href="{% url 'webpatient:patient_profile' %}" class="btn" style="margin-left:15px;">My Profile</a>
-        <a href="{% url 'webpatient:change_password' %}" class="btn" style="margin-left:15px;">Change Password</a>
-        <a href="{% url 'webpatient:doctor_list' %}" class="btn" style="margin-left:15px;">View Doctors</a>
+        <div class="card-title">Appointments</div>
+        <div class="appt-banner">
+            <div class="appt-icon">📅</div>
+            <div class="appt-text">
+                <h3>No upcoming appointments</h3>
+                <p>You have no scheduled visits at the moment. Book one via View Doctors below.</p>
+            </div>
+        </div>
     </div>
+
+    <!-- Quick Actions -->
     <div class="card">
-        <h2>Medical Records</h2>
-        <p>No medical records available.</p>
+        <div class="card-title">Quick Actions</div>
+        <div class="actions-grid">
+            <a href="{% url 'webpatient:patient_profile' %}" class="action-btn">
+                <div class="action-icon">👤</div>
+                <span class="action-label">My Profile</span>
+            </a>
+            <a href="{% url 'webpatient:change_password' %}" class="action-btn">
+                <div class="action-icon">🔒</div>
+                <span class="action-label">Change Password</span>
+            </a>
+            <a href="{% url 'webpatient:doctor_list' %}" class="action-btn">
+                <div class="action-icon">🩺</div>
+                <span class="action-label">View Doctors</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Medical Records -->
+    <div class="card">
+        <div class="card-title">Medical Records</div>
+        <div class="empty-state">
+            <div class="empty-icon">🗂️</div>
+            <p>No medical records available</p>
+            <small>Your records will appear here after your first consultation</small>
+        </div>
     </div>
 
 </div>

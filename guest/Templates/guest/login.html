@@ -3,26 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a1530;
+            --bg-card: #221d3a;
+            --violet-light: #a78bfa;
+            --violet-mid: #7c3aed;
+            --violet-dark: #4c1d95;
+            --blue: #60a5fa;
+            --blue-dark: #1d4ed8;
+            --warm-amber: #fbbf24;
+            --warm-rose: #fb7185;
+            --warm-peach: #fdba74;
+            --text-primary: #f3f0ff;
+            --text-muted: #9490b0;
+            --border: rgba(167, 139, 250, 0.15);
+            --border-focus: rgba(167, 139, 250, 0.6);
+            --input-bg: rgba(124, 58, 237, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Mesh background */
+        .mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,58,237,0.28) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 80% 80%, rgba(251,113,133,0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 40% 40% at 70% 20%, rgba(96,165,250,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse 55% 45% at 30% 85%, rgba(251,191,36,0.12) 0%, transparent 55%);
+        }
+
+        /* Floating blobs */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            pointer-events: none;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite alternate;
+        }
+
+        .blob-1 {
+            width: 320px; height: 320px;
+            background: rgba(124,58,237,0.22);
+            top: -80px; left: -60px;
+        }
+
+        .blob-2 {
+            width: 260px; height: 260px;
+            background: rgba(251,113,133,0.18);
+            bottom: -60px; right: -40px;
+            animation-delay: -4s;
+        }
+
+        .blob-3 {
+            width: 200px; height: 200px;
+            background: rgba(251,191,36,0.14);
+            bottom: 20%; left: 10%;
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(20px, 30px) scale(1.05); }
+        }
+
+        /* Card */
+        .card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            background: rgba(34, 29, 58, 0.75);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid rgba(167,139,250,0.18);
+            border-radius: 24px;
+            padding: 44px 40px 36px;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04) inset,
+                0 24px 60px rgba(0,0,0,0.45),
+                0 0 100px rgba(124,58,237,0.12);
+            animation: slideUp 0.65s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(96,165,250,0.2));
+            border: 1px solid rgba(167,139,250,0.3);
+            border-radius: 100px;
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--violet-light);
+            margin-bottom: 18px;
+        }
+
+        .badge-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--warm-amber);
+            box-shadow: 0 0 8px rgba(251,191,36,0.7);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.8); }
+        }
+
+        /* Heading */
+        .heading {
+            font-family: 'DM Serif Display', serif;
+            font-size: 30px;
+            font-weight: 400;
+            color: var(--text-primary);
+            line-height: 1.15;
+            margin-bottom: 6px;
+        }
+
+        .heading em {
+            font-style: italic;
+            background: linear-gradient(90deg, var(--violet-light), var(--blue), var(--warm-peach));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtext {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            font-weight: 300;
+        }
+
+        /* Fields */
+        .field {
+            margin-bottom: 18px;
+            animation: fadeIn 0.5s ease both;
+        }
+
+        .field:nth-child(1) { animation-delay: 0.15s; }
+        .field:nth-child(2) { animation-delay: 0.22s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-8px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 13px 16px 13px 40px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+        }
+
+        .field input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .field input:focus {
+            border-color: var(--border-focus);
+            background: rgba(124,58,237,0.12);
+            box-shadow: 0 0 0 4px rgba(124,58,237,0.15);
+        }
+
+        /* Forgot */
+        .forgot {
+            text-align: right;
+            font-size: 12px;
+            margin-top: -10px;
+            margin-bottom: 26px;
+        }
+
+        .forgot a {
+            color: var(--violet-light);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .forgot a:hover { opacity: 1; }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.5s 0.3s ease both;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4338ca 100%);
+            color: #f3f0ff;
+            box-shadow: 0 6px 24px rgba(124,58,237,0.4), 0 0 0 1px rgba(167,139,250,0.2) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::after { left: 100%; }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(124,58,237,0.55), 0 0 0 1px rgba(167,139,250,0.3) inset;
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-primary);
+            border-color: rgba(167,139,250,0.3);
+        }
+
+        /* Divider */
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0 20px;
+        }
+
+        .or-divider::before, .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .or-divider span {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        /* Social */
+        .social-row {
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.5s 0.38s ease both;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .social-btn:hover {
+            background: rgba(255,255,255,0.07);
+            color: var(--text-primary);
+            border-color: rgba(167,139,250,0.3);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+            animation: fadeIn 0.5s 0.44s ease both;
+        }
+
+        .footer a {
+            color: var(--warm-peach);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover { text-decoration: underline; }
+
+        /* Warm accent strip */
+        .warm-strip {
+            height: 3px;
+            border-radius: 0 0 24px 24px;
+            background: linear-gradient(90deg, var(--violet-mid), var(--blue), var(--warm-peach), var(--warm-rose));
+            margin: 28px -40px -36px;
+        }
+    </style>
 </head>
 <body>
-    <form action="" method="post">
-        {%csrf_token%}
-        <table>
-        <tr>
-            <td>Email</td>
-            <td><input type="text" name="txt_email" id="txt_email"></td>
-        </tr>
-        <tr>
-            <td>Password</td>
-            <td><input type="text" name="txt_password" id="txt_password"></td>
-        </tr>
-        <tr>
-            <td><input type="submit" value="LOGIN">
-            <input type="submit" value="CANCEL"></td>
+    <div class="mesh"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-        </tr>
-        </table>
-    </form>
+    <div class="card">
+        <div class="badge">
+            <span class="badge-dot"></span>
+            Secure login
+        </div>
+
+        <h1 class="heading">Welcome <em>back</em></h1>
+        <p class="subtext">Sign in to your account to continue</p>
+
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <div class="field">
+                <label for="txt_email">Email address</label>
+                <div class="input-wrap">
+                    <span class="icon">✉</span>
+                    <input type="text" name="txt_email" id="txt_email" placeholder="email@example.com">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="txt_password">Password</label>
+                <div class="input-wrap">
+                    <span class="icon">🔒</span>
+                    <input type="password" name="txt_password" id="txt_password" placeholder="••••••••">
+                </div>
+            </div>
+
+
+            <div class="btn-group">
+                <input type="submit" class="btn btn-primary" value="LOGIN">
+                <input type="submit" class="btn btn-secondary" value="CANCEL">
+            </div>
+        </form>
+
+        
+
+        <div class="warm-strip"></div>
+    </div>
 </body>
 </html>
