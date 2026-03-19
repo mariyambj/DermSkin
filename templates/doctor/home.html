@@ -1,0 +1,309 @@
+{% extends 'base/header.html' %}
+{% load static %}
+
+{% block title %}Doctor Dashboard |  Health{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<section class="hero-section text-white py-4" style="background: linear-gradient(135deg, #0f0c29, #302b63);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h6 class="text-uppercase tracking-wider opacity-75 mb-2">Dashboard Overview</h6>
+                <h2 class="display-6 fw-bold mb-1">Good Morning, Dr. {{ doctor.name }}</h2>
+                <p class="mb-0 opacity-90"><i class="far fa-calendar-alt me-2"></i> {% now "l, F j, Y" %} | You have <span class="fw-bold text-secondary">{{ todays_count }}</span> appointments today.</p>
+            </div>
+            <div class="col-md-4 mt-3 mt-md-0">
+                <div class="card bg-white bg-opacity-10 border-0 p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="small">Profile Completion</span>
+                        <span class="small fw-bold">{{ profile_progress }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; background: rgba(255,255,255,0.1);">
+                        <div class="progress-bar bg-secondary progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ profile_progress }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- Patient Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3" data-aos="fade-up">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-users text-success fa-xl"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Today's Patients</h6>
+                        <h3 class="fw-bold mb-0 count-up" data-count="{{ todays_count }}">{{ todays_count }}</h3>
+                    </div>
+                </div>
+                <div class="small text-success">
+                    <i class="fas fa-arrow-up me-1"></i> 12% from yesterday
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-file-medical-alt text-danger fa-xl"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Pending Reports</h6>
+                        <h3 class="fw-bold mb-0 count-up" data-count="{{ pending_reports }}">{{ pending_reports }}</h3>
+                    </div>
+                </div>
+                <div class="small text-danger">
+                    <i class="fas fa-arrow-up me-1"></i> 2 new since 8 AM
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-stopwatch text-primary fa-xl"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Avg. Consultation</h6>
+                        <h3 class="fw-bold mb-0"><span class="count-up" data-count="{{ avg_time }}">{{ avg_time }}</span>m</h3>
+                    </div>
+                </div>
+                <div class="small text-muted">
+                    <i class="fas fa-minus me-1"></i> Consistent with avg
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+            <div class="card p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-purple bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-wallet text-purple fa-xl"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-0">Monthly Earnings</h6>
+                        <h3 class="fw-bold mb-0">₹<span class="count-up" data-count="{{ monthly_earnings }}">{{ monthly_earnings }}</span></h3>
+                    </div>
+                </div>
+                <div class="small text-success">
+                    <i class="fas fa-arrow-up me-1"></i> 8% growth month-on-month
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Schedule Table -->
+    <div class="mb-5" data-aos="fade-up">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold m-0 text-dark"><i class="fas fa-clipboard-list text-primary me-2"></i> Today's Schedule</h4>
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm active">All</button>
+                <button class="btn btn-outline-secondary btn-sm">Online</button>
+                <button class="btn btn-outline-secondary btn-sm">In-Person</button>
+            </div>
+        </div>
+        <div class="table-responsive shadow-sm border-0">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Time</th>
+                        <th>Patient Name</th>
+                        <th>Age</th>
+                        <th>Issue / Reason</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th class="text-center pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr class="schedule-row">
+                        <td class="ps-4 fw-bold text-primary">{{ app.estimated_time }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name={{ app.patient.first_name }}&background=E8F0FE&color=1A73E8" class="rounded-circle me-2" width="32">
+                                <span class="fw-medium">{{ app.patient.first_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ app.patient.age }} yrs</td>
+                        <td><span class="text-truncate d-inline-block" style="max-width: 150px;">{{ app.symptoms|default:"Routine Checkup" }}</span></td>
+                        <td>
+                            <span class="small text-muted">
+                                <i class="fas {% if forloop.counter|divisibleby:2 %}fa-video text-info{% else %}fa-hospital-user text-warning{% endif %} me-1"></i>
+                                {% if forloop.counter|divisibleby:2 %}Online{% else %}In-Person{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if forloop.first %}
+                                <span class="badge badge-primary pulse-badge">In Progress</span>
+                            {% elif app.status == 'confirmed' %}
+                                <span class="badge badge-warning">Waiting</span>
+                            {% elif app.status == 'completed' %}
+                                <span class="badge badge-success">Completed</span>
+                            {% else %}
+                                <span class="badge badge-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-4">
+                            <div class="d-flex gap-2 justify-content-center">
+                                <button class="btn btn-sm btn-primary px-3">Start Session</button>
+                                <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-medical"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fas fa-calendar-day fa-3x mb-3 opacity-20"></i>
+                            <p>No appointments scheduled for today.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-light">
+                    <tr>
+                        <td colspan="5" class="ps-4">Total Tokens Generated for Today</td>
+                        <td colspan="2" class="text-center fw-bold">{{ todays_count }} Patients</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- Earnings Chart -->
+        <div class="col-lg-8" data-aos="fade-right">
+            <div class="card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0">Revenue Analytics</h5>
+                    <select class="form-select form-select-sm w-auto">
+                        <option>Last 6 Months</option>
+                        <option>Last Year</option>
+                    </select>
+                </div>
+                <canvas id="earningsChart" height="250"></canvas>
+            </div>
+        </div>
+        <!-- Appointment Breakdown -->
+        <div class="col-lg-4" data-aos="fade-left">
+            <div class="card h-100 p-4 text-center">
+                <h5 class="fw-bold mb-4 text-start">Appointment Types</h5>
+                <canvas id="typeChart" height="250"></canvas>
+                <div class="mt-4 d-flex justify-content-around small">
+                    <div><i class="fas fa-circle text-primary me-1"></i> Online</div>
+                    <div><i class="fas fa-circle text-warning me-1"></i> In-Person</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Patients -->
+    <div data-aos="fade-up">
+        <h4 class="fw-bold mb-4 text-dark">Recent Consultations</h4>
+        <div class="table-responsive shadow-sm border-0">
+            <table class="table table-striped table-bordered table-sm mb-0">
+                <thead style="background: linear-gradient(to right, #1A73E8, #00BFA6);">
+                    <tr>
+                        <th class="ps-3 py-3">Patient</th>
+                        <th class="py-3">Last Visit</th>
+                        <th class="py-3">Diagnosis</th>
+                        <th class="py-3">Prescription</th>
+                        <th class="text-center pe-3 py-3">Follow-up</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in recent_patients %}
+                    <tr>
+                        <td class="ps-3 py-3 fw-medium">{{ app.patient.first_name }}</td>
+                        <td class="py-3">{{ app.appointment_date }}</td>
+                        <td class="py-3"><span class="badge bg-light text-dark border">General Checkup</span></td>
+                        <td class="py-3">Metformin 500mg, Vitamins</td>
+                        <td class="text-center pe-3 py-3">
+                            <button class="btn btn-sm btn-outline-primary">Schedule Follow-up</button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">No recent patient history.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-purple { background-color: #7C4DFF; }
+    .text-purple { color: #7C4DFF; }
+    .pulse-badge {
+        animation: pulse-animation 2s infinite;
+    }
+    @keyframes pulse-animation {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    .schedule-row {
+        transition: var(--transition);
+        border-left: 3px solid transparent;
+    }
+    .schedule-row:hover {
+        border-left: 3px solid var(--primary);
+    }
+    .tracking-wider { letter-spacing: 0.1em; }
+</style>
+
+{% block extra_js %}
+<script>
+    // Earnings Chart
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+            datasets: [{
+                label: 'Earnings (₹)',
+                data: [8500, 9200, 10500, 11000, 11800, 12500],
+                backgroundColor: '#1A73E8',
+                borderRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Appointment Type Chart
+    const ctx2 = document.getElementById('typeChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Online', 'In-Person'],
+            datasets: [{
+                data: [45, 55],
+                backgroundColor: ['#1A73E8', '#FFB300'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -4,7 +4,7 @@ from guest.models import *
 from doctor.models import *
 from clinicadmin.models import *
 from .models import *
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 
 
 
@@ -13,10 +13,21 @@ from datetime import datetime, timedelta, time
 def home_page(request):
     patient_id = request.session.get('pid')
     if not patient_id:
-        return redirect('login')
+        return redirect('webguest:login')
 
     patient = tbl_patient.objects.get(id=patient_id)
-    return render(request, 'patient/patient_homepage.html', {'patient': patient})
+    appointments = tbl_appointment.objects.filter(patient=patient)
+    
+    context = {
+        'patient': patient,
+        'total_appointments': appointments.count(),
+        'upcoming_appointments': appointments.filter(appointment_date__gte=date.today(), status='confirmed').count(),
+        'prescriptions': 2, # Placeholder or fetch from medical records if available
+        'reports_ready': 1,  # Placeholder or fetch from medical records if available
+        'recent_appointments': appointments.order_by('-appointment_date')[:5],
+        'doctors': tbl_doctor.objects.all()[:3]
+    }
+    return render(request, 'patient/home.html', context)
 
 
 #Patient Profile
@@ -83,76 +94,98 @@ def doctor_details(request, id):
 #Booking
 
 
-def book_appointment(request, doctor_id):
-    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+# patient/views.py
+from django.shortcuts import render, get_object_or_404
+from doctor.models import tbl_token
 
-    # Get patient from session
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from datetime import date
+from doctor.models import tbl_token
+from patient.models import tbl_appointment, tbl_patient
+from clinicadmin.models import tbl_doctor
+
+# ==========================================
+# 1. VIEW TO SHOW THE CINEMA GRID
+# ==========================================
+def book_appointment(request, doctor_id):
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
-    try:
-        patient = tbl_patient.objects.get(id=patient_id)
-    except tbl_patient.DoesNotExist:
-        return redirect('create_patient_profile')
-    # Define default time slots (9 AM to 5 PM, 30 min each)
     
-    default_start = time(9, 0)
-    default_end = time(17, 0)
-    slot_duration = timedelta(minutes=30)
+    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+    selected_date = request.GET.get('date')
+    
+    if not selected_date:
+        selected_date = date.today().strftime('%Y-%m-%d')
 
-    # Generate list of all slots
-    slots = []
-    current_time = datetime.combine(datetime.today(), default_start)
-    end_datetime = datetime.combine(datetime.today(), default_end)
-    while current_time < end_datetime:
-        slot_str = f"{current_time.time().strftime('%H:%M')} to {(current_time + slot_duration).time().strftime('%H:%M')}"
-        slots.append(slot_str)
-        current_time += slot_duration
+    tokens = tbl_token.objects.filter(
+        doctor_id=doctor_id, 
+        date=selected_date
+    ).order_by('token_number')
+    
+    context = {
+        'tokens': tokens,
+        'doctor_id': doctor_id,
+        'selected_date': selected_date,
+        'doctor': doctor
+    }
+    return render(request, 'patient/booking_appointment.html', context)
 
-    if request.method == "POST":
-        appointment_date = request.POST.get("appointment_date")
-        time_slot = request.POST.get("time_slot")
-        symptoms = request.POST.get("symptoms")
 
-        if not time_slot:
-            return render(request, "patient/booking_appointment.html", {
-                "doctor": doctor,
-                "time_slots": slots,
-                "error": "Please select a time slot."
-            })
 
-        start_str, end_str = time_slot.split(" to ")
-        start_time = datetime.strptime(start_str, "%H:%M").time()
-        end_time = datetime.strptime(end_str, "%H:%M").time()
+def confirm_booking(request, token_id):
 
-        # Check if this doctor already has an appointment at the same time
-        exists = tbl_appointment.objects.filter(
-            doctor=doctor,
-            appointment_date=appointment_date,
-            start_time=start_time
-        ).exists()
+    token = get_object_or_404(tbl_token, id=token_id)
+    patient_id = request.session.get('pid') 
+    if not patient_id:
+        messages.error(request, "Please log in to confirm your booking.")
+        return redirect('webguest:login')
 
-        if exists:
-            return render(request, "patient/booking_appointment.html", {
-                "doctor": doctor,
-                "time_slots": slots,
-                "error": "This time slot is already booked. Please choose another."
-            })
+    patient = get_object_or_404(tbl_patient, id=patient_id)
 
-        # Create appointment
+    if request.method == 'POST':
+       
+        if token.is_booked:
+            messages.error(request, "Sorry, this token was just booked by someone else.")
+            return redirect('webpatient:book_appointment',doctor_id=token.doctor.id)
+
+        symptoms = request.POST.get('symptoms', '')
+
         tbl_appointment.objects.create(
             patient=patient,
-            doctor=doctor,
-            appointment_date=appointment_date,
-            start_time=start_time,
-            end_time=end_time,
-            symptoms=symptoms,
-            status="pending"
+            doctor=token.doctor,
+            appointment_date=token.date,           # <--- We keep this
+            token_number=token.token_number,       # <--- We keep this
+            estimated_time=token.estimated_time,   # <--- We keep this
+            status='confirmed',
+            symptoms=symptoms
         )
+        token.is_booked = True
+        token.save()
 
-        return redirect("appointment_success")  # redirect to a success page
+        messages.success(request, f"Success! You are Token #{token.token_number} for {token.date}.")
+        return redirect('webpatient:patient_homepage')
+    context = {
+        'token': token
+    }
+    return render(request,'patient/confrim_booking.html', context)
 
-    return render(request, "patient/booking_appointment.html", {
-        "doctor": doctor,
-        "time_slots": slots
-    })
+
+from django.shortcuts import render, redirect
+from patient.models import tbl_appointment, tbl_patient
+
+def myBookings(request):
+
+    patient_id = request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
+    patient = tbl_patient.objects.get(id=patient_id)
+    appointments = tbl_appointment.objects.filter(
+        patient=patient
+    ).order_by('-appointment_date', 'estimated_time')
+
+    context = {
+        'appointments': appointments
+    }
+    return render(request, 'patient/myBookings.html', context)

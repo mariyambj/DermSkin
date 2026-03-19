@@ -13,13 +13,7 @@ class tbl_schedule(models.Model):
         ('Saturday', 'Saturday'),
     ]
 
-    SLOT_CHOICES = [
-        (15, '15 minutes'),
-        (20, '20 minutes'),
-        (30, '30 minutes'),
-        (45, '45 minutes'),
-        (60, '60 minutes'),
-    ]
+    # Removed SLOT_CHOICES as they are no longer needed
 
     doctor = models.ForeignKey(tbl_doctor, on_delete=models.CASCADE)
 
@@ -36,10 +30,11 @@ class tbl_schedule(models.Model):
 
     end_time = models.TimeField()
 
-    slot_duration = models.IntegerField(
-        choices=SLOT_CHOICES,
-        default=30
-    )
+    # slot_duration removed in favor of total_patients token generation
+    # consultation_duration added to automate token count calculation
+    consultation_duration = models.IntegerField(default=15)
+
+    total_patients = models.IntegerField(default=0)
 
     break_start_time = models.TimeField(null=True, blank=True)
     break_end_time = models.TimeField(null=True, blank=True)
@@ -47,20 +42,20 @@ class tbl_schedule(models.Model):
     def __str__(self):
         return f"{self.doctor.name} - {self.day_of_week}"
     
-class tbl_slot(models.Model):
 
+class tbl_token(models.Model):
     doctor = models.ForeignKey(tbl_doctor, on_delete=models.CASCADE)
-
-    schedule = models.ForeignKey(
-        tbl_schedule,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-    )
-
+    schedule = models.ForeignKey(tbl_schedule, on_delete=models.CASCADE, null=True, blank=True)
+    
+    date = models.DateField() # ⭐ ADDED: Makes querying by date much easier
     day_of_week = models.CharField(max_length=10)
-
-    slot_start = models.TimeField()
-    slot_end = models.TimeField()
-
+    token_number = models.IntegerField()
+    estimated_time = models.TimeField()
     is_booked = models.BooleanField(default=False)
+
+    class Meta:
+        # Ensures a doctor cannot have duplicate token numbers on the same day
+        unique_together = ('doctor', 'date', 'token_number')
+
+    def __str__(self):
+        return f"Token {self.token_number} - {self.doctor.name} on {self.date}"
