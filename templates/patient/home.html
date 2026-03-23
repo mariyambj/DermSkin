@@ -1,0 +1,234 @@
+{% extends 'base/header.html' %}
+{% load static %}
+
+{% block title %}Patient Home |  Health{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white py-5" style="background: linear-gradient(135deg, #1A73E8, #00BFA6); position: relative; overflow: hidden;">
+    <!-- Floating Icons -->
+    <i class="fas fa-stethoscope floating" style="position: absolute; top: 20%; left: 10%; font-size: 3rem; opacity: 0.2;"></i>
+    <i class="fas fa-heart floating" style="position: absolute; bottom: 20%; right: 15%; font-size: 2.5rem; opacity: 0.2; animation-delay: 1s;"></i>
+    <i class="fas fa-pills floating" style="position: absolute; top: 15%; right: 10%; font-size: 2rem; opacity: 0.2; animation-delay: 2s;"></i>
+
+    <div class="container py-5 position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="display-4 fw-bold mb-3 typewriter-text">Welcome, {{ patient.first_name }}</h1>
+                <p class="lead mb-4 opacity-90">Book appointments, track your health, and stay informed with our world-class medical platform.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'webpatient:doctor_list' %}" class="btn btn-light btn-lg px-4 fw-bold text-primary pulse-btn">Book Appointment</a>
+                    <a href="{% url 'webpatient:myBookings' %}" class="btn btn-outline-light btn-lg px-4 fw-bold">View My Records</a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center" data-aos="fade-left">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/online-doctor-consultation-illustration-download-in-svg-png-gif-formats--telemedicine-logo-medical-check-up-care-health-pack-healthcare-illustrations-5389476.png" class="img-fluid floating" alt="Medical Illustration">
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- Quick Stats Cards Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3" data-aos="fade-up">
+            <div class="card p-4 border-start-4 border-primary h-100" style="border-left: 4px solid var(--primary);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Appointments</h6>
+                        <h2 class="fw-bold mb-0 count-up" data-count="{{ total_appointments }}">{{ total_appointments }}</h2>
+                    </div>
+                    <i class="fas fa-calendar-check text-primary opacity-20 fa-3x"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+            <div class="card p-4 border-start-4 h-100" style="border-left: 4px solid var(--secondary);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Upcoming</h6>
+                        <h2 class="fw-bold mb-0 count-up" data-count="{{ upcoming_appointments }}">{{ upcoming_appointments }}</h2>
+                    </div>
+                    <i class="fas fa-clock text-secondary opacity-20 fa-3x"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+            <div class="card p-4 border-start-4 h-100" style="border-left: 4px solid var(--accent);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Prescriptions</h6>
+                        <h2 class="fw-bold mb-0 count-up" data-count="{{ prescriptions }}">{{ prescriptions }}</h2>
+                    </div>
+                    <i class="fas fa-prescription text-accent opacity-20 fa-3x"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+            <div class="card p-4 border-start-4 h-100" style="border-left: 4px solid var(--warning);">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Reports Ready</h6>
+                        <h2 class="fw-bold mb-0 count-up" data-count="{{ reports_ready }}">{{ reports_ready }}</h2>
+                    </div>
+                    <i class="fas fa-file-medical text-warning opacity-20 fa-3x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments Table Section -->
+    <div class="mb-5" data-aos="fade-up">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0"><i class="fas fa-history text-primary me-2"></i> Recent Appointments</h3>
+            <a href="{% url 'webpatient:myBookings' %}" class="btn btn-outline-primary btn-sm">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">#</th>
+                        <th>Doctor Name</th>
+                        <th>Specialization</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th class="text-center pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in recent_appointments %}
+                    <tr>
+                        <td class="ps-4 fw-bold">#{{ app.token_number }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name={{ app.doctor.name }}&background=random" class="rounded-circle me-2" width="30">
+                                {{ app.doctor.name }}
+                            </div>
+                        </td>
+                        <td><span class="text-muted">{{ app.doctor.specialization }}</span></td>
+                        <td>{{ app.appointment_date|date:"M d, Y" }}</td>
+                        <td>{{ app.estimated_time }}</td>
+                        <td>
+                            {% if app.status == 'confirmed' %}
+                                <span class="badge badge-success">Confirmed</span>
+                            {% elif app.status == 'pending' %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% elif app.status == 'cancelled' %}
+                                <span class="badge badge-danger">Cancelled</span>
+                            {% else %}
+                                <span class="badge badge-primary">{{ app.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-4">
+                            <div class="d-flex gap-2 justify-content-center">
+                                <a href="#" class="btn btn-sm btn-primary">View</a>
+                                <a href="#" class="btn btn-sm btn-outline-danger">Cancel</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-calendar-times fa-3x mb-3 opacity-20"></i>
+                                <p>No recent appointments found.</p>
+                                <a href="{% url 'webpatient:doctor_list' %}" class="btn btn-primary btn-sm">Book Your First Appointment</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Doctor Search & Recommended Section -->
+    <div class="mb-5" data-aos="fade-up">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0"><i class="fas fa-user-md text-secondary me-2"></i> Recommended Specialists</h3>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Search doctors...">
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            <span class="badge bg-primary px-3 py-2 cursor-pointer">All</span>
+            <span class="badge bg-light text-dark px-3 py-2 cursor-pointer border">Cardiologist</span>
+            <span class="badge bg-light text-dark px-3 py-2 cursor-pointer border">Neurologist</span>
+            <span class="badge bg-light text-dark px-3 py-2 cursor-pointer border">Dermatologist</span>
+            <span class="badge bg-light text-dark px-3 py-2 cursor-pointer border">Pediatrician</span>
+        </div>
+
+        <div class="row g-4">
+            {% for doctor in doctors %}
+            <div class="col-md-4" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0 }}00">
+                <div class="card h-100 p-3 text-center">
+                    <div class="position-relative mb-3">
+                        <img src="{% if doctor.profile_picture %}{{ doctor.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ doctor.name }}&background=1A73E8&color=fff{% endif %}" 
+                             class="rounded-circle border border-primary border-3" width="100" height="100" style="object-fit: cover;">
+                        <span class="position-absolute bottom-0 start-50 translate-middle-x badge bg-success border border-white">Available</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ doctor.name }}</h5>
+                    <p class="text-muted small mb-2">{{ doctor.specialization }}</p>
+                    <div class="text-warning mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span class="text-muted small ms-1">(4.8)</span>
+                    </div>
+                    <a href="{% url 'webpatient:book_appointment' doctor.id %}" class="btn btn-primary w-100">Book Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Health Tips Section -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-4" data-aos="fade-right"><i class="fas fa-lightbulb text-warning me-2"></i> Daily Health Tips</h3>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up">
+                <div class="card p-4 h-100 bg-white">
+                    <i class="fas fa-glass-water text-primary fa-2x mb-3"></i>
+                    <h5 class="fw-bold">Stay Hydrated</h5>
+                    <p class="text-muted mb-0">Drinking at least 8 glasses of water a day keeps your skin glowing and your body functioning at its best.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card p-4 h-100 bg-white">
+                    <i class="fas fa-walking text-secondary fa-2x mb-3"></i>
+                    <h5 class="fw-bold">Active Lifestyle</h5>
+                    <p class="text-muted mb-0">A 30-minute daily walk can significantly improve cardiovascular health and boost your mood.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card p-4 h-100 bg-white">
+                    <i class="fas fa-moon text-accent fa-2x mb-3"></i>
+                    <h5 class="fw-bold">Quality Sleep</h5>
+                    <p class="text-muted mb-0">Ensure you get 7-9 hours of restful sleep to allow your body to repair and recharge for the day ahead.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-pointer { cursor: pointer; }
+    .border-start-4 { border-left-width: 4px !important; }
+    .opacity-90 { opacity: 0.9; }
+    .opacity-20 { opacity: 0.1; }
+    
+    /* Sticky table header */
+    thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+</style>
+{% endblock %}

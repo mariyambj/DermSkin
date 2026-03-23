@@ -1,0 +1,105 @@
+
+
+{% block content %}
+<style>
+    .confirm-wrapper {
+        max-width: 500px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .token-badge {
+        display: inline-block;
+        background-color: #10B981;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .details-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .details-box p {
+        margin: 5px 0;
+        color: #2c3e50;
+    }
+
+    .form-group {
+        text-align: left;
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #34495e;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .btn-confirm {
+        width: 100%;
+        padding: 12px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-confirm:hover {
+        background-color: #2980b9;
+    }
+</style>
+
+<div class="confirm-wrapper">
+    <h2>Confirm Your Booking</h2>
+    
+    <div class="token-badge">
+        Token #{{ token.token_number }}
+    </div>
+
+    <div class="details-box">
+        <p><strong>Doctor:</strong> {{ token.doctor.name }}</p>
+        <p><strong>Date:</strong> {{ token.date }}</p>
+        <p><strong>Estimated Time:</strong> {{ token.estimated_time|time:"g:i A" }}</p>
+        <p style="font-size: 0.85rem; color: #7f8c8d; margin-top: 10px;">
+            *Please note: Estimated time is a guideline. Patients are seen in sequential token order.
+        </p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="symptoms">Symptoms / Reason for Visit (Optional)</label>
+            <textarea name="symptoms" id="symptoms" rows="4" placeholder="Briefly describe your symptoms..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-confirm">Confirm Appointment</button>
+    </form>
+</div>
+{% endblock %}

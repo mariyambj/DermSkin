@@ -1,6 +1,6 @@
-{% load static %}
-{% block content %}
 
+
+{% block content %}
 <style>
 .booking-container {
     max-width: 700px;
@@ -24,6 +24,12 @@
     color: #2f80ed;
 }
 
+.doctor-info p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #555;
+}
+
 label {
     font-weight: bold;
     display: block;
@@ -35,6 +41,7 @@ input[type="date"] {
     padding: 8px 12px;
     border-radius: 6px;
     border: 1px solid #ccc;
+    font-size: 14px;
 }
 
 .time-slots {
@@ -51,43 +58,33 @@ input[type="date"] {
     width: calc(25% - 10px);
     text-align: center;
     cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
 }
 
 .time-slot.available {
-    background: white;
-}
-
-.time-slot.booked {
-    background: #ff4d4d;
-    color: white;
-    border-color: #ff4d4d;
-    cursor: not-allowed;
+    background: #fff;
 }
 
 .time-slot.selected {
     background: #2f80ed;
-    color: white;
+    color: #fff;
 }
 
-.status {
+.time-slot span.status {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
     margin-top: 5px;
-}
-
-.available .status{
     color: green;
-}
-
-.booked .status{
-    color: white;
 }
 
 textarea {
     width: 100%;
     padding: 10px;
+    margin-top: 10px;
     border-radius: 6px;
     border: 1px solid #ccc;
+    resize: vertical;
 }
 
 button.book-btn {
@@ -98,106 +95,66 @@ button.book-btn {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 16px;
+}
+
+button.book-btn:hover {
+    background: #218838;
 }
 </style>
 
 
 <div class="booking-container">
-<h2>Book Appointment</h2>
+    <h2>Book Appointment</h2>
 
-<div class="doctor-info">
-<h3> {{ doctor.name }}</h3>
-<p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+    <div class="doctor-info">
+        <h3>Dr. {{ doctor.name }}</h3>
+        <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+        <p><strong>Experience:</strong> {{ doctor.experience }} years</p>
+    </div>
+
+    <form method="POST" action="{% url 'webpatient:book_appointment' doctor.id %}">
+        {% csrf_token %}
+        <label for="appointment_date">Select Date:</label>
+        <input type="date" id="appointment_date" name="appointment_date" required>
+
+        <label>Available Time Slots:</label>
+        <div class="time-slots">
+            {% for slot in time_slots %}
+                <div class="time-slot available" data-slot="{{ slot }}">
+                    {{ slot }} <span class="status">Available</span>
+                </div>
+            {% empty %}
+                <p>No time slots available for this day.</p>
+            {% endfor %}
+        </div>
+
+        <label for="symptoms">Symptoms / Reason for Visit:</label>
+        <textarea id="symptoms" name="symptoms" rows="4" placeholder="Please describe your symptoms or reason for consultation..." required></textarea>
+
+        <button type="submit" class="book-btn">Book Appointment</button>
+    </form>
 </div>
-
-<form method="POST" action="{% url 'webpatient:book_appointment' doctor.id %}">
-{% csrf_token %}
-
-<label>Select Date:</label>
-<input type="date" name="appointment_date" min="{{ today }}" required>
-
-<label>Available Time Slots:</label>
-
-<div class="time-slots">
-
-{% for slot in time_slots %}
-
-{% if slot.booked %}
-
-<div class="time-slot booked">
-{{ slot.time_range }}
-<span class="status">Booked</span>
-</div>
-
-{% else %}
-
-<div class="time-slot available"
-     data-slot="{{ slot.time_range }}">
-
-{{ slot.time_range }}
-<span class="status">Available</span>
-
-</div>
-
-{% endif %}
-
-{% empty %}
-<p>No slots available</p>
-{% endfor %}
-
-</div>
-
-<label>Symptoms / Reason for Visit:</label>
-
-<textarea name="symptoms" rows="4"
-placeholder="Describe symptoms..." required></textarea>
-
-<button type="submit" class="book-btn">
-Book Appointment
-</button>
-
-</form>
-</div>
-
 
 <script>
-
-const slots = document.querySelectorAll('.time-slot.available');
-
-slots.forEach(slot => {
-
-slot.addEventListener('click', () => {
-
-slots.forEach(s => s.classList.remove('selected'));
-
-slot.classList.add('selected');
-
-let existingInput = document.querySelector('input[name="time_slot"]');
-
-if (!existingInput) {
-
-const input = document.createElement('input');
-
-input.type = 'hidden';
-
-input.name = 'time_slot';
-
-input.value = slot.dataset.slot;
-
-document.querySelector('form').appendChild(input);
-
-}
-
-else {
-
-existingInput.value = slot.dataset.slot;
-
-}
-
-});
-
-});
-
+    const slots = document.querySelectorAll('.time-slot');
+    slots.forEach(slot => {
+        slot.addEventListener('click', () => {
+            slots.forEach(s => s.classList.remove('selected'));
+            slot.classList.add('selected');
+            // Store selected slot in hidden input
+            let existingInput = document.querySelector('input[name="time_slot"]');
+            if (!existingInput) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'time_slot';
+                input.value = slot.dataset.slot;
+                document.querySelector('form').appendChild(input);
+            } else {
+                existingInput.value = slot.dataset.slot;
+            }
+        });
+    });
 </script>
 
 {% endblock %}
