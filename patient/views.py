@@ -94,83 +94,83 @@ def doctor_details(request, id):
 #Booking
 
 
-# patient/views.py
-from django.shortcuts import render, get_object_or_404
-from doctor.models import tbl_token
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from datetime import date
+
 from doctor.models import tbl_token
 from patient.models import tbl_appointment, tbl_patient
 from clinicadmin.models import tbl_doctor
 
+
 # ==========================================
-# 1. VIEW TO SHOW THE CINEMA GRID
+# BOOK APPOINTMENT PAGE (SHOW TOKENS)
 # ==========================================
 def book_appointment(request, doctor_id):
+
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
-    
+
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-    selected_date = request.GET.get('date')
-    
+
+    selected_date = request.GET.get('appointment_date')
+
     if not selected_date:
-        selected_date = date.today().strftime('%Y-%m-%d')
+        selected_date = date.today()
 
     tokens = tbl_token.objects.filter(
-        doctor_id=doctor_id, 
+        doctor_id=doctor_id,
         date=selected_date
     ).order_by('token_number')
-    
+
     context = {
         'tokens': tokens,
-        'doctor_id': doctor_id,
-        'selected_date': selected_date,
-        'doctor': doctor
+        'doctor': doctor,
+        'selected_date': selected_date
     }
+
     return render(request, 'patient/booking_appointment.html', context)
 
 
-
+# ==========================================
+# CONFIRM BOOKING
+# ==========================================
 def confirm_booking(request, token_id):
 
     token = get_object_or_404(tbl_token, id=token_id)
-    patient_id = request.session.get('pid') 
+
+    patient_id = request.session.get('pid')
     if not patient_id:
-        messages.error(request, "Please log in to confirm your booking.")
         return redirect('webguest:login')
 
     patient = get_object_or_404(tbl_patient, id=patient_id)
 
-    if request.method == 'POST':
-       
-        if token.is_booked:
-            messages.error(request, "Sorry, this token was just booked by someone else.")
-            return redirect('webpatient:book_appointment',doctor_id=token.doctor.id)
+    if request.method == "POST":
 
-        symptoms = request.POST.get('symptoms', '')
+        if token.is_booked:
+            messages.error(request, "Sorry, this token is already booked.")
+            return redirect('webpatient:book_appointment', doctor_id=token.doctor.id)
+
+        symptoms = request.POST.get('symptoms')
 
         tbl_appointment.objects.create(
             patient=patient,
             doctor=token.doctor,
-            appointment_date=token.date,           # <--- We keep this
-            token_number=token.token_number,       # <--- We keep this
-            estimated_time=token.estimated_time,   # <--- We keep this
-            status='confirmed',
-            symptoms=symptoms
+            appointment_date=token.date,
+            token_number=token.token_number,
+            estimated_time=token.estimated_time,
+            symptoms=symptoms,
+            status='confirmed'
         )
+
         token.is_booked = True
         token.save()
 
-        messages.success(request, f"Success! You are Token #{token.token_number} for {token.date}.")
+        messages.success(request, "Appointment booked successfully!")
         return redirect('webpatient:patient_homepage')
-    context = {
-        'token': token
-    }
-    return render(request,'patient/confrim_booking.html', context)
 
+    return render(request, 'patient/confirm_booking.html', {'token': token})
 
 from django.shortcuts import render, redirect
 from patient.models import tbl_appointment, tbl_patient

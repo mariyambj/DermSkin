@@ -1,160 +1,145 @@
-
-
 {% block content %}
 <style>
-.booking-container {
-    max-width: 700px;
-    margin: 50px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.w{font-family:'Outfit',sans-serif;background:#f5f3ee;min-height:100vh;padding:36px 20px 60px;position:relative;overflow:hidden}
+svg.doodle{position:absolute;pointer-events:none;opacity:.13}
+.inner{max-width:620px;margin:0 auto;position:relative;z-index:1}
 
-.doctor-info {
-    padding: 15px;
-    background: #f7f7f7;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
+.card{background:#fff;border-radius:22px;border:1px solid #e8e2d9;padding:26px 28px;margin-bottom:18px;animation:up .5s ease both}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 
-.doctor-info h3 {
-    margin: 0;
-    color: #2f80ed;
-}
+.doc{display:flex;align-items:center;gap:18px}
+.av{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#48b6e8);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:27px;color:#fff;flex-shrink:0;position:relative}
+.av::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1.5px dashed #c4baff;animation:spin 12s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.doc-name{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600;color:#1a1a2e}
+.doc-sub{font-size:12.5px;color:#8a8a9a;font-weight:300;margin-top:2px}
+.badge{margin-left:auto;font-size:11px;padding:5px 13px;border-radius:20px;background:#f0eeff;color:#6c63ff;border:1px solid #d6cfff;font-weight:500;white-space:nowrap}
 
-.doctor-info p {
-    margin: 4px 0;
-    font-size: 14px;
-    color: #555;
-}
+.date-row{display:flex;align-items:center;gap:14px}
+.ico{width:42px;height:42px;border-radius:13px;background:#f0f7ff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico svg{width:19px;height:19px;stroke:#48b6e8;fill:none;stroke-width:1.8}
+.dlabel{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#aaa;margin-bottom:3px}
 
-label {
-    font-weight: bold;
-    display: block;
-    margin: 15px 0 5px;
-}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;animation:up .5s .2s ease both}
+.stitle{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#aaa;display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px #dcfce7}
+.scnt{font-size:12px;color:#aaa}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px;animation:up .5s .28s ease both}
 
-input[type="date"] {
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
+.tok{border-radius:16px;padding:18px 10px;text-align:center;text-decoration:none;display:block;border:1.5px solid transparent;transition:all .22s cubic-bezier(.34,1.56,.64,1)}
+.tok-f{background:#fff;border-color:#ddd6fe}
+.tok-f:hover{background:#6c63ff;border-color:#6c63ff;transform:translateY(-5px) scale(1.05);box-shadow:0 14px 30px rgba(108,99,255,.2)}
+.tok-f:hover .tnum,.tok-f:hover .tbadge{color:#fff}
+.tok-f:hover .tbadge{background:rgba(255,255,255,.2)}
+.tok-b{background:#fafafa;border-color:#f0f0f0;cursor:not-allowed;opacity:.5}
 
-.time-slots {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-}
+.tnum{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:#1a1a2e;display:block;line-height:1;margin-bottom:7px;transition:color .22s}
+.tbadge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:500;padding:3px 9px;border-radius:10px;transition:all .22s}
+.tok-f .tbadge{background:#f0fdf4;color:#16a34a}
+.tok-b .tbadge{background:#f4f4f5;color:#a1a1aa}
+.bdot{width:5px;height:5px;border-radius:50%}
+.tok-f .bdot{background:#22c55e}
+.tok-b .bdot{background:#d4d4d8}
 
-.time-slot {
-    border: 2px solid #2f80ed;
-    border-radius: 6px;
-    padding: 10px 12px;
-    width: calc(25% - 10px);
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-}
-
-.time-slot.available {
-    background: #fff;
-}
-
-.time-slot.selected {
-    background: #2f80ed;
-    color: #fff;
-}
-
-.time-slot span.status {
-    display: block;
-    font-size: 10px;
-    margin-top: 5px;
-    color: green;
-}
-
-textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    resize: vertical;
-}
-
-button.book-btn {
-    margin-top: 15px;
-    padding: 10px 20px;
-    background: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button.book-btn:hover {
-    background: #218838;
-}
+.foot{margin-top:22px;background:linear-gradient(135deg,#f0eeff,#e8f4ff);border-radius:20px;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;border:1px solid #ddd6fe;animation:up .5s .35s ease both}
+.ftxt{font-size:13px;color:#7c7ca0;font-weight:300}
+.ftxt strong{color:#6c63ff;font-weight:600}
+.fbtn{padding:10px 22px;border-radius:12px;background:#6c63ff;color:#fff;font-size:13px;font-weight:500;border:none;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif}
+.fbtn:hover{background:#5b52e8;transform:scale(1.04)}
 </style>
 
+<!-- Background doodles -->
+<svg class="doodle" style="top:-30px;right:-20px;width:260px;height:260px" viewBox="0 0 260 260">
+  <circle cx="130" cy="130" r="100" stroke="#6c63ff" stroke-width="1.2" fill="none" stroke-dasharray="6 8"/>
+  <circle cx="130" cy="130" r="68" stroke="#48b6e8" stroke-width="1" fill="none" stroke-dasharray="3 10"/>
+  <line x1="30" y1="130" x2="230" y2="130" stroke="#6c63ff" stroke-width=".8"/>
+  <line x1="130" y1="30" x2="130" y2="230" stroke="#6c63ff" stroke-width=".8"/>
+  <circle cx="130" cy="130" r="7" fill="none" stroke="#6c63ff" stroke-width="1.5"/>
+</svg>
+<svg class="doodle" style="bottom:60px;left:-30px;width:200px;height:200px" viewBox="0 0 200 200">
+  <path d="M20,100 Q60,20 100,100 Q140,180 180,100" stroke="#22c55e" stroke-width="1.5" fill="none"/>
+  <path d="M20,120 Q60,40 100,120 Q140,200 180,120" stroke="#22c55e" stroke-width=".8" fill="none"/>
+  <circle cx="20" cy="100" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+  <circle cx="180" cy="100" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+  <circle cx="100" cy="100" r="4" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+</svg>
+<svg class="doodle" style="top:200px;left:10px;width:90px;height:90px" viewBox="0 0 90 90">
+  <rect x="10" y="10" width="70" height="70" rx="8" stroke="#48b6e8" stroke-width="1.2" fill="none" stroke-dasharray="4 5"/>
+  <line x1="10" y1="30" x2="80" y2="30" stroke="#48b6e8" stroke-width=".8"/>
+  <circle cx="25" cy="20" r="4" fill="none" stroke="#48b6e8" stroke-width="1.2"/>
+  <circle cx="65" cy="20" r="4" fill="none" stroke="#48b6e8" stroke-width="1.2"/>
+</svg>
+<svg class="doodle" style="top:50%;right:5px;width:80px;height:120px" viewBox="0 0 80 120">
+  <path d="M40,10 L40,110" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 6"/>
+  <path d="M20,30 Q40,10 60,30" stroke="#f59e0b" stroke-width="1.2" fill="none"/>
+  <path d="M20,60 Q40,40 60,60" stroke="#f59e0b" stroke-width="1.2" fill="none"/>
+  <path d="M20,90 Q40,70 60,90" stroke="#f59e0b" stroke-width="1.2" fill="none"/>
+</svg>
 
-<div class="booking-container">
-    <h2>Book Appointment</h2>
+<div class="w">
+  <div class="inner">
 
-    <div class="doctor-info">
-        <h3>Dr. {{ doctor.name }}</h3>
-        <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
-        <p><strong>Experience:</strong> {{ doctor.experience }} years</p>
+    <!-- Doctor card -->
+    <div class="card" style="animation-delay:.0s">
+      <div class="doc">
+        <div class="av">{{ doctor.name|slice:":1" }}</div>
+        <div>
+          <div class="doc-name">Dr. {{ doctor.name }}</div>
+          <div class="doc-sub">{{ doctor.specialization }}</div>
+        </div>
+        <div class="badge">Book Appointment</div>
+      </div>
     </div>
 
-    <form method="POST" action="{% url 'webpatient:book_appointment' doctor.id %}">
-        {% csrf_token %}
-        <label for="appointment_date">Select Date:</label>
-        <input type="date" id="appointment_date" name="appointment_date" required>
-
-        <label>Available Time Slots:</label>
-        <div class="time-slots">
-            {% for slot in time_slots %}
-                <div class="time-slot available" data-slot="{{ slot }}">
-                    {{ slot }} <span class="status">Available</span>
-                </div>
-            {% empty %}
-                <p>No time slots available for this day.</p>
-            {% endfor %}
+    <!-- Date card -->
+    <div class="card" style="animation-delay:.1s">
+      <form method="GET">
+        <div class="date-row">
+          <div class="ico">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="dlabel">Appointment Date</div>
+            <input type="date" name="appointment_date" value="{{ selected_date }}" onchange="this.form.submit()"
+              style="font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;color:#1a1a2e;border:none;outline:none;background:transparent;cursor:pointer;width:100%">
+          </div>
         </div>
+      </form>
+    </div>
 
-        <label for="symptoms">Symptoms / Reason for Visit:</label>
-        <textarea id="symptoms" name="symptoms" rows="4" placeholder="Please describe your symptoms or reason for consultation..." required></textarea>
+    <!-- Token section -->
+    <div class="sh">
+      <span class="stitle"><span class="dot"></span>Available Tokens</span>
+      <span class="scnt">{{ tokens|length }} slots</span>
+    </div>
 
-        <button type="submit" class="book-btn">Book Appointment</button>
-    </form>
+    <div class="grid">
+      {% for slot in tokens %}
+        {% if slot.is_booked %}
+          <div class="tok tok-b">
+            <span class="tnum">{{ slot.token_number }}</span>
+            <span class="tbadge"><span class="bdot"></span>Booked</span>
+          </div>
+        {% else %}
+          <a href="{% url 'webpatient:confirm_booking' slot.id %}" class="tok tok-f">
+            <span class="tnum">{{ slot.token_number }}</span>
+            <span class="tbadge"><span class="bdot"></span>Open</span>
+          </a>
+        {% endif %}
+      {% empty %}
+        <p style="grid-column:1/-1;text-align:center;padding:40px;color:#aaa;font-size:14px">No tokens available for this date.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Footer bar -->
+    <div class="foot">
+      <div class="ftxt">Consultation: <strong>30 min</strong> · In-clinic &amp; Video available</div>
+      <button class="fbtn">View All →</button>
+    </div>
+
+  </div>
 </div>
-
-<script>
-    const slots = document.querySelectorAll('.time-slot');
-    slots.forEach(slot => {
-        slot.addEventListener('click', () => {
-            slots.forEach(s => s.classList.remove('selected'));
-            slot.classList.add('selected');
-            // Store selected slot in hidden input
-            let existingInput = document.querySelector('input[name="time_slot"]');
-            if (!existingInput) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'time_slot';
-                input.value = slot.dataset.slot;
-                document.querySelector('form').appendChild(input);
-            } else {
-                existingInput.value = slot.dataset.slot;
-            }
-        });
-    });
-</script>
 
 {% endblock %}

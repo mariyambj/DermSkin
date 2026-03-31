@@ -34,7 +34,7 @@ def doctor_homepage(request):
         'recent_patients': tbl_appointment.objects.filter(doctor=doctor).order_by('-appointment_date')[:5],
         'profile_progress': 85
     }
-    return render(request, 'doctor/home.html', context)
+    return render(request, 'doctor/doctor_homepage.html', context)
 
 
 def doctor_profile(request):

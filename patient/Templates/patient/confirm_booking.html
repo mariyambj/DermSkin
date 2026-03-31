@@ -1,0 +1,60 @@
+{% block content %}
+
+<style>
+
+.confirm-box{
+max-width:500px;
+margin:50px auto;
+padding:20px;
+background:white;
+border-radius:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+textarea{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+margin-top:15px;
+padding:10px 20px;
+background:#28a745;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
+
+<div class="confirm-box">
+
+<h2>Confirm Appointment</h2>
+
+<p><strong>Doctor:</strong> {{ token.doctor.name }}</p>
+
+<p><strong>Date:</strong> {{ token.date }}</p>
+
+<p><strong>Token Number:</strong> {{ token.token_number }}</p>
+
+<p><strong>Estimated Time:</strong> {{ token.estimated_time }}</p>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<label>Symptoms</label>
+
+<textarea name="symptoms" rows="4" required></textarea>
+
+<button type="submit">Confirm Booking</button>
+
+</form>
+
+</div>
+
+{% endblock %}
