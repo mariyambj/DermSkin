@@ -1,0 +1,185 @@
+{% extends 'base/header.html' %}
+{% block title %}Practice Reports | Doctor | DermSkin{% endblock %}
+
+{% block content %}
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-chart-bar me-2"></i>Practice Reports</h1>
+        <p>Monitor your clinic performance and appointment analytics</p>
+    </div>
+</div>
+
+<div class="page-wrapper">
+<div class="container">
+
+    <!-- Stats Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-calendar-check"></i></div>
+                <div>
+                    <div class="stat-value">{{ total_appointments }}</div>
+                    <div class="stat-label">Total Appointments</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="80">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+                <div>
+                    <div class="stat-value">{{ completed_appointments }}</div>
+                    <div class="stat-label">Completed Visits</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="160">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+                <div>
+                    <div class="stat-value">{{ cancelled_appointments }}</div>
+                    <div class="stat-label">Cancelled</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Monthly Trend Table -->
+        <div class="col-lg-5" data-aos="fade-up">
+            <div class="ds-card h-100">
+                <div class="ds-card-header">
+                    <i class="fas fa-table text-primary"></i> Monthly Breakdown
+                </div>
+                <div class="ds-card-body p-0">
+                    <table class="ds-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-end">Appointments</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in monthly_stats %}
+                            <tr>
+                                <td style="font-weight:500;">{{ stat.month }}</td>
+                                <td class="text-end">
+                                    <span style="font-weight:700;color:var(--primary);">{{ stat.count }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="col-lg-7" data-aos="fade-up" data-aos-delay="100">
+            <div class="ds-card h-100">
+                <div class="ds-card-header">
+                    <i class="fas fa-chart-bar text-primary"></i> Appointment Trend (6 Months)
+                </div>
+                <div class="ds-card-body">
+                    <canvas id="trendChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion Rate Card -->
+        <div class="col-lg-5" data-aos="fade-up">
+            <div class="ds-card">
+                <div class="ds-card-header">
+                    <i class="fas fa-chart-pie text-primary"></i> Completion Rate
+                </div>
+                <div class="ds-card-body text-center">
+                    <canvas id="donutChart" height="200" style="max-width:200px;margin:0 auto;display:block;"></canvas>
+                    <div class="row g-3 mt-3">
+                        <div class="col-4">
+                            <div style="font-size:1.1rem;font-weight:700;color:var(--primary);">{{ total_appointments }}</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Total</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size:1.1rem;font-weight:700;color:#1a8c3d;">{{ completed_appointments }}</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Done</div>
+                        </div>
+                        <div class="col-4">
+                            <div style="font-size:1.1rem;font-weight:700;color:var(--danger);">{{ cancelled_appointments }}</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Cancelled</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-lg-7" data-aos="fade-up" data-aos-delay="80">
+            <div class="ds-card h-100 d-flex flex-column">
+                <div class="ds-card-header">
+                    <i class="fas fa-bolt text-warning"></i> Quick Links
+                </div>
+                <div class="ds-card-body d-flex flex-column justify-content-center gap-3">
+                    <a href="{% url 'webdoctor:doctor_patient_bookings' %}" class="btn-ds-primary justify-content-center py-3">
+                        <i class="fas fa-users"></i> View Patient Bookings
+                    </a>
+                    <a href="{% url 'webdoctor:doctor_view_schedule' %}" class="btn-ds-outline justify-content-center py-3">
+                        <i class="fas fa-calendar-alt"></i> Manage Schedules
+                    </a>
+                    <a href="{% url 'webdoctor:doctor_schedule' %}" class="btn-ds-outline justify-content-center py-3">
+                        <i class="fas fa-plus-circle"></i> Add New Schedule
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Trend Bar Chart
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+new Chart(trendCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for s in monthly_stats %}'{{ s.month }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Appointments',
+            data: [{% for s in monthly_stats %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: 'rgba(67,97,238,0.15)',
+            borderColor: '#4361EE',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.04)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Donut Chart
+const donutCtx = document.getElementById('donutChart').getContext('2d');
+new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Cancelled', 'Other'],
+        datasets: [{
+            data: [{{ completed_appointments }}, {{ cancelled_appointments }}, {{ total_appointments|add:"-"|add:completed_appointments|add:"-"|add:cancelled_appointments }}],
+            backgroundColor: ['rgba(45,198,83,0.8)', 'rgba(239,35,60,0.8)', 'rgba(67,97,238,0.2)'],
+            borderWidth: 0,
+        }]
+    },
+    options: {
+        cutout: '70%',
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+    }
+});
+</script>
+{% endblock %}

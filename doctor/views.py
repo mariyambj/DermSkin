@@ -413,6 +413,7 @@ def doctor_schedule(request):
         ).count()
 
         schedule_data.append({
+            "id": schedule.id,
             "day": schedule.day_of_week,
             "date": schedule.schedule_date,
             "start": schedule.start_time,
@@ -426,5 +427,113 @@ def doctor_schedule(request):
         'days': remaining_days,
         'saved_schedules': schedule_data
     })
+
+
+def doctor_view_schedule(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    
+    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+    schedules = tbl_schedule.objects.filter(doctor=doctor).order_by('-schedule_date')
+    
+    schedule_list = []
+    for s in schedules:
+        tokens = tbl_token.objects.filter(schedule=s)
+        booked_count = tokens.filter(is_booked=True).count()
+        schedule_list.append({
+            'schedule': s,
+            'total_tokens': tokens.count(),
+            'booked_tokens': booked_count,
+            'available_tokens': tokens.count() - booked_count
+        })
+        
+    return render(request, 'doctor/view_schedule.html', {'schedules': schedule_list})
+
+
+def delete_schedule(request, id):
+    schedule = get_object_or_404(tbl_schedule, id=id)
+    # Check if any tokens are booked
+    if tbl_token.objects.filter(schedule=schedule, is_booked=True).exists():
+        messages.error(request, "Cannot delete schedule as some tokens are already booked.")
+    else:
+        schedule.delete()
+        messages.success(request, "Schedule deleted successfully.")
+    return redirect('webdoctor:doctor_view_schedule')
+
+
+def doctor_patient_bookings(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    
+    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+    from patient.models import tbl_appointment
+    
+    status_filter = request.GET.get('status')
+    appointments = tbl_appointment.objects.filter(doctor=doctor)
+    
+    if status_filter:
+        appointments = appointments.filter(status=status_filter)
+        
+    appointments = appointments.order_by('-appointment_date', 'estimated_time')
+    
+    return render(request, 'doctor/patient_bookings.html', {
+        'appointments': appointments,
+        'current_status': status_filter
+    })
+
+
+def update_booking_status(request, appointment_id, status):
+    from patient.models import tbl_appointment
+    appointment = get_object_or_404(tbl_appointment, id=appointment_id)
+    
+    if status in ['confirmed', 'completed', 'cancelled']:
+        appointment.status = status
+        appointment.save()
+        messages.success(request, f"Appointment status updated to {status}.")
+    else:
+        messages.error(request, "Invalid status update.")
+        
+    return redirect('webdoctor:doctor_patient_bookings')
+
+
+def doctor_reports(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    
+    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+    from patient.models import tbl_appointment
+    
+    # Simple statistics
+    total_appointments = tbl_appointment.objects.filter(doctor=doctor).count()
+    completed_appointments = tbl_appointment.objects.filter(doctor=doctor, status='completed').count()
+    cancelled_appointments = tbl_appointment.objects.filter(doctor=doctor, status='cancelled').count()
+    
+    # Monthly breakdown (last 6 months)
+    today = date.today()
+    monthly_stats = []
+    for i in range(6):
+        month_start = (today.replace(day=1) - timedelta(days=i*30)).replace(day=1)
+        next_month = (month_start + timedelta(days=32)).replace(day=1)
+        count = tbl_appointment.objects.filter(
+            doctor=doctor,
+            appointment_date__gte=month_start,
+            appointment_date__lt=next_month
+        ).count()
+        monthly_stats.append({
+            'month': month_start.strftime('%B %Y'),
+            'count': count
+        })
+    
+    context = {
+        'total_appointments': total_appointments,
+        'completed_appointments': completed_appointments,
+        'cancelled_appointments': cancelled_appointments,
+        'monthly_stats': monthly_stats,
+    }
+    
+    return render(request, 'doctor/doctor_reports.html', context)
 
 

@@ -1,0 +1,107 @@
+{% extends 'base/header.html' %}
+{% block title %}Patient Bookings | Doctor | DermSkin{% endblock %}
+
+{% block content %}
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-users me-2"></i>Patient Bookings</h1>
+        <p>Manage all patient appointments and update their status</p>
+    </div>
+</div>
+
+<div class="page-wrapper">
+<div class="container">
+
+    <!-- Filter Tabs -->
+    <div class="d-flex gap-2 flex-wrap mb-4" data-aos="fade-up">
+        <a href="?status=" class="btn-ds-{% if not current_status %}primary{% else %}outline{% endif %}">All</a>
+        <a href="?status=confirmed" class="btn-ds-{% if current_status == 'confirmed' %}primary{% else %}outline{% endif %}">
+            <i class="fas fa-check-circle"></i> Confirmed
+        </a>
+        <a href="?status=completed" class="btn-ds-{% if current_status == 'completed' %}primary{% else %}outline{% endif %}">
+            <i class="fas fa-check-double"></i> Completed
+        </a>
+        <a href="?status=cancelled" class="btn-ds-{% if current_status == 'cancelled' %}primary{% else %}outline{% endif %}">
+            <i class="fas fa-times-circle"></i> Cancelled
+        </a>
+    </div>
+
+    <!-- Table -->
+    <div class="ds-table-wrap" data-aos="fade-up">
+        <table class="ds-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Token / Time</th>
+                    <th>Status</th>
+                    <th>Symptoms</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in appointments %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.85rem;flex-shrink:0;">
+                                {{ app.patient.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;color:var(--text-dark);font-size:0.875rem;">{{ app.patient.username }}</div>
+                                <div style="font-size:0.77rem;color:var(--text-muted);">{{ app.patient.phone }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:500;">{{ app.appointment_date }}</td>
+                    <td>
+                        <span class="fw-bold" style="color:var(--primary);">#{{ app.token_number }}</span>
+                        <div style="font-size:0.8rem;color:var(--text-muted);">{{ app.estimated_time }}</div>
+                    </td>
+                    <td><span class="status-pill {{ app.status }}">{{ app.status|title }}</span></td>
+                    <td>
+                        <span style="font-size:0.825rem;color:var(--text-mid);max-width:180px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                              title="{{ app.symptoms }}">
+                            {{ app.symptoms|default:"—" }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+                            {% if app.status == 'pending' %}
+                                <a href="{% url 'webdoctor:update_booking_status' app.id 'confirmed' %}" class="btn-ds-success" title="Confirm">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                            {% endif %}
+                            {% if app.status == 'confirmed' %}
+                                <a href="{% url 'webdoctor:update_booking_status' app.id 'completed' %}" class="btn-ds-outline py-1 px-2" style="font-size:0.78rem;" title="Complete">
+                                    <i class="fas fa-check-double"></i>
+                                </a>
+                            {% endif %}
+                            {% if app.status != 'cancelled' and app.status != 'completed' %}
+                                <a href="{% url 'webdoctor:update_booking_status' app.id 'cancelled' %}"
+                                   class="btn-ds-danger" title="Cancel"
+                                   onclick="return confirm('Cancel this appointment?')">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h5>No Appointments Found</h5>
+                            <p>No bookings match the selected filter.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+{% endblock %}

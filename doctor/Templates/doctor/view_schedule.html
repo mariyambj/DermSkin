@@ -1,0 +1,107 @@
+{% extends 'base/header.html' %}
+{% block title %}My Schedules | Doctor | DermSkin{% endblock %}
+
+{% block content %}
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-calendar-alt me-2"></i>My Shift Schedules</h1>
+        <p>Manage your working hours and monitor token availability</p>
+    </div>
+</div>
+
+<div class="page-wrapper">
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
+        <div>
+            <h2 class="section-heading">All Schedules</h2>
+            <p class="section-subheading">{{ schedules|length }} schedule(s) found</p>
+        </div>
+        <a href="{% url 'webdoctor:doctor_schedule' %}" class="btn-ds-primary">
+            <i class="fas fa-plus"></i> New Schedule
+        </a>
+    </div>
+
+    {% if schedules %}
+    <div class="row g-4">
+        {% for item in schedules %}
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:'0' }}0">
+            <div class="ds-card h-100">
+                <div class="ds-card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-calendar-day text-primary me-1"></i> {{ item.schedule.day_of_week }}</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted);">{{ item.schedule.schedule_date }}</span>
+                </div>
+                <div class="ds-card-body">
+                    <!-- Time -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="stat-icon blue" style="width:38px;height:38px;font-size:1rem;"><i class="fas fa-clock"></i></div>
+                        <span style="font-weight:600;color:var(--text-dark);">
+                            {{ item.schedule.start_time }} – {{ item.schedule.end_time }}
+                        </span>
+                    </div>
+
+                    <!-- Token Stats -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-4 text-center">
+                            <div style="background:rgba(67,97,238,0.08);border-radius:10px;padding:10px 5px;">
+                                <div style="font-size:1.3rem;font-weight:800;color:var(--primary);">{{ item.total_tokens }}</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Total</div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div style="background:rgba(45,198,83,0.1);border-radius:10px;padding:10px 5px;">
+                                <div style="font-size:1.3rem;font-weight:800;color:#1a8c3d;">{{ item.available_tokens }}</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Open</div>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div style="background:rgba(249,199,79,0.15);border-radius:10px;padding:10px 5px;">
+                                <div style="font-size:1.3rem;font-weight:800;color:#c97c00;">{{ item.booked_tokens }}</div>
+                                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;">Booked</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    {% if item.total_tokens > 0 %}
+                    <div class="mb-3">
+                        <div style="height:6px;background:#f0f0f5;border-radius:3px;overflow:hidden;">
+                            <div style="width:{% widthratio item.booked_tokens item.total_tokens 100 %}%;height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:3px;transition:width 1s ease;"></div>
+                        </div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:5px;">
+                            {% widthratio item.booked_tokens item.total_tokens 100 %}% booked
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Delete Action -->
+                    <div class="d-flex gap-2 pt-2" style="border-top:1px solid var(--border);">
+                        <a href="{% url 'webdoctor:delete_schedule' item.schedule.id %}"
+                           class="btn-ds-danger w-100 justify-content-center"
+                           onclick="return confirm('Delete this schedule? All unbooked tokens will be removed.')">
+                            <i class="fas fa-trash-alt"></i> Delete Schedule
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="ds-card" data-aos="fade-up">
+        <div class="ds-card-body">
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h5>No Schedules Found</h5>
+                <p>Create your first schedule to start accepting patient bookings.</p>
+                <a href="{% url 'webdoctor:doctor_schedule' %}" class="btn-ds-primary mt-2">
+                    <i class="fas fa-plus"></i> Create Schedule
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

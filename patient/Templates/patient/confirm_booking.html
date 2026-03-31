@@ -1,60 +1,77 @@
+{% extends 'base/header.html' %}
+{% block title %}Confirm Booking | DermSkin{% endblock %}
+
 {% block content %}
-
-<style>
-
-.confirm-box{
-max-width:500px;
-margin:50px auto;
-padding:20px;
-background:white;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
-}
-
-textarea{
-width:100%;
-padding:10px;
-margin-top:10px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-button{
-margin-top:15px;
-padding:10px 20px;
-background:#28a745;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-</style>
-
-<div class="confirm-box">
-
-<h2>Confirm Appointment</h2>
-
-<p><strong>Doctor:</strong> {{ token.doctor.name }}</p>
-
-<p><strong>Date:</strong> {{ token.date }}</p>
-
-<p><strong>Token Number:</strong> {{ token.token_number }}</p>
-
-<p><strong>Estimated Time:</strong> {{ token.estimated_time }}</p>
-
-<form method="POST">
-
-{% csrf_token %}
-
-<label>Symptoms</label>
-
-<textarea name="symptoms" rows="4" required></textarea>
-
-<button type="submit">Confirm Booking</button>
-
-</form>
-
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-check-circle me-2"></i>Confirm Appointment</h1>
+        <p>Review details and describe your symptoms before confirming</p>
+    </div>
 </div>
 
+<div class="page-wrapper">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-6 col-md-8" data-aos="fade-up">
+
+    <div class="ds-card">
+        <div class="ds-card-header">
+            <i class="fas fa-calendar-check text-primary"></i> Appointment Summary
+        </div>
+        <div class="ds-card-body">
+
+            <!-- Summary Details -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <div style="padding:14px 16px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border);">
+                        <div class="ds-form-label" style="margin-bottom:3px;">Doctor</div>
+                        <div style="font-weight:700;color:var(--text-dark);">Dr. {{ token.doctor.name }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div style="padding:14px 16px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border);">
+                        <div class="ds-form-label" style="margin-bottom:3px;">Date</div>
+                        <div style="font-weight:700;color:var(--text-dark);">{{ token.date }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div style="padding:14px 16px;background:rgba(67,97,238,0.08);border-radius:var(--radius-md);border:1px solid rgba(67,97,238,0.2);">
+                        <div class="ds-form-label" style="margin-bottom:3px;color:var(--primary);">Token #</div>
+                        <div style="font-weight:800;color:var(--primary);font-size:1.3rem;">#{{ token.token_number }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div style="padding:14px 16px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border);">
+                        <div class="ds-form-label" style="margin-bottom:3px;">Estimated Time</div>
+                        <div style="font-weight:700;color:var(--text-dark);">{{ token.estimated_time }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="ds-form-label">Describe Your Symptoms</label>
+                    <textarea name="symptoms" rows="4" class="ds-form-control" required
+                              placeholder="e.g. Skin rash, itching, redness for the past 3 days..."></textarea>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn-ds-primary flex-fill justify-content-center py-3">
+                        <i class="fas fa-check"></i> Confirm Booking
+                    </button>
+                    <a href="{% url 'webpatient:book_appointment' token.doctor.id %}" class="btn-ds-outline py-3 px-4">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</div>
+</div>
+</div>
 {% endblock %}

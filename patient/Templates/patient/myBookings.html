@@ -1,169 +1,96 @@
-
+{% extends 'base/header.html' %}
+{% block title %}My Bookings | Patient | DermSkin{% endblock %}
 
 {% block content %}
-<style>
-    .bookings-wrapper {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-calendar-check me-2"></i>My Appointments</h1>
+        <p>Track your past and upcoming medical consultations</p>
+    </div>
+</div>
 
-    .bookings-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
+<div class="page-wrapper">
+<div class="container">
 
-    .bookings-header h2 {
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-
-    .bookings-header p {
-        color: #7f8c8d;
-    }
-
-    /* The Grid for Appointment Cards */
-    .bookings-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-    }
-
-    /* Individual Appointment Card */
-    .booking-card {
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: 1px solid #ecf0f1;
-        overflow: hidden;
-        transition: transform 0.2s;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .booking-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    }
-
-    .card-header {
-        background-color: #f8f9fa;
-        padding: 15px 20px;
-        border-bottom: 1px solid #ecf0f1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .token-badge {
-        background-color: #3498db;
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
-    .card-body {
-        padding: 20px;
-        flex-grow: 1;
-    }
-
-    .doctor-name {
-        font-size: 1.25rem;
-        color: #2c3e50;
-        font-weight: bold;
-        margin: 0 0 15px 0;
-    }
-
-    .info-row {
-        margin-bottom: 10px;
-        color: #34495e;
-        font-size: 0.95rem;
-        display: flex;
-        align-items: flex-start;
-    }
-
-    .info-row strong {
-        width: 80px;
-        color: #7f8c8d;
-    }
-
-    /* Status Badges */
-    .status-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    .status-pending { background-color: #fef3c7; color: #d97706; }
-    .status-confirmed { background-color: #dbeafe; color: #2563eb; }
-    .status-completed { background-color: #d1fae5; color: #059669; }
-    .status-cancelled { background-color: #fee2e2; color: #dc2626; }
-
-    .empty-state {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 50px 20px;
-        background: #f8f9fa;
-        border-radius: 12px;
-        color: #6c757d;
-    }
-</style>
-
-<div class="bookings-wrapper">
-    <div class="bookings-header">
-        <h2>My Bookings</h2>
-        <p>View and manage all your past and upcoming appointments.</p>
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
+        <div>
+            <h2 class="section-heading">Booking History</h2>
+            <p class="section-subheading">{{ appointments|length }} booking(s) found</p>
+        </div>
+        <a href="{% url 'webpatient:doctor_list' %}" class="btn-ds-primary">
+            <i class="fas fa-plus"></i> New Booking
+        </a>
     </div>
 
-    <div class="bookings-grid">
-        {% for appt in appointments %}
-            <div class="booking-card">
-                <div class="card-header">
-                    <span class="token-badge">Token #{{ appt.token_number }}</span>
-                    
-                    <span class="status-badge 
-                        {% if appt.status == 'pending' %}status-pending
-                        {% elif appt.status == 'confirmed' %}status-confirmed
-                        {% elif appt.status == 'completed' %}status-completed
-                        {% elif appt.status == 'cancelled' %}status-cancelled
-                        {% endif %}">
-                        {{ appt.status }}
-                    </span>
-                </div>
-                
-                <div class="card-body">
-                    <h3 class="doctor-name">Dr. {{ appt.doctor.name }}</h3>
-                    
-                    <div class="info-row">
-                        <strong>Date:</strong> 
-                        <span>{{ appt.appointment_date }}</span>
-                    </div>
-                    
-                    <div class="info-row">
-                        <strong>Time:</strong> 
-                        <span>Est. {{ appt.estimated_time|time:"g:i A" }}</span>
+    <div class="d-flex flex-column gap-3">
+        {% for app in appointments %}
+        <div class="ds-card" data-aos="fade-up">
+            <div class="ds-card-body">
+                <div class="row align-items-center g-3">
+                    <!-- Doctor Info -->
+                    <div class="col-lg-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:white;flex-shrink:0;">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;color:var(--text-dark);font-size:0.95rem;">Dr. {{ app.doctor.name }}</div>
+                                <div style="font-size:0.8rem;color:var(--text-muted);">{{ app.doctor.specialization }}</div>
+                            </div>
+                        </div>
                     </div>
 
-                    {% if appt.symptoms %}
-                    <div class="info-row" style="margin-top: 15px; border-top: 1px solid #ecf0f1; padding-top: 15px;">
-                        <strong>Reason:</strong> 
-                        <span style="font-style: italic;">"{{ appt.symptoms }}"</span>
+                    <!-- Appointment Details -->
+                    <div class="col-lg-5">
+                        <div class="row g-3">
+                            <div class="col-4 text-center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Date</div>
+                                <div style="font-weight:600;color:var(--text-dark);margin-top:3px;">{{ app.appointment_date }}</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Token</div>
+                                <div style="font-weight:700;color:var(--primary);margin-top:3px;font-size:1.1rem;">#{{ app.token_number }}</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.05em;">Time</div>
+                                <div style="font-weight:600;color:var(--text-dark);margin-top:3px;">{{ app.estimated_time }}</div>
+                            </div>
+                        </div>
                     </div>
-                    {% endif %}
+
+                    <!-- Status -->
+                    <div class="col-lg-3 d-flex justify-content-lg-end">
+                        <span class="status-pill {{ app.status }}" style="font-size:0.85rem;padding:7px 18px;">
+                            {{ app.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Symptoms (if any) -->
+                {% if app.symptoms %}
+                <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+                    <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Symptoms: </span>
+                    <span style="font-size:0.875rem;color:var(--text-mid);">{{ app.symptoms }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="ds-card" data-aos="fade-up">
+            <div class="ds-card-body">
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h5>No Bookings Found</h5>
+                    <p>You haven't booked any appointments yet.</p>
+                    <a href="{% url 'webpatient:doctor_list' %}" class="btn-ds-primary mt-2">
+                        <i class="fas fa-search"></i> Find a Doctor
+                    </a>
                 </div>
             </div>
-        {% empty %}
-            <div class="empty-state">
-                <h3>No Bookings Found</h3>
-                <p>You haven't booked any appointments yet.</p>
-                <a href="{% url 'webpatient:patient_homepage' %}" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 6px;">Find a Doctor</a>
-            </div>
+        </div>
         {% endfor %}
     </div>
+
+</div>
 </div>
 {% endblock %}

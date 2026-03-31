@@ -1,76 +1,129 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Doctor Dashboard</title>
+{% extends 'base/header.html' %}
+{% block title %}Doctor Dashboard | DermSkin{% endblock %}
 
-    <style>
+{% block content %}
+<!-- Page Banner -->
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-th-large me-2"></i>Doctor Dashboard</h1>
+        <p>Welcome back, Dr. {{ doctor.name }} &mdash; {{ doctor.specialization }}</p>
+    </div>
+</div>
 
-        body{
-            font-family: Arial;
-            background:#f4f6f9;
-        }
-
-        .container{
-            width:800px;
-            margin:auto;
-            margin-top:50px;
-        }
-
-        h2{
-            text-align:center;
-            margin-bottom:30px;
-        }
-
-        .card{
-            background:white;
-            padding:20px;
-            margin:15px;
-            border-radius:8px;
-            box-shadow:0 0 8px rgba(0,0,0,0.1);
-            text-align:center;
-        }
-
-        .card a{
-            text-decoration:none;
-            font-size:18px;
-            color:#007bff;
-        }
-
-        .card:hover{
-            background:#f1f1f1;
-        }
-
-    </style>
-
-</head>
-
-<body>
-
+<div class="page-wrapper">
 <div class="container">
 
-<h2>Doctor Dashboard</h2>
+    <!-- Stats Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="0">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-calendar-day"></i></div>
+                <div>
+                    <div class="stat-value">{{ todays_count }}</div>
+                    <div class="stat-label">Today's Patients</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="80">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div>
+                    <div class="stat-value">{{ recent_patients.count }}</div>
+                    <div class="stat-label">Recent Patients</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="160">
+            <a href="{% url 'webdoctor:doctor_view_schedule' %}" class="stat-card text-decoration-none">
+                <div class="stat-icon teal"><i class="fas fa-calendar-alt"></i></div>
+                <div>
+                    <div class="stat-value"><i class="fas fa-arrow-right" style="font-size:1.2rem"></i></div>
+                    <div class="stat-label">View Schedules</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="240">
+            <a href="{% url 'webdoctor:doctor_reports' %}" class="stat-card text-decoration-none">
+                <div class="stat-icon purple"><i class="fas fa-chart-pie"></i></div>
+                <div>
+                    <div class="stat-value"><i class="fas fa-arrow-right" style="font-size:1.2rem"></i></div>
+                    <div class="stat-label">View Reports</div>
+                </div>
+            </a>
+        </div>
+    </div>
 
-<div class="card">
-    <a href="{% url 'webdoctor:doctor_profile' %}">👨‍⚕️ View Profile</a>
+    <!-- Quick Actions + Today's Schedule -->
+    <div class="row g-4 mb-4">
+        <!-- Quick Actions -->
+        <div class="col-lg-4" data-aos="fade-up">
+            <div class="ds-card h-100">
+                <div class="ds-card-header">
+                    <i class="fas fa-bolt text-warning"></i> Quick Actions
+                </div>
+                <div class="ds-card-body d-flex flex-column gap-3">
+                    <a href="{% url 'webdoctor:doctor_schedule' %}" class="btn-ds-primary justify-content-center">
+                        <i class="fas fa-plus-circle"></i> Create New Schedule
+                    </a>
+                    <a href="{% url 'webdoctor:doctor_patient_bookings' %}" class="btn-ds-outline justify-content-center">
+                        <i class="fas fa-users"></i> Manage Bookings
+                    </a>
+                    <a href="{% url 'webdoctor:doctor_view_schedule' %}" class="btn-ds-outline justify-content-center">
+                        <i class="fas fa-calendar-check"></i> View Schedules
+                    </a>
+                    <a href="{% url 'webdoctor:doctor_reports' %}" class="btn-ds-outline justify-content-center">
+                        <i class="fas fa-file-medical-alt"></i> Practice Reports
+                    </a>
+                    <a href="{% url 'webdoctor:doctor_editprofile' %}" class="btn-ds-outline justify-content-center">
+                        <i class="fas fa-user-edit"></i> Edit My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Appointments -->
+        <div class="col-lg-8" data-aos="fade-up" data-aos-delay="100">
+            <div class="ds-card h-100">
+                <div class="ds-card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-calendar-day text-primary me-1"></i> Today's Appointments</span>
+                    <a href="{% url 'webdoctor:doctor_patient_bookings' %}" class="btn-ds-outline py-1 px-3" style="font-size:0.78rem;">View All</a>
+                </div>
+                <div class="ds-card-body p-0">
+                    {% if appointments %}
+                    <div class="ds-table-wrap" style="border-radius:0; box-shadow:none; border:none;">
+                        <table class="ds-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Token</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in appointments %}
+                                <tr>
+                                    <td><strong>{{ a.patient.username }}</strong></td>
+                                    <td><span class="fw-bold">#{{ a.token_number }}</span></td>
+                                    <td>{{ a.estimated_time }}</td>
+                                    <td><span class="status-pill {{ a.status }}">{{ a.status|title }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h5>No Appointments Today</h5>
+                        <p>Your schedule is clear for today.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-
-<div class="card">
-    <a href="{% url 'webdoctor:doctor_changepassword' %}">📅 Change Password</a>
 </div>
-
-<div class="card">
-    <a href="{% url 'webdoctor:doctor_schedule' %}">🧴 Schedule Updation</a>
-</div>
-
-<div class="card">
-    <a href="#">💊 Patient Prescriptions</a>
-</div>
-
-<div class="card">
-    <a href="#">🚪 Logout</a>
-</div>
-
-</div>
-
-</body>
-</html>
+{% endblock %}

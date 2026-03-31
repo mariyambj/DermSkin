@@ -1,88 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends 'base/header.html' %}
+{% block title %}Find a Doctor | DermSkin{% endblock %}
 
-<title>Doctors</title>
+{% block content %}
+<div class="page-banner">
+    <div class="container position-relative" style="z-index:1">
+        <h1><i class="fas fa-stethoscope me-2"></i>Find a Doctor</h1>
+        <p>Browse our team of certified dermatologists</p>
+    </div>
+</div>
 
-<style>
-
-body{
-font-family:Arial;
-background:#f5f7fb;
-}
-
-.container{
-width:1100px;
-margin:auto;
-margin-top:40px;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-}
-
-.card{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-text-align:center;
-}
-
-.card img{
-width:120px;
-height:120px;
-border-radius:50%;
-object-fit:cover;
-}
-
-button{
-margin-top:10px;
-padding:8px 15px;
-background:#2f80ed;
-border:none;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#1c60d6;
-}
-
-</style>
-
-</head>
-
-<body>
-
+<div class="page-wrapper">
 <div class="container">
 
-<h2>Available Doctors</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
+        <div>
+            <h2 class="section-heading">Available Doctors</h2>
+            <p class="section-subheading">{{ doctors|length }} doctor(s) available</p>
+        </div>
+    </div>
 
-<div class="cards">
+    <div class="row g-4">
+        {% for d in doctors %}
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}0">
+            <div class="ds-card h-100">
+                <div class="ds-card-body text-center">
+                    <!-- Avatar -->
+                    {% if d.profile_picture %}
+                        <img src="{{ d.profile_picture.url }}" alt="{{ d.name }}"
+                             style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--border);box-shadow:var(--shadow-md);margin-bottom:1rem;">
+                    {% else %}
+                        <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;margin:0 auto 1rem;">
+                            {{ d.name|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
 
-{% for d in doctors %}
+                    <h4 style="font-family:var(--font-display);font-weight:700;margin-bottom:4px;">Dr. {{ d.name }}</h4>
+                    <span class="role-badge doctor d-inline-block mb-3">{{ d.specialization }}</span>
 
-<div class="card">
+                    {% if d.qualification %}
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">{{ d.qualification }}</p>
+                    {% endif %}
 
-<h3>{{d.name}}</h3>
-
-<p>{{d.specialization}}</p>
-
-<a href="{% url 'webpatient:doctor_details' d.id %}">
-<button>View Details</button>
-</a>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'webpatient:doctor_details' d.id %}" class="btn-ds-outline">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </a>
+                        <a href="{% url 'webpatient:book_appointment' d.id %}" class="btn-ds-primary">
+                            <i class="fas fa-calendar-plus"></i> Book
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="ds-card">
+                <div class="ds-card-body">
+                    <div class="empty-state">
+                        <i class="fas fa-user-md"></i>
+                        <h5>No Doctors Found</h5>
+                        <p>No doctors are currently registered in the system.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 
 </div>
-
-{% endfor %}
-
 </div>
-
-</div>
-
-</body>
-</html>
+{% endblock %}
