@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base/header.html' %}
+{% block title %}Smart Derm — AI Skin Analysis{% endblock %}
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart Derm — AI Skin Analysis</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet" />
+{% block content %}
+
 
     <style>
         /* ══════════════════════════════════════════
@@ -1012,27 +1007,14 @@
             }
         }
     </style>
-</head>
-
-<body>
-
-    <!-- Animated Background -->
+    <!-- Grid Lines / Background inside block -->
     <div class="bg-canvas">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
     </div>
     <div class="grid-lines"></div>
 
-    <div class="page-wrapper">
-
-        <!-- NAV -->
-        <nav class="top-nav">
-            <a href="#" class="nav-brand">
-                <div class="brand-icon">🔬</div>
-                <span class="brand-name">Smart<span style="color:#60a5fa">Derm</span></span>
-            </a>
-            <div class="nav-badge">AI • Beta</div>
-        </nav>
+    <div class="page-wrapper" style="min-height:calc(100vh - 100px); background:var(--bg-base); color:var(--text-primary); font-family:'Inter', sans-serif;">
 
         <!-- MAIN GRID -->
         <main class="main">
@@ -1294,6 +1276,5 @@
             });
         }
     </script>
-</body>
-
-</html>
+    </div><!-- /page-wrapper -->
+{% endblock %}

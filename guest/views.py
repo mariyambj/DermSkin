@@ -51,7 +51,7 @@ def _get_model():
     global _MODEL
     if _MODEL is None:
         model_path = os.path.join(
-            settings.BASE_DIR, 'guest', 'models', 'skin_disease_model_deploy.keras'
+            settings.BASE_DIR, 'guest', 'model', 'skin_disease_model_deploy.keras'
         )
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")

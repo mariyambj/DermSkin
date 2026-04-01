@@ -1,4 +1,4 @@
-{% extends 'base/header.html' %}
+{% extends 'Doctor/header.html' %}
 {% block title %}Doctor Dashboard | DermSkin{% endblock %}
 
 {% block content %}
@@ -70,10 +70,10 @@
                     </a>
                     <a href="{% url 'webdoctor:doctor_view_schedule' %}" class="btn-ds-outline justify-content-center">
                         <i class="fas fa-calendar-check"></i> View Schedules
-                    </a>
+                    </a> 
                     <a href="{% url 'webdoctor:doctor_reports' %}" class="btn-ds-outline justify-content-center">
                         <i class="fas fa-file-medical-alt"></i> Practice Reports
-                    </a>
+                    </a> 
                     <a href="{% url 'webdoctor:doctor_editprofile' %}" class="btn-ds-outline justify-content-center">
                         <i class="fas fa-user-edit"></i> Edit My Profile
                     </a>

@@ -1,4 +1,4 @@
-{% extends 'base/header.html' %}
+{% extends 'Doctor/header.html' %}
 {% block title %}Patient Bookings | Doctor | DermSkin{% endblock %}
 
 {% block content %}
@@ -12,19 +12,7 @@
 <div class="page-wrapper">
 <div class="container">
 
-    <!-- Filter Tabs -->
-    <div class="d-flex gap-2 flex-wrap mb-4" data-aos="fade-up">
-        <a href="?status=" class="btn-ds-{% if not current_status %}primary{% else %}outline{% endif %}">All</a>
-        <a href="?status=confirmed" class="btn-ds-{% if current_status == 'confirmed' %}primary{% else %}outline{% endif %}">
-            <i class="fas fa-check-circle"></i> Confirmed
-        </a>
-        <a href="?status=completed" class="btn-ds-{% if current_status == 'completed' %}primary{% else %}outline{% endif %}">
-            <i class="fas fa-check-double"></i> Completed
-        </a>
-        <a href="?status=cancelled" class="btn-ds-{% if current_status == 'cancelled' %}primary{% else %}outline{% endif %}">
-            <i class="fas fa-times-circle"></i> Cancelled
-        </a>
-    </div>
+
 
     <!-- Table -->
     <div class="ds-table-wrap" data-aos="fade-up">
@@ -48,8 +36,8 @@
                                 {{ app.patient.username|slice:":1"|upper }}
                             </div>
                             <div>
-                                <div style="font-weight:600;color:var(--text-dark);font-size:0.875rem;">{{ app.patient.username }}</div>
-                                <div style="font-size:0.77rem;color:var(--text-muted);">{{ app.patient.phone }}</div>
+                                <div style="font-weight:600;color:var(--text-dark);font-size:0.875rem;">{{ app.patient.first_name }}</div>
+                                <div style="font-size:0.77rem;color:var(--text-muted);">{{ app.patient.first_name }}</div>
                             </div>
                         </div>
                     </td>
@@ -67,23 +55,9 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1 flex-wrap">
-                            {% if app.status == 'pending' %}
-                                <a href="{% url 'webdoctor:update_booking_status' app.id 'confirmed' %}" class="btn-ds-success" title="Confirm">
-                                    <i class="fas fa-check"></i>
-                                </a>
-                            {% endif %}
-                            {% if app.status == 'confirmed' %}
-                                <a href="{% url 'webdoctor:update_booking_status' app.id 'completed' %}" class="btn-ds-outline py-1 px-2" style="font-size:0.78rem;" title="Complete">
-                                    <i class="fas fa-check-double"></i>
-                                </a>
-                            {% endif %}
-                            {% if app.status != 'cancelled' and app.status != 'completed' %}
-                                <a href="{% url 'webdoctor:update_booking_status' app.id 'cancelled' %}"
-                                   class="btn-ds-danger" title="Cancel"
-                                   onclick="return confirm('Cancel this appointment?')">
-                                    <i class="fas fa-times"></i>
-                                </a>
-                            {% endif %}
+                            <a href="{% url 'webdoctor:patient_details' app.id %}" class="btn-ds-primary py-1 px-2" style="font-size:0.78rem;" title="View Details">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
                         </div>
                     </td>
                 </tr>
