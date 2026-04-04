@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from clinicadmin.models import *
 from .models import *
 from datetime import datetime, timedelta, date
+from django.utils import timezone
 
 
 # Create your views here.
@@ -196,20 +197,26 @@ def doctor_view_schedule(request):
         return redirect('webguest:login')
     
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-    schedules = tbl_schedule.objects.filter(doctor=doctor).order_by('-schedule_date')
-    
+
+    today = timezone.localdate()
+    schedules = tbl_schedule.objects.filter(
+        doctor=doctor,
+        schedule_date__gte=today   # only today and future
+    ).order_by('schedule_date')
+
     schedule_list = []
     for s in schedules:
         tokens = tbl_token.objects.filter(schedule=s)
         booked_count = tokens.filter(is_booked=True).count()
+
         schedule_list.append({
             'schedule': s,
             'total_tokens': tokens.count(),
             'booked_tokens': booked_count,
             'available_tokens': tokens.count() - booked_count
         })
-        
     return render(request, 'doctor/view_schedule.html', {'schedules': schedule_list})
+
 
 
 def delete_schedule(request, id):
@@ -223,17 +230,19 @@ def delete_schedule(request, id):
     return redirect('webdoctor:doctor_view_schedule')
 
 
+#view bookings
 def doctor_patient_bookings(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
-    
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
     from patient.models import tbl_appointment
-    
     status_filter = request.GET.get('status')
-    appointments = tbl_appointment.objects.filter(doctor=doctor)
-    
+    today = timezone.localdate()
+    appointments = tbl_appointment.objects.filter(
+        doctor=doctor,
+        appointment_date__gte=today   # filter from today
+    )
     if status_filter:
         appointments = appointments.filter(status=status_filter)
         
@@ -243,6 +252,9 @@ def doctor_patient_bookings(request):
         'appointments': appointments,
         'current_status': status_filter
     })
+
+
+
 
 
 def update_booking_status(request, appointment_id, status):

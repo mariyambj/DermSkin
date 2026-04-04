@@ -5,7 +5,7 @@
 <div class="page-banner">
     <div class="container position-relative" style="z-index:1">
         <h1><i class="fas fa-calendar-plus me-2"></i>Book an Appointment</h1>
-        <p>Choose a token slot with Dr. {{ doctor.name }}</p>
+        <p>Choose a token slot with {{ doctor.name }}</p>
     </div>
 </div>
 
@@ -23,7 +23,7 @@
                     <span style="position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;background:var(--success);border:3px solid white;border-radius:50%;"></span>
                 </div>
                 <div>
-                    <h4 style="font-family:var(--font-display);font-weight:700;margin:0;">Dr. {{ doctor.name }}</h4>
+                    <h4 style="font-family:var(--font-display);font-weight:700;margin:0;">{{ doctor.name }}</h4>
                     <p style="color:var(--text-muted);margin:0;font-size:0.875rem;">{{ doctor.specialization }}</p>
                 </div>
                 <span style="margin-left:auto;background:rgba(45,198,83,0.12);color:#1a8c3d;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;">

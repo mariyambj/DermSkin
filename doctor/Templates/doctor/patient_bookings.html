@@ -22,8 +22,8 @@
                     <th>Patient</th>
                     <th>Date</th>
                     <th>Token / Time</th>
-                    <th>Status</th>
-                    <th>Symptoms</th>
+                    <!--<th>Status</th>
+                    <th>Symptoms</th>-->
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -46,13 +46,13 @@
                         <span class="fw-bold" style="color:var(--primary);">#{{ app.token_number }}</span>
                         <div style="font-size:0.8rem;color:var(--text-muted);">{{ app.estimated_time }}</div>
                     </td>
-                    <td><span class="status-pill {{ app.status }}">{{ app.status|title }}</span></td>
+                        <!--<td><span class="status-pill {{ app.status }}">{{ app.status|title }}</span></td>
                     <td>
                         <span style="font-size:0.825rem;color:var(--text-mid);max-width:180px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
                               title="{{ app.symptoms }}">
                             {{ app.symptoms|default:"—" }}
                         </span>
-                    </td>
+                    </td>-->
                     <td>
                         <div class="d-flex gap-1 flex-wrap">
                             <a href="{% url 'webdoctor:patient_details' app.id %}" class="btn-ds-primary py-1 px-2" style="font-size:0.78rem;" title="View Details">
