@@ -12,5 +12,6 @@ urlpatterns = [
    path('book_appointment/<int:doctor_id>/', views.book_appointment, name='book_appointment'),
    path('confirm_booking/<int:token_id>/', views.confirm_booking, name='confirm_booking'),
    path('myBookings/',views.myBookings, name='myBookings'),
-   
+   path('generate_report/',views.generate_report, name='generate_report'),
+   path('myReports/',views.myReports, name='myReports'),
 ]

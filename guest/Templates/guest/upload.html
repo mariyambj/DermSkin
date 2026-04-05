@@ -1161,6 +1161,21 @@
                             constitute a clinical diagnosis. Please consult a qualified dermatologist for professional
                             medical advice.
                         </div>
+
+                        {% if request.session.pid %}
+                        <form method="POST" action="{% url 'webpatient:generate_report' %}" class="mt-4">
+                            {% csrf_token %}
+                            <input type="hidden" name="image_data" value="{{ image_data }}">
+                            <input type="hidden" name="disease" value="{{ prediction.label }}">
+                            <input type="hidden" name="confidence" value="{{ prediction.confidence }}">
+                            <button type="submit" class="cta-btn m-0" style="padding: 12px; font-size: 13px;">
+                                <div class="btn-inner">
+                                    <span class="btn-text" style="display:flex; align-items:center; gap:8px;"><i class="fas fa-file-invoice"></i> Save to My Reports</span>
+                                </div>
+                            </button>
+                        </form>
+                        {% endif %}
+
                     </div>
 
                     {% elif request.method == "POST" %}
