@@ -68,7 +68,7 @@
                     </div>
 
                     <div class="d-flex gap-3 mt-4">
-                        <a href="{% url 'webguest:upload_image' %}" class="btn-ds-primary">
+                        <a href="{% url 'webguest:upload_image' %}?pid={{ appointment.patient.id }}" class="btn-ds-primary">
                             <i class="fas fa-microscope"></i> Predict Disease
                         </a>
                         <a href="{% url 'webdoctor:doctor_patient_bookings' %}" class="btn-ds-outline">
@@ -76,6 +76,44 @@
                         </a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Reports History -->
+    <div class="ds-card mt-4">
+        <div class="ds-card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 font-weight-bold"><i class="fas fa-file-medical-alt me-2 text-primary"></i>AI Analysis Reports</h4>
+            <span class="badge badge-primary">{{ reports|length }} Report(s)</span>
+        </div>
+        <div class="ds-card-body">
+            <div class="row g-3">
+                {% for report in reports %}
+                <div class="col-md-6">
+                    <div style="border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--surface);">
+                        <div style="height: 120px; overflow: hidden; position: relative;">
+                            {% if report.image %}
+                            <img src="{{ report.image.url }}" alt="Skin Scan" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% endif %}
+                            <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem;">
+                                {{ report.report_date|date:"d M Y" }}
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">{{ report.disease }}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                <span style="font-size: 0.8rem; font-weight: 600;">Confidence</span>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">{{ report.confidence }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-4">
+                    <i class="fas fa-info-circle text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted">No analysis reports found for this patient.</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
