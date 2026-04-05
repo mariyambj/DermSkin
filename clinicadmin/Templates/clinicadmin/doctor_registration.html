@@ -1,113 +1,447 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Doctor Registration</title>
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            background-color:#f4f6f9;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:       #3b52d4;
+    --blue-dark:  #2c3fb5;
+    --purple:     #7c3aed;
+    --purple-lite:#a855f7;
+    --red:        #ef4444;
+    --bg:         #f1f3f9;
+    --white:      #ffffff;
+    --text:       #1a2035;
+    --text-mid:   #4b5675;
+    --text-muted: #9ca3af;
+    --border:     #e2e6f0;
+    --border-focus: #3b52d4;
+    --shadow:     0 2px 12px rgba(59,82,212,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-md:  0 8px 28px rgba(59,82,212,.13), 0 2px 8px rgba(0,0,0,.06);
+  }
 
-        .container{
-            width:500px;
-            margin:auto;
-            background:white;
-            padding:30px;
-            margin-top:40px;
-            border-radius:8px;
-            box-shadow:0 0 10px rgba(0,0,0,0.1);
-        }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        h2{
-            text-align:center;
-            margin-bottom:20px;
-        }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-        input, select, textarea{
-            width:100%;
-            padding:10px;
-            margin:8px 0;
-            border:1px solid #ccc;
-            border-radius:5px;
-        }
+  /* ── Navbar ── */
+  .navbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    height: 58px;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
 
-        button{
-            width:100%;
-            padding:12px;
-            background:#007bff;
-            color:white;
-            border:none;
-            border-radius:5px;
-            font-size:16px;
-            cursor:pointer;
-        }
+  .brand {
+    display: flex; align-items: center; gap: 9px;
+    text-decoration: none;
+  }
 
-        button:hover{
-            background:#0056b3;
-        }
-    </style>
+  .brand-mark {
+    width: 33px; height: 33px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 3px 10px rgba(59,82,212,.28);
+  }
+
+  .brand-name {
+    font-size: 16px; font-weight: 700;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-links { display: flex; align-items: center; gap: 2px; }
+
+  .nav-link {
+    font-size: 14px; font-weight: 500;
+    color: var(--text-mid); text-decoration: none;
+    padding: 6px 14px; border-radius: 8px; transition: all .15s;
+  }
+  .nav-link:hover { color: var(--blue); background: rgba(59,82,212,.07); }
+
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+
+  .user-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 3px 11px 3px 3px;
+    border: 1.5px solid var(--border); border-radius: 100px;
+    background: var(--white); cursor: pointer; transition: border-color .15s;
+  }
+  .user-pill:hover { border-color: var(--blue); }
+
+  .user-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white;
+  }
+  .user-pill span { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(125deg, var(--blue-dark) 0%, var(--blue) 35%, var(--purple) 72%, var(--purple-lite) 100%);
+    padding: 30px 40px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='28' cy='28' r='1.2' fill='white' fill-opacity='0.055'/%3E%3C/svg%3E") repeat;
+    background-size: 56px 56px; pointer-events: none;
+  }
+
+  .hero-orb, .hero-orb2 {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    background: rgba(255,255,255,.06);
+  }
+  .hero-orb  { width: 220px; height: 220px; top: -70px; right: -30px; }
+  .hero-orb2 { width: 140px; height: 140px; bottom: -50px; right: 150px; background: rgba(255,255,255,.04); }
+
+  .hero-content {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .hero-back {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 9px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    color: white; text-decoration: none; font-size: 16px;
+    transition: background .15s; flex-shrink: 0;
+  }
+  .hero-back:hover { background: rgba(255,255,255,.25); }
+
+  .hero h1 { font-size: 22px; font-weight: 700; color: white; letter-spacing: -.02em; }
+  .hero p  { font-size: 13.5px; color: rgba(255,255,255,.65); margin-top: 3px; }
+
+  /* ── Main ── */
+  .main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 22px 60px;
+  }
+
+  /* ── Form card ── */
+  .form-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    opacity: 0;
+    animation: rise .4s .08s ease forwards;
+  }
+
+  /* ── Section headers inside form ── */
+  .form-section {
+    padding: 20px 24px 0;
+  }
+  .form-section:first-of-type { padding-top: 24px; }
+
+  .section-label {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: var(--blue);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .section-label span { font-size: 14px; }
+
+  /* ── Field grid ── */
+  .field-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .field-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .field-grid.cols-1 { grid-template-columns: 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+
+  label {
+    font-size: 13px; font-weight: 600; color: var(--text-mid);
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .required-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--red); flex-shrink: 0;
+  }
+
+  input, select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    padding: 10px 13px;
+    width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59,82,212,.10);
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--text-muted); }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* Custom select arrow */
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); font-size: 12px; pointer-events: none;
+  }
+  .select-wrap select { padding-right: 32px; cursor: pointer; }
+
+  /* File input */
+  .file-wrap {
+    position: relative;
+  }
+
+  .file-wrap input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2;
+  }
+
+  .file-label {
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px dashed var(--border);
+    border-radius: 9px; padding: 10px 13px;
+    cursor: pointer; transition: all .15s;
+    color: var(--text-muted); font-size: 13.5px;
+    background: #fafbff;
+  }
+  .file-wrap:hover .file-label {
+    border-color: var(--blue);
+    background: rgba(59,82,212,.03);
+    color: var(--blue);
+  }
+  .file-icon { font-size: 15px; flex-shrink: 0; }
+
+  /* ── Form footer ── */
+  .form-footer {
+    padding: 20px 24px 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 11px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; border: none; text-decoration: none; transition: all .15s;
+  }
+
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+    box-shadow: 0 3px 10px rgba(59,82,212,.25);
+  }
+  .btn-primary:hover { opacity: .9; transform: translateY(-1px); box-shadow: 0 5px 16px rgba(59,82,212,.3); }
+
+  .btn-ghost {
+    background: var(--white); color: var(--text-mid);
+    border: 1.5px solid var(--border);
+    text-decoration: none;
+  }
+  .btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: rgba(59,82,212,.04); }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 560px) {
+    .field-grid.cols-2 { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .hero { padding: 22px 18px; }
+    .form-section { padding: 16px 16px 0; }
+    .form-footer { padding: 16px; flex-direction: column; }
+    .main { padding: 20px 12px 48px; }
+  }
+</style>
 </head>
-
 <body>
 
-<div class="container">
-    <h2>Doctor Registration</h2>
+<!-- Navbar -->
+<div class="navbar">
+  <a href="#" class="brand">
+    <div class="brand-mark">🏥</div>
+    <span class="brand-name">ClinicAdmin</span>
+  </a>
+  <nav class="nav-links">
+    <a href="{% url 'webadmin:admin_homepage' %}" class="nav-link">Dashboard</a>
+    <a href="{% url 'webadmin:admin_doctor_list' %}" class="nav-link">Doctors</a>
+  </nav>
+  <div class="nav-right">
+    <div class="user-pill">
+      <div class="user-avatar">AD</div>
+      <span>Admin</span>
+    </div>
+  </div>
+</div>
 
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-content">
+    <a href="{% url 'webadmin:admin_homepage' %}" class="hero-back">←</a>
+    <div>
+      <h1>Doctor Registration</h1>
+      <p>Add a new doctor to your clinic</p>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="form-card">
     <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+      {% csrf_token %}
 
-        <label>Full Name</label>
-        <input type="text" name="name" value="Dr. " required>
+      <!-- Personal Info -->
+      <div class="form-section">
+        <div class="section-label"><span>👤</span> Personal Information</div>
+        <div class="field-grid cols-2">
+          <div class="field">
+            <label>Full Name <span class="required-dot"></span></label>
+            <input type="text" name="name" value="Dr. " required placeholder="Dr. Full Name">
+          </div>
+          <div class="field">
+            <label>Age <span class="required-dot"></span></label>
+            <input type="number" name="age" required placeholder="e.g. 35">
+          </div>
+          <div class="field">
+            <label>Gender</label>
+            <div class="select-wrap">
+              <select name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Others</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="required-dot"></span></label>
+            <input type="text" name="phone_number" required placeholder="+91 00000 00000">
+          </div>
+        </div>
+        <div class="field-grid cols-1">
+          <div class="field">
+            <label>Address</label>
+            <textarea name="address" placeholder="Clinic or home address"></textarea>
+          </div>
+        </div>
+      </div>
 
-        <label>Age</label>
-        <input type="number" name="age" required>
+      <!-- Account Info -->
+      <div class="form-section">
+        <div class="section-label"><span>🔐</span> Account Credentials</div>
+        <div class="field-grid cols-2">
+          <div class="field">
+            <label>Email <span class="required-dot"></span></label>
+            <input type="email" name="email" required placeholder="doctor@clinic.com">
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Set a password">
+          </div>
+        </div>
+      </div>
 
-        <label>Gender</label>
-        <select name="gender">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Others</optionvalue></option>
-        </select>
+      <!-- Professional Info -->
+      <div class="form-section">
+        <div class="section-label"><span>🩺</span> Professional Details</div>
+        <div class="field-grid cols-2">
+          <div class="field">
+            <label>Specialization <span class="required-dot"></span></label>
+            <div class="select-wrap">
+              <select name="specialization" required>
+                <option value="">-- Select --</option>
+                {% for value, label in specializations %}
+                  <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Qualification</label>
+            <input type="text" name="qualification" placeholder="e.g. MBBS, MD">
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Medical Registration Number</label>
+            <input type="text" name="medical_registration_number" placeholder="e.g. MCI-12345">
+          </div>
+        </div>
+      </div>
 
-        <label>Email</label>
-        <input type="email" name="email" required>
+      <!-- Documents -->
+      <div class="form-section">
+        <div class="section-label"><span>📎</span> Documents</div>
+        <div class="field-grid cols-2">
+          <div class="field">
+            <label>Profile Picture</label>
+            <div class="file-wrap">
+              <input type="file" name="profile_picture" accept="image/*">
+              <div class="file-label">
+                <span class="file-icon">🖼️</span> Choose photo
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Identification Proof</label>
+            <div class="file-wrap">
+              <input type="file" name="identification_proof">
+              <div class="file-label">
+                <span class="file-icon">📄</span> Upload document
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <label>Phone Number</label>
-        <input type="text" name="phone_number" required>
-
-        <label>Address</label>
-        <textarea name="address"></textarea>
-
-        <label>Profile Picture</label>
-        <input type="file" name="profile_picture">
-
-        <label>Identification Proof</label>
-        <input type="file" name="identification_proof">
-
-        <label>Specialization</label>
-        <select name="specialization" required>
-            <option value="">-- Select Specialization --</option>
-            {% for value,label in specializations %}
-                <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-        </select>
-
-        <label>Qualification</label>
-        <input type="text" name="qualification">
-
-        <label>Medical Registration Number</label>
-        <input type="text" name="medical_registration_number">
-
-        <label>Password</label>
-        <input type="password" name="password">
-
-        <button type="submit">Register Doctor</button>
+      <!-- Footer -->
+      <div class="form-footer">
+        <a href="{% url 'webadmin:admin_homepage' %}" class="btn btn-ghost">Cancel</a>
+        <button type="submit" class="btn btn-primary">✅ Register Doctor</button>
+      </div>
 
     </form>
-
+  </div>
 </div>
 
 </body>
 </html>
-```

@@ -1,105 +1,432 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>View Doctors</title>
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --blue:       #3b52d4;
+    --blue-dark:  #2c3fb5;
+    --purple:     #7c3aed;
+    --purple-lite:#a855f7;
+    --red:        #ef4444;
+    --bg:         #f1f3f9;
+    --white:      #ffffff;
+    --text:       #1a2035;
+    --text-mid:   #4b5675;
+    --text-muted: #9ca3af;
+    --border:     #e2e6f0;
+    --shadow:     0 2px 12px rgba(59,82,212,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-md:  0 8px 28px rgba(59,82,212,.13), 0 2px 8px rgba(0,0,0,.06);
+  }
 
-body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
-    margin:0;
-    padding:20px;
-}
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-h2{
-    text-align:center;
-    margin-bottom:20px;
-}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-table{
-    width:90%;
-    margin:auto;
-    border-collapse:collapse;
-    background:white;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+  /* ── Navbar ── */
+  .navbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    height: 58px;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
 
-th, td{
-    border:1px solid #ddd;
-    padding:12px;
-    text-align:center;
-}
+  .brand {
+    display: flex; align-items: center; gap: 9px;
+    text-decoration: none;
+  }
 
-th{
-    background:#007bff;
-    color:white;
-}
+  .brand-mark {
+    width: 33px; height: 33px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 3px 10px rgba(59,82,212,.28);
+  }
 
-tr:nth-child(even){
-    background:#f2f2f2;
-}
+  .brand-name {
+    font-size: 16px; font-weight: 700;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-img{
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    object-fit:cover;
-}
+  .nav-links { display: flex; align-items: center; gap: 2px; }
 
+  .nav-link {
+    font-size: 14px; font-weight: 500; color: var(--text-mid);
+    text-decoration: none; padding: 6px 14px;
+    border-radius: 8px; transition: all .15s;
+  }
+  .nav-link:hover { color: var(--blue); background: rgba(59,82,212,.07); }
+  .nav-link.active { color: var(--blue); background: rgba(59,82,212,.09); font-weight: 600; }
+
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+
+  .notif-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--border); background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 15px; position: relative;
+    transition: border-color .15s;
+  }
+  .notif-btn:hover { border-color: var(--blue); }
+
+  .notif-dot {
+    position: absolute; top: 5px; right: 5px;
+    width: 7px; height: 7px;
+    background: var(--red); border-radius: 50%;
+    border: 1.5px solid white;
+  }
+
+  .user-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 3px 11px 3px 3px;
+    border: 1.5px solid var(--border); border-radius: 100px;
+    cursor: pointer; background: var(--white);
+    transition: border-color .15s;
+  }
+  .user-pill:hover { border-color: var(--blue); }
+
+  .user-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .user-pill span { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(125deg, var(--blue-dark) 0%, var(--blue) 35%, var(--purple) 72%, var(--purple-lite) 100%);
+    padding: 32px 40px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='28' cy='28' r='1.2' fill='white' fill-opacity='0.055'/%3E%3C/svg%3E") repeat;
+    background-size: 56px 56px; pointer-events: none;
+  }
+
+  .hero-orb, .hero-orb2 {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    background: rgba(255,255,255,.06);
+  }
+  .hero-orb  { width: 220px; height: 220px; top: -70px; right: -30px; }
+  .hero-orb2 { width: 140px; height: 140px; bottom: -50px; right: 150px; background: rgba(255,255,255,.04); }
+
+  .hero-content {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .hero h1 {
+    font-size: 24px; font-weight: 700; color: white;
+    letter-spacing: -.02em; margin-bottom: 5px;
+  }
+  .hero p { font-size: 13.5px; color: rgba(255,255,255,.65); }
+
+  .back-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    background: rgba(255,255,255,.15);
+    border: 1.5px solid rgba(255,255,255,.25);
+    border-radius: 10px;
+    color: white; text-decoration: none;
+    font-size: 13.5px; font-weight: 600;
+    backdrop-filter: blur(6px);
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.4); }
+
+  /* ── Main ── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 22px 60px;
+  }
+
+  /* ── Table card ── */
+  .table-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    opacity: 0;
+    animation: rise .4s .08s ease forwards;
+  }
+
+  .table-card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .table-card-header-left {
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .table-card-header h3 {
+    font-size: 15px; font-weight: 700; color: var(--text);
+  }
+
+  .count-badge {
+    background: rgba(59,82,212,.10);
+    color: var(--blue);
+    font-size: 12px; font-weight: 700;
+    padding: 2px 9px; border-radius: 100px;
+  }
+
+  .add-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white; text-decoration: none;
+    border-radius: 9px; font-size: 13px; font-weight: 600;
+    box-shadow: 0 3px 10px rgba(59,82,212,.25);
+    transition: all .15s;
+  }
+  .add-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead tr {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  }
+
+  thead th {
+    padding: 12px 16px;
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,.82);
+    text-align: left;
+    letter-spacing: .07em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(59,82,212,.03); }
+
+  tbody td {
+    padding: 13px 16px;
+    font-size: 13.5px; color: var(--text-mid);
+    vertical-align: middle;
+  }
+
+  /* Doctor cell */
+  .doctor-cell {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .doctor-img {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .doctor-no-img {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+
+  .doctor-name {
+    font-weight: 600; color: var(--text); font-size: 13.5px;
+  }
+
+  /* Badges */
+  .spec-badge {
+    display: inline-block;
+    background: rgba(124,58,237,.09);
+    color: #6d28d9;
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .qual-badge {
+    display: inline-block;
+    background: rgba(59,82,212,.09);
+    color: var(--blue);
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  .id-text {
+    font-family: monospace;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 3px 8px; border-radius: 6px;
+    border: 1px solid var(--border);
+    display: inline-block;
+  }
+
+  /* Delete button */
+  .delete-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 13px;
+    background: #fff5f5;
+    color: var(--red);
+    border: 1.5px solid #fecaca;
+    border-radius: 8px;
+    font-size: 12.5px; font-weight: 600;
+    text-decoration: none;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .delete-btn:hover { background: #fee2e2; border-color: var(--red); }
+
+  /* Empty state */
+  .empty-state {
+    padding: 52px 24px;
+    text-align: center;
+  }
+  .empty-icon { font-size: 38px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; color: var(--text-muted); }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .hero { padding: 24px 18px; }
+    .hero-content { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .main { padding: 18px 12px 48px; }
+  }
 </style>
 </head>
-
 <body>
 
-<h2>Registered Doctors</h2>
+<!-- Navbar -->
+<div class="navbar">
+  <a href="#" class="brand">
+    <div class="brand-mark">🏥</div>
+    <span class="brand-name">ClinicAdmin</span>
+  </a>
+  <nav class="nav-links">
+    <a href="{% url 'webadmin:admin_homepage' %}" class="nav-link">Dashboard</a>
+    <a href="{% url 'webadmin:admin_doctor_list' %}" class="nav-link active">Doctors</a>
+  </nav>
+  <div class="nav-right">
+    <div class="notif-btn">🔔<span class="notif-dot"></span></div>
+    <div class="user-pill">
+      <div class="user-avatar">AD</div>
+      <span>Admin</span>
+    </div>
+  </div>
+</div>
 
-<table>
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-content">
+    <div>
+      <h1>Registered Doctors</h1>
+      <p>View and manage all clinic doctors</p>
+    </div>
+    <a href="{% url 'webadmin:admin_homepage' %}" class="back-btn">← Back to Dashboard</a>
+  </div>
+</div>
 
-<thead>
-<tr>
-    <th>Profile</th>
-    <th>Name</th>
-    <th>Specialization</th>
-    <th>Email</th>
-    <th>Phone</th>
-    <th>Qualification</th>
-    <th>Medical ID</th>
-    <th>Action</th>
-</tr>
-</thead>
+<!-- Main -->
+<div class="main">
+  <div class="table-card">
 
-<tbody>
+    <div class="table-card-header">
+      <div class="table-card-header-left">
+        <span>🩺</span>
+        <h3>All Doctors</h3>
+      </div>
+      <a href="{% url 'webadmin:doctor_registration' %}" class="add-btn">➕ Add Doctor</a>
+    </div>
 
-{% for doctor in doctors %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Specialization</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Qualification</th>
+            <th>Medical ID</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doctor in doctors %}
+          <tr>
+            <td>
+              <div class="doctor-cell">
+                {% if doctor.profile_picture %}
+                  <img class="doctor-img" src="{{ doctor.profile_picture.url }}" alt="{{ doctor.name }}">
+                {% else %}
+                  <div class="doctor-no-img">{{ doctor.name|first|upper }}</div>
+                {% endif %}
+                <span class="doctor-name">{{ doctor.name }}</span>
+              </div>
+            </td>
+            <td><span class="spec-badge">{{ doctor.specialization }}</span></td>
+            <td>{{ doctor.email }}</td>
+            <td>{{ doctor.phone_number }}</td>
+            <td><span class="qual-badge">{{ doctor.qualification }}</span></td>
+            <td><span class="id-text">{{ doctor.medical_registration_number }}</span></td>
+            <td>
+              <a href="{% url 'webadmin:delete_doctor' doctor.id %}"
+                 onclick="return confirm('Are you sure you want to delete this doctor?')"
+                 class="delete-btn">🗑 Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7">
+              <div class="empty-state">
+                <div class="empty-icon">🩺</div>
+                <p>No doctors registered yet.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-<tr>
-
-<td>
-{% if doctor.profile_picture %}
-<img src="{{ doctor.profile_picture.url }}">
-{% else %}
-No Image
-{% endif %}
-</td>
-
-<td>{{ doctor.name }}</td>
-<td>{{ doctor.specialization }}</td>
-<td>{{ doctor.email }}</td>
-<td>{{ doctor.phone_number }}</td>
-<td>{{ doctor.qualification }}</td>
-<td>{{ doctor.medical_registration_number }}</td>
-<td>
-<a href="{% url 'webadmin:delete_doctor' doctor.id %}" onclick="return confirm('Are you sure you want to delete this doctor?')"
-class="delete-btn"> Delete</a>
-</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
+  </div>
+</div>
 
 </body>
 </html>
