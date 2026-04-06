@@ -3,6 +3,10 @@ from clinicadmin.models import *
 from .models import *
 from datetime import datetime, timedelta, date
 from django.utils import timezone
+from patient.models import *
+import base64
+from django.core.files.base import ContentFile
+from datetime import datetime
 
 
 # Create your views here.
@@ -102,15 +106,12 @@ def doctor_changepassword(request):
 from datetime import datetime, timedelta, date
 from django.shortcuts import render, redirect
 
-
-
 # doctor/views.py
 from datetime import datetime, timedelta
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import tbl_schedule, tbl_token
 from clinicadmin.models import tbl_doctor
-
 
 
 from django.shortcuts import render, redirect
@@ -122,11 +123,9 @@ from clinicadmin.models import tbl_doctor
 def doctor_schedule(request):
     # 1. Get ID from session and verify the doctor exists FIRST
     doctor_id = request.session['did']
-    
     if not doctor_id:
         messages.error(request, "You must be logged in to access this page.")
-        return redirect('webguest:login')  # Update 'login' if your login URL name is different
-        
+        return redirect('webguest:login')  # Update 'login' if your login URL name is different    
     try:
         doctor = tbl_doctor.objects.get(id=doctor_id)
     except tbl_doctor.DoesNotExist:
@@ -156,7 +155,6 @@ def doctor_schedule(request):
             break_start_time=break_start_str if break_start_str else None,
             break_end_time=break_end_str if break_end_str else None
         )
-
         # Time Calculations for Tokens
         fmt = '%H:%M'
         current_time = datetime.strptime(start_time_str, fmt)
@@ -168,7 +166,6 @@ def doctor_schedule(request):
             # Fast-forward past the break time if we hit it
             if break_start and break_end and break_start <= current_time < break_end:
                 current_time = break_end
-
             # Create the Token
             tbl_token.objects.create(
                 doctor=doctor,
@@ -179,7 +176,6 @@ def doctor_schedule(request):
                 estimated_time=current_time.time(),
                 is_booked=False
             )
-            
             # Increment time for the next token
             current_time += timedelta(minutes=consultation_duration)
 
@@ -231,7 +227,7 @@ def delete_schedule(request, id):
 
 
 #view bookings
-def doctor_patient_bookings(request):
+'''def doctor_patient_bookings(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
@@ -252,9 +248,28 @@ def doctor_patient_bookings(request):
         'appointments': appointments,
         'current_status': status_filter
     })
+'''
 
-
-
+def doctor_patient_bookings(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+    status_filter = request.GET.get('status')
+    today = timezone.localdate()
+    # show only confirmed and pending
+    appointments = tbl_appointment.objects.filter(
+        doctor=doctor,
+        appointment_date__gte=today,
+        status__in=['confirmed', 'pending']
+    )
+    if status_filter:
+        appointments = appointments.filter(status=status_filter)
+    appointments = appointments.order_by('appointment_date', 'estimated_time')
+    return render(request, 'doctor/patient_bookings.html', {
+        'appointments': appointments,
+        'current_status': status_filter
+    })
 
 
 def update_booking_status(request, appointment_id, status):
@@ -275,15 +290,12 @@ def doctor_reports(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
-    
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
     from patient.models import tbl_appointment
-    
     # Simple statistics
     total_appointments = tbl_appointment.objects.filter(doctor=doctor).count()
     completed_appointments = tbl_appointment.objects.filter(doctor=doctor, status='completed').count()
     cancelled_appointments = tbl_appointment.objects.filter(doctor=doctor, status='cancelled').count()
-    
     # Monthly breakdown (last 6 months)
     today = date.today()
     monthly_stats = []
@@ -299,41 +311,53 @@ def doctor_reports(request):
             'month': month_start.strftime('%B %Y'),
             'count': count
         })
-    
     context = {
         'total_appointments': total_appointments,
         'completed_appointments': completed_appointments,
         'cancelled_appointments': cancelled_appointments,
         'monthly_stats': monthly_stats,
     }
-    
     return render(request, 'doctor/doctor_reports.html', context)
 
-def patient_details(request, id):
+
+'''def patient_details(request, id):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
-    
     from patient.models import tbl_appointment, tbl_report
     appointment = get_object_or_404(tbl_appointment, id=id, doctor_id=doctor_id)
-    
     # Fetch previous reports for this patient
     reports = tbl_report.objects.filter(patient=appointment.patient).order_by('-report_date')
     
     return render(request, 'doctor/patient_details.html', {
         'appointment': appointment,
         'reports': reports
+    })'''
+
+
+def patient_details(request, id):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    from patient.models import tbl_appointment, tbl_report
+    appointment = get_object_or_404(tbl_appointment, id=id, doctor_id=doctor_id)
+    # ✅ Change status when doctor opens patient details
+    if appointment.status == 'confirmed':
+        appointment.status = 'pending'
+        appointment.save()
+    # Fetch previous reports
+    reports = tbl_report.objects.filter(patient=appointment.patient).order_by('-report_date')
+
+    return render(request, 'doctor/patient_details.html', {
+        'appointment': appointment,
+        'reports': reports
     })
 
-import base64
-from django.core.files.base import ContentFile
-from datetime import datetime
 
 def doctor_save_report(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
-    
     if request.method == 'POST':
         from patient.models import tbl_patient, tbl_report
         patient_id = request.POST.get('patient_id')
@@ -348,7 +372,6 @@ def doctor_save_report(request):
             disease=disease,
             confidence=confidence
         )
-        
         if image_data and ';base64,' in image_data:
             format, imgstr = image_data.split(';base64,')
             ext = format.split('/')[-1]
@@ -357,7 +380,6 @@ def doctor_save_report(request):
             
         report.save()
         messages.success(request, "Patient report generated and saved successfully!")
-        
         # We need to find an appointment ID to redirect back to patient_details
         from patient.models import tbl_appointment
         latest_appointment = tbl_appointment.objects.filter(patient=patient, doctor_id=doctor_id).order_by('-appointment_date').first()
@@ -365,3 +387,4 @@ def doctor_save_report(request):
             return redirect('webdoctor:patient_details', id=latest_appointment.id)
             
     return redirect('webdoctor:doctor_homepage')
+

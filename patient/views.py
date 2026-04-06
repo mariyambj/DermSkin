@@ -94,7 +94,6 @@ def doctor_details(request, id):
 
 #Booking
 
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from datetime import date
@@ -116,22 +115,40 @@ def book_appointment(request, doctor_id):
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
 
     selected_date = request.GET.get('appointment_date')
+    tokens = None   # ❗ No tokens initially
 
-    if not selected_date:
-        selected_date = date.today()
+    if selected_date:
+        selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
 
-    tokens = tbl_token.objects.filter(
-        doctor_id=doctor_id,
-        date=selected_date
-    ).order_by('token_number')
+        # ❌ Prevent past booking
+        if selected_date < date.today():
+            messages.error(request, "You cannot book past dates.")
+            return redirect('webpatient:book_appointment', doctor_id=doctor_id)
+
+        # ✔ Check doctor schedule
+        schedule = tbl_schedule.objects.filter(
+            doctor=doctor,
+            schedule_date=selected_date,
+            is_available=True
+        ).first()
+
+        if not schedule:
+            messages.error(request, "Doctor is not available on this date.")
+        else:
+            # ✔ Fetch tokens only if schedule exists
+            tokens = tbl_token.objects.filter(
+                doctor=doctor,
+                date=selected_date
+            ).order_by('token_number')
 
     context = {
-        'tokens': tokens,
         'doctor': doctor,
-        'selected_date': selected_date
+        'tokens': tokens,
+        'selected_date': selected_date,
+        'today': date.today()
     }
-    return render(request, 'patient/booking_appointment.html', context)
 
+    return render(request, 'patient/booking_appointment.html', context)
 
 # ==========================================
 # CONFIRM BOOKING
@@ -180,6 +197,8 @@ def myBookings(request):
         'appointments': appointments
     }
     return render(request, 'patient/myBookings.html', context)
+
+
 
 
 
