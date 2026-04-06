@@ -329,7 +329,7 @@
     <a href="{% url 'webadmin:admin_doctor_list' %}" class="stat-card">
       <div class="stat-icon-wrap blue">🩺</div>
       <div>
-        <div class="stat-value">—</div>
+        <div class="stat-value">{{ doctor_count }}</div>
         <div class="stat-label">Total Doctors</div>
       </div>
       <span class="stat-arrow">→</span>
@@ -337,7 +337,7 @@
     <a href="#" class="stat-card">
       <div class="stat-icon-wrap green">🧑‍⚕️</div>
       <div>
-        <div class="stat-value">—</div>
+        <div class="stat-value">{{ patient_count }}</div>
         <div class="stat-label">Total Patients</div>
       </div>
       <span class="stat-arrow">→</span>

@@ -2,9 +2,12 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from clinicadmin.models import *
 from django.shortcuts import redirect, get_object_or_404
+from patient.models import *
 
 def admin_homepage(request):
-    return render(request, 'clinicadmin/admin_homepage.html')
+    patient_count=tbl_patient.objects.count()
+    doctor_count=tbl_doctor.objects.count()
+    return render(request, 'clinicadmin/admin_homepage.html',{'doctor_count':doctor_count,'patient_count':patient_count})
 
 
 def doctor_registration(request):
