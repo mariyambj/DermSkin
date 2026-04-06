@@ -8,5 +8,6 @@ urlpatterns = [
     path('upload/', views.upload_image, name='upload_image'),
     path('patient_list/',views.patient_list,name='patient_list'),
     path('home_page/',views.home_page,name='home_page'),
+    path('', views.home_page),
 
 ]

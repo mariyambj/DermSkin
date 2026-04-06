@@ -12,15 +12,24 @@
 <div class="page-wrapper">
 <div class="container">
 
-    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
-        <div>
-            <h2 class="section-heading">Booking History</h2>
-            <p class="section-subheading">{{ appointments|length }} booking(s) found</p>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up">
+
+    <div>
+        <h2 class="section-heading">Booking History</h2>
+        <p class="section-subheading">{{ appointments|length }} booking(s) found</p>
+    </div>
+
+    <div class="d-flex gap-2">
         <a href="{% url 'webpatient:doctor_list' %}" class="btn-ds-primary">
             <i class="fas fa-plus"></i> New Booking
         </a>
+
+        <a href="{% url 'webpatient:appointment_history' %}" class="btn-ds-primary">
+            <i class="fas fa-history"></i> View History
+        </a>
     </div>
+
+</div>
 
     <div class="d-flex flex-column gap-3">
         {% for app in appointments %}

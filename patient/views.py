@@ -130,7 +130,6 @@ def book_appointment(request, doctor_id):
         'doctor': doctor,
         'selected_date': selected_date
     }
-
     return render(request, 'patient/booking_appointment.html', context)
 
 
@@ -138,23 +137,16 @@ def book_appointment(request, doctor_id):
 # CONFIRM BOOKING
 # ==========================================
 def confirm_booking(request, token_id):
-
     token = get_object_or_404(tbl_token, id=token_id)
-
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
-
     patient = get_object_or_404(tbl_patient, id=patient_id)
-
     if request.method == "POST":
-
         if token.is_booked:
             messages.error(request, "Sorry, this token is already booked.")
             return redirect('webpatient:book_appointment', doctor_id=token.doctor.id)
-
         symptoms = request.POST.get('symptoms')
-
         tbl_appointment.objects.create(
             patient=patient,
             doctor=token.doctor,
@@ -164,38 +156,37 @@ def confirm_booking(request, token_id):
             symptoms=symptoms,
             status='confirmed'
         )
-
         token.is_booked = True
         token.save()
-
         messages.success(request, "Appointment booked successfully!")
         return redirect('webpatient:patient_homepage')
-
     return render(request, 'patient/confirm_booking.html', {'token': token})
+
+
 
 from django.shortcuts import render, redirect
 from patient.models import tbl_appointment, tbl_patient
 
 def myBookings(request):
-
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
     patient = tbl_patient.objects.get(id=patient_id)
     appointments = tbl_appointment.objects.filter(
-        patient=patient
-    ).order_by('-appointment_date', 'estimated_time')
-
+        patient=patient,
+        appointment_date__gte=date.today()   # today + future
+    ).order_by('appointment_date', 'estimated_time')
     context = {
         'appointments': appointments
     }
     return render(request, 'patient/myBookings.html', context)
 
+
+
 def generate_report(request):
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
-    
     if request.method == 'POST':
         patient = tbl_patient.objects.get(id=patient_id)
         image_data = request.POST.get('image_data')
@@ -220,6 +211,8 @@ def generate_report(request):
         
     return redirect('webpatient:patient_homepage')
 
+
+
 def myReports(request):
     patient_id = request.session.get('pid')
     if not patient_id:
@@ -232,3 +225,17 @@ def myReports(request):
         'reports': reports
     }
     return render(request, 'patient/myReports.html', context)
+
+
+
+
+
+#Booking history
+def appointment_history(request):
+    pid = request.session['pid']   # logged patient id
+    today = date.today()
+    history = tbl_appointment.objects.filter(
+        patient_id=pid,
+        appointment_date__lt=today
+    ).order_by('-appointment_date')
+    return render(request, 'patient/history_booking.html', {'history': history})

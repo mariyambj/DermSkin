@@ -14,4 +14,5 @@ urlpatterns = [
    path('myBookings/',views.myBookings, name='myBookings'),
    path('generate_report/',views.generate_report, name='generate_report'),
    path('myReports/',views.myReports, name='myReports'),
+   path('appointment-history/', views.appointment_history, name='appointment_history'),
 ]
