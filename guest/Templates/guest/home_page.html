@@ -1,706 +1,848 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dermatology Clinic - Appointment Management System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        /* Navigation */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 70px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-        
-        .logo-icon {
-            font-size: 2em;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #555;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: #667eea;
-        }
-        
-        .btn {
-            padding: 10px 25px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 150px 20px 100px;
-            text-align: center;
-            margin-top: 70px;
-        }
-        
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .hero h1 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-        
-        .hero p {
-            font-size: 1.3em;
-            margin-bottom: 30px;
-            opacity: 0.95;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .hero .btn {
-            padding: 15px 40px;
-            font-size: 1.1em;
-        }
-        
-        /* Features Section */
-        .features {
-            padding: 80px 20px;
-            background: #f8f9fa;
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .section-header h2 {
-            font-size: 2.5em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .section-header p {
-            font-size: 1.2em;
-            color: #666;
-        }
-        
-        .features-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-        }
-        
-        .feature-card {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s;
-            text-align: center;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .feature-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-        }
-        
-        .feature-card h3 {
-            font-size: 1.5em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .feature-card p {
-            color: #666;
-            line-height: 1.8;
-        }
-        
-        /* User Types Section */
-        .user-types {
-            padding: 80px 20px;
-            background: white;
-        }
-        
-        .user-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 40px;
-        }
-        
-        .user-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 50px 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            transition: all 0.3s;
-        }
-        
-        .user-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-        }
-        
-        .user-card.patient {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        
-        .user-card.doctor {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        
-        .user-card.admin {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-        
-        .user-card-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-        }
-        
-        .user-card h3 {
-            font-size: 2em;
-            margin-bottom: 15px;
-        }
-        
-        .user-card p {
-            font-size: 1.1em;
-            margin-bottom: 25px;
-            opacity: 0.95;
-        }
-        
-        .user-card ul {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-        
-        .user-card ul li {
-            padding: 8px 0;
-            padding-left: 30px;
-            position: relative;
-        }
-        
-        .user-card ul li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .user-card .btn {
-            background: white;
-            color: #667eea;
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1em;
-        }
-        
-        .user-card.patient .btn {
-            color: #00a8cc;
-        }
-        
-        .user-card.doctor .btn {
-            color: #2ecc71;
-        }
-        
-        .user-card.admin .btn {
-            color: #e74c3c;
-        }
-        
-        /* How It Works Section */
-        .how-it-works {
-            padding: 80px 20px;
-            background: #f8f9fa;
-        }
-        
-        .steps-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-        }
-        
-        .step {
-            text-align: center;
-            padding: 30px;
-        }
-        
-        .step-number {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            font-weight: bold;
-            margin: 0 auto 20px;
-        }
-        
-        .step h3 {
-            font-size: 1.4em;
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .step p {
-            color: #666;
-            line-height: 1.8;
-        }
-        
-        /* Stats Section */
-        .stats {
-            padding: 80px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .stats-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            text-align: center;
-        }
-        
-        .stat-item h3 {
-            font-size: 3.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .stat-item p {
-            font-size: 1.2em;
-            opacity: 0.95;
-        }
-        
-        /* CTA Section */
-        .cta {
-            padding: 100px 20px;
-            background: white;
-            text-align: center;
-        }
-        
-        .cta h2 {
-            font-size: 2.5em;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        
-        .cta p {
-            font-size: 1.3em;
-            color: #666;
-            margin-bottom: 40px;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .cta .btn {
-            padding: 15px 40px;
-            font-size: 1.1em;
-        }
-        
-        /* Footer */
-        .footer {
-            background: #2c3e50;
-            color: white;
-            padding: 60px 20px 30px;
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-        
-        .footer-section h3 {
-            font-size: 1.3em;
-            margin-bottom: 20px;
-        }
-        
-        .footer-section ul {
-            list-style: none;
-        }
-        
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
-        
-        .footer-section a {
-            color: #bdc3c7;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        
-        .footer-section a:hover {
-            color: white;
-        }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid #34495e;
-            color: #bdc3c7;
-        }
-        
-        /* Mobile Menu */
-        .mobile-menu-toggle {
-            display: none;
-            font-size: 1.8em;
-            cursor: pointer;
-            color: #2c3e50;
-        }
-        
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: white;
-                flex-direction: column;
-                padding: 20px;
-                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            }
-            
-            .nav-links.active {
-                display: flex;
-            }
-            
-            .mobile-menu-toggle {
-                display: block;
-            }
-            
-            .hero h1 {
-                font-size: 2em;
-            }
-            
-            .hero p {
-                font-size: 1.1em;
-            }
-            
-            .user-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartDerm — Intelligent Dermatology Care</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #1a2a4a;
+  --ink-mid:    #f0f4fb;
+  --ink-soft:   #e4ecf7;
+  --blue:       #2563eb;
+  --blue-dark:  #1d4ed8;
+  --blue-light: #3b82f6;
+  --blue-glow:  rgba(37,99,235,.15);
+  --sky:        #0ea5e9;
+  --amber:      #f59e0b;
+  --white:      #ffffff;
+  --off-white:  #f7f9fd;
+  --text:       #1a2a4a;
+  --text-mid:   #3a5070;
+  --text-muted: #7a90b0;
+  --border:     rgba(37,99,235,.12);
+  --border-light: rgba(37,99,235,.22);
+  --card-bg:    rgba(255,255,255,.85);
+  --card-hover: #ffffff;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--off-white);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--off-white); }
+::-webkit-scrollbar-thumb { background: #bdd0f0; border-radius: 3px; }
+
+/* ══════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════ */
+.navbar {
+  position: fixed; top: 0; width: 100%; z-index: 1000;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+
+.nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 28px; height: 66px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 0 18px var(--blue-glow);
+}
+
+.logo-text {
+  font-family: 'Fraunces', serif;
+  font-size: 20px; font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+
+.logo-text span { color: var(--blue); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 6px;
+}
+
+.nav-a {
+  font-size: 14px; font-weight: 500;
+  color: var(--text-mid); text-decoration: none;
+  padding: 7px 15px; border-radius: 8px;
+  transition: all .15s;
+}
+.nav-a:hover { color: var(--blue); background: rgba(37,99,235,.07); }
+
+.nav-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 20px; border-radius: 9px;
+  font-size: 14px; font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-decoration: none; cursor: pointer; border: none;
+  transition: all .2s;
+}
+
+.btn-ghost {
+  color: var(--blue); background: transparent;
+  border: 1.5px solid rgba(37,99,235,.35);
+}
+.btn-ghost:hover { background: rgba(37,99,235,.07); border-color: var(--blue); }
+
+.btn-teal {
+  color: var(--white); background: var(--blue);
+  box-shadow: 0 4px 18px var(--blue-glow);
+}
+.btn-teal:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(37,99,235,.3); }
+
+.hamburger {
+  display: none; font-size: 22px; cursor: pointer;
+  color: var(--ink); background: none; border: none;
+}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 120px 28px 80px;
+  position: relative; overflow: hidden;
+}
+
+/* mesh background */
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 60% 40%, rgba(37,99,235,.10) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(14,165,233,.08) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 80% 90%, rgba(59,130,246,.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-grid {
+  max-width: 1200px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: center;
+  position: relative; z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 100px;
+  background: rgba(37,99,235,.08);
+  border: 1px solid rgba(37,99,235,.22);
+  font-size: 12px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--blue);
+  margin-bottom: 22px;
+  animation: fadeUp .6s ease both;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.8); }
+}
+
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.6rem, 4.5vw, 3.8rem);
+  font-weight: 600; line-height: 1.12;
+  color: var(--ink); letter-spacing: -.03em;
+  margin-bottom: 20px;
+  animation: fadeUp .6s .1s ease both;
+}
+
+.hero h1 em { color: var(--blue); font-style: italic; }
+
+.hero-desc {
+  font-size: 16px; color: var(--text-mid); line-height: 1.75;
+  max-width: 460px; margin-bottom: 36px;
+  animation: fadeUp .6s .2s ease both;
+}
+
+.hero-actions {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  animation: fadeUp .6s .3s ease both;
+}
+
+.hero-actions .nav-btn { padding: 13px 28px; font-size: 15px; }
+
+.hero-stat-row {
+  display: flex; gap: 28px; margin-top: 44px;
+  padding-top: 36px; border-top: 1px solid var(--border);
+  animation: fadeUp .6s .4s ease both;
+}
+
+.hero-stat-val {
+  font-family: 'Fraunces', serif;
+  font-size: 28px; font-weight: 600; color: var(--ink);
+  line-height: 1;
+}
+.hero-stat-lbl { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+/* Hero visual */
+.hero-visual {
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  animation: fadeUp .6s .15s ease both;
+}
+
+.hero-card-stack {
+  position: relative; width: 340px; height: 400px;
+}
+
+.hcard {
+  position: absolute;
+  background: var(--white);
+  border: 1px solid rgba(37,99,235,.14);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 8px 32px rgba(37,99,235,.10);
+}
+
+.hcard-main {
+  width: 300px; top: 40px; left: 20px;
+  background: var(--white);
+  border-color: rgba(37,99,235,.18);
+  z-index: 3;
+  box-shadow: 0 12px 40px rgba(37,99,235,.13);
+}
+
+.hcard-back {
+  width: 280px; top: 10px; left: 40px;
+  background: rgba(37,99,235,.05);
+  border-color: rgba(37,99,235,.10);
+  z-index: 1;
+  transform: rotate(-3deg);
+}
+
+.hcard-back2 {
+  width: 270px; top: 20px; left: 50px;
+  background: rgba(14,165,233,.04);
+  border-color: rgba(14,165,233,.08);
+  z-index: 2;
+  transform: rotate(2deg);
+}
+
+.hcard-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--blue); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.hcard-label::before { content:''; width:18px; height:1px; background:var(--blue); }
+
+.hcard-doc-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+
+.doc-ava-lg {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+.hcard-doc-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+.hcard-doc-spec { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.hcard-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+.hcard-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.hcard-row:last-child { margin-bottom: 0; }
+.hcard-key { font-size: 12px; color: var(--text-muted); }
+.hcard-val { font-size: 13px; font-weight: 600; color: var(--text-mid); }
+
+.status-dot {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 100px;
+  font-size: 11px; font-weight: 600;
+}
+.status-confirmed { background: rgba(37,99,235,.10); color: var(--blue); }
+
+.floating-badge {
+  position: absolute; bottom: 20px; right: -10px; z-index: 5;
+  background: var(--white); border: 1px solid rgba(37,99,235,.15);
+  border-radius: 12px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 24px rgba(37,99,235,.12);
+  animation: float 3s ease-in-out infinite;
+}
+.fb-icon { font-size: 18px; }
+.fb-val { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1; }
+.fb-lbl { font-size: 10px; color: var(--text-muted); }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ══════════════════════════════════════
+   USER TYPES
+══════════════════════════════════════ */
+.section {
+  padding: 100px 28px;
+  position: relative;
+}
+
+.section-center { text-align: center; max-width: 620px; margin: 0 auto 60px; }
+
+.section-tag {
+  display: inline-block;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--blue); margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 600; color: var(--ink);
+  letter-spacing: -.025em; line-height: 1.18; margin-bottom: 14px;
+}
+
+.section-desc { font-size: 15px; color: var(--text-muted); line-height: 1.75; }
+
+.user-grid {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.ucard {
+  background: var(--white);
+  border: 1px solid rgba(37,99,235,.12);
+  border-radius: 22px; padding: 36px 30px 30px;
+  transition: all .3s; position: relative; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(37,99,235,.06);
+}
+
+.ucard::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  opacity: 0; transition: opacity .3s;
+}
+
+.ucard-patient::before { background: linear-gradient(90deg, var(--sky), var(--blue)); }
+.ucard-doctor::before  { background: linear-gradient(90deg, var(--blue), var(--blue-light)); }
+.ucard-admin::before   { background: linear-gradient(90deg, var(--amber), #f97316); }
+
+.ucard:hover { background: var(--white); border-color: rgba(37,99,235,.25); transform: translateY(-4px); box-shadow: 0 12px 36px rgba(37,99,235,.12); }
+.ucard:hover::before { opacity: 1; }
+
+.ucard-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 22px;
+}
+.ucard-patient .ucard-icon { background: rgba(14,165,233,.10); }
+.ucard-doctor  .ucard-icon { background: rgba(37,99,235,.10); }
+.ucard-admin   .ucard-icon { background: rgba(245,158,11,.10); }
+
+.ucard h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  margin-bottom: 6px; letter-spacing: -.01em;
+}
+
+.ucard-sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+
+.ucard-list { list-style: none; margin-bottom: 28px; }
+.ucard-list li {
+  font-size: 13.5px; color: var(--text-mid);
+  padding: 7px 0; border-bottom: 1px solid rgba(37,99,235,.08);
+  display: flex; align-items: center; gap: 9px;
+}
+.ucard-list li:last-child { border-bottom: none; }
+
+.ucard-list li::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.ucard-patient .ucard-list li::before { background: var(--sky); }
+.ucard-doctor  .ucard-list li::before { background: var(--blue); }
+.ucard-admin   .ucard-list li::before { background: var(--amber); }
+
+.ucard-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 12px 16px; border-radius: 11px;
+  font-size: 14px; font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-decoration: none; cursor: pointer; border: 1.5px solid;
+  transition: all .2s;
+}
+
+.ucard-patient .ucard-btn { color: var(--sky); border-color: rgba(14,165,233,.3); }
+.ucard-patient .ucard-btn:hover { background: rgba(14,165,233,.08); border-color: var(--sky); }
+
+.ucard-doctor .ucard-btn { color: var(--blue); border-color: rgba(37,99,235,.3); }
+.ucard-doctor .ucard-btn:hover { background: rgba(37,99,235,.07); border-color: var(--blue); }
+
+.ucard-admin .ucard-btn { color: var(--amber); border-color: rgba(245,158,11,.3); }
+.ucard-admin .ucard-btn:hover { background: rgba(245,158,11,.07); border-color: var(--amber); }
+
+/* ══════════════════════════════════════
+   HOW IT WORKS
+══════════════════════════════════════ */
+.how-section {
+  padding: 100px 28px;
+  background: var(--ink-soft);
+  position: relative; overflow: hidden;
+}
+
+.how-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(37,99,235,.05) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.steps-row {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 20px; position: relative; z-index: 1;
+}
+
+.steps-row::before {
+  content: '';
+  position: absolute; top: 32px; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: .25;
+}
+
+.step-card {
+  background: var(--white); border: 1px solid rgba(37,99,235,.10);
+  border-radius: 18px; padding: 28px 22px; text-align: center;
+  transition: all .25s;
+  box-shadow: 0 2px 12px rgba(37,99,235,.06);
+}
+.step-card:hover { background: var(--white); transform: translateY(-4px); border-color: rgba(37,99,235,.22); box-shadow: 0 8px 28px rgba(37,99,235,.10); }
+
+.step-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+  color: var(--white); font-size: 18px; font-weight: 800;
+  font-family: 'Fraunces', serif;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 18px;
+  box-shadow: 0 0 20px var(--blue-glow);
+}
+
+.step-card h3 { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.step-card p  { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+/* ══════════════════════════════════════
+   STATS
+══════════════════════════════════════ */
+.stats-section {
+  padding: 80px 28px;
+  background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 50%, var(--sky) 100%);
+  position: relative; overflow: hidden;
+}
+
+.stats-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='56' height='56' viewBox='0 0 56 56' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='28' cy='28' r='1.2' fill='white' fill-opacity='0.07'/%3E%3C/svg%3E") repeat;
+  background-size: 56px 56px; pointer-events: none;
+}
+
+.stats-inner {
+  max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 10px; position: relative; z-index: 1;
+}
+
+.stat-box {
+  text-align: center; padding: 30px 20px;
+  border-right: 1px solid rgba(255,255,255,.2);
+}
+.stat-box:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 44px; font-weight: 600;
+  color: var(--white); line-height: 1; margin-bottom: 8px;
+}
+.stat-num span { color: rgba(255,255,255,.75); }
+.stat-lbl { font-size: 13px; color: rgba(255,255,255,.72); font-weight: 500; }
+
+/* ══════════════════════════════════════
+   CTA
+══════════════════════════════════════ */
+.cta-section {
+  padding: 110px 28px;
+  text-align: center; position: relative; overflow: hidden;
+  background: var(--off-white);
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 55% 70% at 50% 50%, rgba(37,99,235,.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.cta-section .section-title { max-width: 560px; margin: 0 auto 14px; }
+.cta-section .section-desc  { max-width: 480px; margin: 0 auto 36px; }
+
+.cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.cta-btns .nav-btn { padding: 14px 32px; font-size: 15px; }
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+footer {
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 70px 28px 30px;
+}
+
+.footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  gap: 48px; margin-bottom: 50px;
+}
+
+.footer-brand .logo { margin-bottom: 14px; }
+.footer-brand p { font-size: 13.5px; color: rgba(255,255,255,.45); line-height: 1.7; max-width: 240px; }
+
+.footer-col h4 {
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: rgba(255,255,255,.5); margin-bottom: 18px;
+}
+
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 10px; }
+.footer-col ul li a {
+  font-size: 14px; color: rgba(255,255,255,.45);
+  text-decoration: none; transition: color .15s;
+}
+.footer-col ul li a:hover { color: var(--white); }
+.footer-col ul li span { font-size: 13.5px; color: rgba(255,255,255,.45); }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+}
+.footer-bottom p { font-size: 13px; color: rgba(255,255,255,.35); }
+.footer-bottom a { color: rgba(255,255,255,.35); text-decoration: none; transition: color .15s; }
+.footer-bottom a:hover { color: var(--white); }
+
+/* Footer logo overrides for dark bg */
+footer .logo-text { color: var(--white); }
+footer .logo-text span { color: var(--sky); }
+
+/* ══════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 960px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 50px; text-align: center; }
+  .hero-desc { margin: 0 auto 36px; }
+  .hero-actions { justify-content: center; }
+  .hero-stat-row { justify-content: center; }
+  .hero-visual { justify-content: center; }
+  .user-grid { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; }
+  .steps-row { grid-template-columns: repeat(2, 1fr); }
+  .steps-row::before { display: none; }
+  .stats-inner { grid-template-columns: repeat(2, 1fr); }
+  .stat-box:nth-child(2) { border-right: none; }
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 36px; }
+}
+
+@media (max-width: 640px) {
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 66px; left: 0; right: 0; background: var(--white); border-bottom: 1px solid var(--border); padding: 16px 20px; gap: 6px; box-shadow: 0 8px 24px rgba(37,99,235,.08); }
+  .nav-links.open { display: flex; }
+  .hamburger { display: block; }
+  .hero { padding: 100px 20px 60px; }
+  .hero-card-stack { width: 100%; max-width: 300px; }
+  .hcard-main { width: 260px; }
+  .steps-row { grid-template-columns: 1fr; }
+  .stats-inner { grid-template-columns: 1fr 1fr; }
+  .stat-box { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat-box:last-child { border-bottom: none; }
+  .footer-inner { grid-template-columns: 1fr; gap: 30px; }
+}
+</style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <span class="logo-icon">🏥</span>
-                <span>SmartDerm</span>
-            </div>
-            <div class="nav-links" id="navLinks">
-                <a href="{% url 'webguest:registration' %}">SignUp</a>
-                <a href="{% url 'webguest:login' %}" class="btn btn-secondary">Login</a>
-            </div>
-            <div class="mobile-menu-toggle" onclick="toggleMenu()">
-                ☰
-            </div>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-mark">🏥</div>
+      <span class="logo-text">Smart<span>Derm</span></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="#user-types" class="nav-a">For You</a>
+      <a href="#how-it-works" class="nav-a">How It Works</a>
+      <a href="#contact" class="nav-a">Contact</a>
+      <a href="{% url 'webguest:registration' %}" class="nav-btn btn-ghost">Sign Up</a>
+      <a href="{% url 'webguest:login' %}" class="nav-btn btn-teal">Login →</a>
+    </div>
+    <button class="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Intelligent Dermatology Platform</div>
+      <h1>Your Skin Deserves <em>Expert</em> Care</h1>
+      <p class="hero-desc">Streamline your dermatology practice with intelligent scheduling, AI-powered diagnosis assistance, and seamless patient management — all in one place.</p>
+      <div class="hero-actions">
+        <a href="{% url 'webguest:registration' %}" class="nav-btn btn-teal">Register →</a>
+        <a href="#how-it-works" class="nav-btn btn-ghost">See How It Works</a>
+      </div>
+      <div class="hero-stat-row">
+        <div>
+          <div class="hero-stat-val">500+</div>
+          <div class="hero-stat-lbl">Active Patients</div>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Smart Dermatology Appointment System</h1>
-            <p>Streamline your dermatology practice with intelligent scheduling, AI-powered diagnosis assistance, and seamless patient management</p>
+        <div>
+          <div class="hero-stat-val">50+</div>
+          <div class="hero-stat-lbl">Expert Doctors</div>
         </div>
-    </section>
-
-
-
-    <!-- User Types Section -->
-    <section class="user-types" id="user-types">
-        <div class="section-header">
-            <h2>Built for Everyone</h2>
-            <p>Tailored experiences for patients, doctors, and administrators</p>
+        <div>
+          <div class="hero-stat-val">98%</div>
+          <div class="hero-stat-lbl">Satisfaction</div>
         </div>
-        <div class="user-grid">
-            <!-- Patient Card -->
-            <div class="user-card patient">
-                <div class="user-card-icon">👤</div>
-                <h3>For Patients</h3>
-                <p>Easy appointment booking and health management</p>
-                <ul>
-                    <li>Browse doctor profiles & availability</li>
-                    <li>Book appointments in seconds</li>
-                    <li>View appointment history</li>
-                    <li>Get AI diagnosis reports</li>
-                    <li>Receive appointment reminders</li>
-                </ul>
-                <a href="/patient/register" class="btn">Register as Patient</a>
-            </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-            <!-- Doctor Card -->
-            <div class="user-card doctor">
-                <div class="user-card-icon">👨‍⚕️</div>
-                <h3>For Doctors</h3>
-                <p>Comprehensive tools to manage your practice</p>
-                <ul>
-                    <li>Flexible schedule management</li>
-                    <li>View all appointments in table format</li>
-                    <li>AI-powered diagnosis assistance</li>
-                    <li>Patient medical records access</li>
-                    <li>Emergency schedule overrides</li>
-                </ul>
-                <a href="/doctor/register" class="btn">Join as Doctor</a>
-            </div>
+<!-- ── User Types ── -->
+<section class="section" id="user-types">
+  <div class="section-center reveal">
+    <div class="section-tag">Built For Everyone</div>
+    <h2 class="section-title">Tailored for Patients, Doctors & Admins</h2>
+    <p class="section-desc">One platform, three powerful experiences. Choose your role and get started in minutes.</p>
+  </div>
 
-            <!-- Admin Card -->
-            <div class="user-card admin">
-                <div class="user-card-icon">⚙️</div>
-                <h3>For Admins</h3>
-                <p>Complete control over clinic operations</p>
-                <ul>
-                    <li>Manage doctors & patients</li>
-                    <li>View all appointments</li>
-                    <li>Generate reports & analytics</li>
-                    <li>System configuration</li>
-                    <li>User role management</li>
-                    <li>Monitor clinic performance</li>
-                </ul>
-                <a href="/admin/login" class="btn">Admin Login</a>
-            </div>
-        </div>
-    </section>
+  <div class="user-grid">
+    <div class="ucard ucard-patient reveal">
+      <div class="ucard-icon">👤</div>
+      <h3>For Patients</h3>
+      <p class="ucard-sub">Easy appointment booking and health management at your fingertips.</p>
+      <ul class="ucard-list">
+        <li>Browse doctor profiles & availability</li>
+        <li>Book appointments in seconds</li>
+        <li>View appointment history</li>
+        <li>Get AI diagnosis reports</li>
+      </ul>
+      <a href="{% url 'webguest:registration' %}" class="ucard-btn">Register as Patient →</a>
+    </div>
 
-    <!-- How It Works Section -->
-    <section class="how-it-works" id="how-it-works">
-        <div class="section-header">
-            <h2>How It Works</h2>
-            <p>Simple steps to get started</p>
-        </div>
-        <div class="steps-container">
-            <div class="step">
-                <div class="step-number">1</div>
-                <h3>Register</h3>
-                <p>Create your account as a patient or doctor in under 2 minutes</p>
-            </div>
-            <div class="step">
-                <div class="step-number">2</div>
-                <h3>Choose Doctor</h3>
-                <p>Browse available doctors by specialty and view their schedules</p>
-            </div>
-            <div class="step">
-                <div class="step-number">3</div>
-                <h3>Book Slot</h3>
-                <p>Select your preferred date and time from available slots</p>
-            </div>
-            <div class="step">
-                <div class="step-number">4</div>
-                <h3>Get Consultation</h3>
-                <p>Visit the clinic or attend online consultation at your scheduled time</p>
-            </div>
-        </div>
-    </section>
+    <div class="ucard ucard-doctor reveal">
+      <div class="ucard-icon">👨‍⚕️</div>
+      <h3>For Doctors</h3>
+      <p class="ucard-sub">Comprehensive tools to manage your practice with ease.</p>
+      <ul class="ucard-list">
+        <li>Flexible schedule management</li>
+        <li>View all appointments in table</li>
+        <li>AI-powered diagnosis assistance</li>
+      </ul>
+      <a href="{% url 'webguest:login' %}" class="ucard-btn">Doctor Login →</a>
+    </div>
 
-    <!-- Stats Section -->
-    <section class="stats">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <h3>500+</h3>
-                <p>Active Patients</p>
-            </div>
-            <div class="stat-item">
-                <h3>50+</h3>
-                <p>Expert Doctors</p>
-            </div>
-            <div class="stat-item">
-                <h3>10K+</h3>
-                <p>Appointments</p>
-            </div>
-            <div class="stat-item">
-                <h3>98%</h3>
-                <p>Satisfaction Rate</p>
-            </div>
-        </div>
-    </section>
+    <div class="ucard ucard-admin reveal">
+      <div class="ucard-icon">⚙️</div>
+      <h3>For Admins</h3>
+      <p class="ucard-sub">Complete control over clinic operations and performance.</p>
+      <ul class="ucard-list">
+        <li>Manage doctors & patients</li>
+        <li>Generate reports & analytics</li>
+        <li>System configuration</li>
+        <li>Monitor clinic performance</li>
+      </ul>
+      <a href="{% url 'webguest:login' %}" class="ucard-btn">Admin Login →</a>
+    </div>
+  </div>
+</section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <h2>Ready to Get Started?</h2>
-        <p>Join thousands of satisfied patients and healthcare professionals</p>
-        <div class="cta-buttons">
-            <a href="/patient/register" class="btn btn-primary">Book Your Appointment</a>
-            <a href="/contact" class="btn btn-secondary">Contact Us</a>
-        </div>
-    </section>
+<!-- ── How It Works ── -->
+<section class="how-section" id="how-it-works">
+  <div class="section-center reveal">
+    <div class="section-tag">Simple Process</div>
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-desc">Get started with your dermatology care in just four simple steps.</p>
+  </div>
 
-    <!-- Footer -->
-    <footer class="footer" id="contact">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>DermaClinic</h3>
-                <p>Modern dermatology appointment management system with AI-powered diagnosis support.</p>
-            </div>
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul>
-                    <li><a href="/about">About Us</a></li>
-                    <li><a href="/doctors">Our Doctors</a></li>
-                    <li><a href="/services">Services</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>For Users</h3>
-                <ul>
-                    <li><a href="/patient/register">Patient Registration</a></li>
-                    <li><a href="/doctor/register">Doctor Registration</a></li>
-                    <li><a href="/login">Login</a></li>
-                    <li><a href="/faq">FAQ</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Contact Info</h3>
-                <ul>
-                    <li>📧 info@dermaclinic.com</li>
-                    <li>📞 +91 123 456 7890</li>
-                    <li>📍 Kerala, India</li>
-                    <li>🕐 Mon-Sat: 9AM-5PM</li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 DermaClinic. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
-        </div>
-    </footer>
+  <div class="steps-row">
+    <div class="step-card reveal">
+      <div class="step-num">1</div>
+      <h3>Register</h3>
+      <p>Create your account as a patient or doctor in under 2 minutes.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">2</div>
+      <h3>Choose Doctor</h3>
+      <p>Browse available doctors by specialty and view their schedules.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">3</div>
+      <h3>Book Slot</h3>
+      <p>Select your preferred date and time from available slots.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">4</div>
+      <h3>Get Consultation</h3>
+      <p>Visit the clinic at your scheduled time for expert care.</p>
+    </div>
+  </div>
+</section>
 
-    <script>
-        function toggleMenu() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
-        }
+<!-- ── Stats ── -->
+<section class="stats-section">
+  <div class="stats-inner">
+    <div class="stat-box reveal">
+      <div class="stat-num">500<span>+</span></div>
+      <div class="stat-lbl">Active Patients</div>
+    </div>
+    <div class="stat-box reveal">
+      <div class="stat-num">50<span>+</span></div>
+      <div class="stat-lbl">Expert Doctors</div>
+    </div>
+    <div class="stat-box reveal">
+      <div class="stat-num">10K<span>+</span></div>
+      <div class="stat-lbl">Appointments</div>
+    </div>
+    <div class="stat-box reveal">
+      <div class="stat-num">98<span>%</span></div>
+      <div class="stat-lbl">Satisfaction Rate</div>
+    </div>
+  </div>
+</section>
 
-        // Smooth scroll for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="section-tag reveal">Get Started Today</div>
+  <h2 class="section-title reveal">Ready to Experience<br><em>Smarter</em> Healthcare?</h2>
+  <p class="section-desc reveal">Join thousands of satisfied patients and healthcare professionals on SmartDerm.</p>
+  <div class="cta-btns reveal">
+    <a href="{% url 'webguest:registration' %}" class="nav-btn btn-teal">Register →</a>
+    <a href="#contact" class="nav-btn btn-ghost">Contact Us</a>
+  </div>
+</section>
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const navLinks = document.getElementById('navLinks');
-            const toggle = document.querySelector('.mobile-menu-toggle');
-            
-            if (!navLinks.contains(event.target) && !toggle.contains(event.target)) {
-                navLinks.classList.remove('active');
-            }
-        });
-    </script>
+<!-- ── Footer ── -->
+<footer id="contact">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="/" class="logo">
+        <div class="logo-mark">🏥</div>
+        <span class="logo-text">Smart<span>Derm</span></span>
+      </a>
+      <p>Modern dermatology appointment management with AI-powered diagnosis support.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/doctors">Our Doctors</a></li>
+        <li><a href="/services">Services</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>For Users</h4>
+      <ul>
+        <li><a href="/patient/register">Patient Registration</a></li>
+        <li><a href="/doctor/register">Doctor Registration</a></li>
+        <li><a href="{% url 'webguest:login' %}">Login</a></li>
+        <li><a href="/faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact Info</h4>
+      <ul>
+        <li><span>📧 info@smartderm.com</span></li>
+        <li><span>📞 +91 123 456 7890</span></li>
+        <li><span>📍 Kerala, India</span></li>
+        <li><span>🕐 Mon–Sat: 9AM–5PM</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 SmartDerm. All rights reserved.</p>
+    <p><a href="/privacy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms of Service</a></p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Close mobile menu on link click
+  document.querySelectorAll('#navLinks a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.getElementById('navLinks').classList.remove('open');
+    });
+  });
+</script>
 </body>
 </html>
