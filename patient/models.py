@@ -29,3 +29,13 @@ class tbl_appointment(models.Model):
 
     def __str__(self):
         return f"{self.patient.username} with {self.doctor.name} on {self.appointment_date} (Token {self.token_number})"
+
+class tbl_report(models.Model):
+    patient = models.ForeignKey(tbl_patient, on_delete=models.CASCADE, related_name='reports')
+    disease = models.CharField(max_length=200)
+    confidence = models.CharField(max_length=50)
+    image = models.ImageField(upload_to='patient_reports/')
+    report_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Report - {self.patient.first_name} - {self.disease}"

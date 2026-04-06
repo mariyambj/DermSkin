@@ -772,6 +772,10 @@
                            href="{% url 'webpatient:myBookings' %}">My Bookings</a>
                     </li>
                     <li>
+                        <a class="nav-link {% if 'myReports' in request.path %}active{% endif %}"
+                           href="{% url 'webpatient:myReports' %}">My Reports</a>
+                    </li>
+                    <li>
                         <a class="nav-link {% if 'patient_profile' in request.path %}active{% endif %}"
                            href="{% url 'webpatient:patient_profile' %}">My Profile</a>
                     </li>

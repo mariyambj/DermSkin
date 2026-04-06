@@ -5,7 +5,8 @@ from doctor.models import *
 from clinicadmin.models import *
 from .models import *
 from datetime import datetime, timedelta, time, date
-
+import base64
+from django.core.files.base import ContentFile
 
 
 
@@ -189,3 +190,45 @@ def myBookings(request):
         'appointments': appointments
     }
     return render(request, 'patient/myBookings.html', context)
+
+def generate_report(request):
+    patient_id = request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
+    
+    if request.method == 'POST':
+        patient = tbl_patient.objects.get(id=patient_id)
+        image_data = request.POST.get('image_data')
+        disease = request.POST.get('disease')
+        confidence = request.POST.get('confidence')
+        
+        report = tbl_report(
+            patient=patient,
+            disease=disease,
+            confidence=confidence
+        )
+        
+        if image_data and ';base64,' in image_data:
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'report_{patient.id}_{datetime.now().strftime("%Y%m%d%H%M%S")}.{ext}')
+            report.image.save(f'report.{ext}', data, save=False)
+            
+        report.save()
+        messages.success(request, "Report generated successfully!")
+        return redirect('webpatient:myReports')
+        
+    return redirect('webpatient:patient_homepage')
+
+def myReports(request):
+    patient_id = request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
+        
+    patient = tbl_patient.objects.get(id=patient_id)
+    reports = tbl_report.objects.filter(patient=patient).order_by('-report_date')
+    
+    context = {
+        'reports': reports
+    }
+    return render(request, 'patient/myReports.html', context)
