@@ -15,4 +15,5 @@ urlpatterns = [
    path('patient_details/<int:id>/',views.patient_details,name='patient_details'),
    path('update_booking_status/<int:appointment_id>/<str:status>/',views.update_booking_status,name='update_booking_status'),
    path('doctor_reports/',views.doctor_reports,name='doctor_reports'),
+   path('doctor_save_report/',views.doctor_save_report,name='doctor_save_report'),
 ]

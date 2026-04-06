@@ -314,7 +314,54 @@ def patient_details(request, id):
     if not doctor_id:
         return redirect('webguest:login')
     
-    from patient.models import tbl_appointment
+    from patient.models import tbl_appointment, tbl_report
     appointment = get_object_or_404(tbl_appointment, id=id, doctor_id=doctor_id)
     
-    return render(request, 'doctor/patient_details.html', {'appointment': appointment})
+    # Fetch previous reports for this patient
+    reports = tbl_report.objects.filter(patient=appointment.patient).order_by('-report_date')
+    
+    return render(request, 'doctor/patient_details.html', {
+        'appointment': appointment,
+        'reports': reports
+    })
+
+import base64
+from django.core.files.base import ContentFile
+from datetime import datetime
+
+def doctor_save_report(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    
+    if request.method == 'POST':
+        from patient.models import tbl_patient, tbl_report
+        patient_id = request.POST.get('patient_id')
+        image_data = request.POST.get('image_data')
+        disease = request.POST.get('disease')
+        confidence = request.POST.get('confidence')
+        
+        patient = get_object_or_404(tbl_patient, id=patient_id)
+        
+        report = tbl_report(
+            patient=patient,
+            disease=disease,
+            confidence=confidence
+        )
+        
+        if image_data and ';base64,' in image_data:
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'report_{patient.id}_{datetime.now().strftime("%Y%m%d%H%M%S")}.{ext}')
+            report.image.save(f'report.{ext}', data, save=False)
+            
+        report.save()
+        messages.success(request, "Patient report generated and saved successfully!")
+        
+        # We need to find an appointment ID to redirect back to patient_details
+        from patient.models import tbl_appointment
+        latest_appointment = tbl_appointment.objects.filter(patient=patient, doctor_id=doctor_id).order_by('-appointment_date').first()
+        if latest_appointment:
+            return redirect('webdoctor:patient_details', id=latest_appointment.id)
+            
+    return redirect('webdoctor:doctor_homepage')

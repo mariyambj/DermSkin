@@ -74,6 +74,7 @@ def preprocess_image(img):
 def upload_image(request):
     prediction = None
     image_data = None          # base64 data-URL shown in the result section
+    pid = request.GET.get('pid') or request.POST.get('pid')
 
     if request.method == "POST" and request.FILES.get("image"):
         import base64, io
@@ -105,6 +106,7 @@ def upload_image(request):
     return render(request, "guest/upload.html", {
         "prediction": prediction,
         "image_data": image_data,
+        "pid": pid,
     })
 
 
