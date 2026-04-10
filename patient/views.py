@@ -7,11 +7,13 @@ from .models import *
 from datetime import datetime, timedelta, time, date
 import base64
 from django.core.files.base import ContentFile
+from django.db.models import Q
+from datetime import date
 
 
 
 #homepage
-def home_page(request):
+'''def home_page(request):
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
@@ -27,6 +29,39 @@ def home_page(request):
         'reports_ready': 1,  # Placeholder or fetch from medical records if available
         'recent_appointments': appointments.order_by('-appointment_date')[:5],
         'doctors': tbl_doctor.objects.all()[:3]
+    }
+    return render(request, 'patient/home.html', context)'''
+
+def home_page(request):
+    patient_id = request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
+    patient = tbl_patient.objects.get(id=patient_id)
+    appointments = tbl_appointment.objects.filter(patient=patient)
+    query = request.GET.get('q')
+    department = request.GET.get('department')
+    doctors = tbl_doctor.objects.all()
+    if query:
+        doctors = doctors.filter(
+            Q(name__icontains=query) |
+            Q(specialization__icontains=query) |
+            Q(qualification__icontains=query)
+        )
+    if department and department != "All":
+        doctors = doctors.filter(specialization__icontains=department)
+    context = {
+        'patient': patient,
+        'total_appointments': appointments.count(),
+        'upcoming_appointments': appointments.filter(
+            appointment_date__gte=date.today(),
+            status='confirmed'
+        ).count(),
+        'prescriptions': 2,
+        'reports_ready': 1,
+        'recent_appointments': appointments.order_by('-appointment_date')[:5],
+        'doctors': doctors,
+        'query': query,
+        'department': department
     }
     return render(request, 'patient/home.html', context)
 
@@ -79,11 +114,29 @@ def change_password(request):
 
 #view doctor
 
-def doctor_list(request):
+'''def doctor_list(request):
     doctors = tbl_doctor.objects.all()
     return render(request,'patient/doctor_list.html',{
         'doctors':doctors
+    })'''
+
+from django.db.models import Q
+
+def doctor_list(request):
+    query = request.GET.get('q')
+    doctors = tbl_doctor.objects.all()
+    if query:
+        doctors = doctors.filter(
+            Q(name__icontains=query) |
+            Q(specialization__icontains=query) |
+            Q(qualification__icontains=query)
+        )
+    return render(request, 'patient/doctor_list.html', {
+        'doctors': doctors,
+        'query': query
     })
+
+
 
 def doctor_details(request, id):
     doctor = get_object_or_404(tbl_doctor, id=id)
@@ -196,7 +249,7 @@ def myBookings(request):
     context = {
         'appointments': appointments
     }
-    return render(request, 'patient/myBookings.html', context)
+    return render(request, 'patient/myBookings.html', context)   
 
 
 

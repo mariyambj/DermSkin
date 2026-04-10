@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import torch
 from django.shortcuts import render,redirect
 from django.conf import settings
 from PIL import Image
@@ -45,6 +46,7 @@ DISPLAY_NAMES = [
 # =====================================================================
 # Load model ONCE at module import — avoids reloading on every request
 # =====================================================================
+#'skin_disease_model_deploy.keras',
 _MODEL = None
 
 def _get_model():
@@ -57,6 +59,18 @@ def _get_model():
             raise FileNotFoundError(f"Model file not found at {model_path}")
         _MODEL = keras.models.load_model(model_path, compile=False)
     return _MODEL
+
+'''def _get_model():
+    global _MODEL
+    if _MODEL is None:
+        model_path = os.path.join(
+            settings.BASE_DIR, 'guest', 'model', 'best_densenet.pth'
+        )
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found at {model_path}")
+        # Load full PyTorch model
+        _MODEL = torch.load(model_path, map_location="cpu")
+    return _MODEL'''
 
 
 def preprocess_image(img):
