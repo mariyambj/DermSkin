@@ -388,3 +388,90 @@ def doctor_save_report(request):
             
     return redirect('webdoctor:doctor_homepage')
 
+
+
+
+import os
+import torch
+import torch.nn as nn
+from torchvision import transforms, models
+from PIL import Image
+from django.shortcuts import render
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
+# 1. Define the exact class names in ALPHABETICAL order
+# (This matches how PyTorch's ImageFolder sorted them during training)
+CLASS_NAMES = [
+    "Atopic Dermatitis", "Basal Cell Carcinoma", "Benign Keratosis",
+    "Eczema", "Melanocytic Nevi", "Melanoma", "Psoriasis",
+    "Seborrheic Keratoses", "Tinea Ringworm", "Warts Molluscum"
+]
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# 2. Rebuild the exact model architecture
+def build_model(num_classes=10):
+    model = models.densenet169(weights=None) # We don't need internet to download weights here
+    in_features = model.classifier.in_features
+    
+    # Must match your "Extreme Regularization" structure exactly
+    model.classifier = nn.Sequential(
+        nn.Dropout(p=0.6, inplace=True), 
+        nn.Linear(in_features, 512),
+        nn.BatchNorm1d(512),
+        nn.ReLU(inplace=True),
+        nn.Dropout(p=0.5),               
+        nn.Linear(512, num_classes)
+    )
+    return model
+
+# Initialize the model globally so it doesn't reload on every single web request
+MODEL_PATH = os.path.join(settings.BASE_DIR, 'doctor', 'dl_model', 'best_densenet.pth')
+model = build_model(len(CLASS_NAMES))
+# Load weights safely (map_location ensures it works even on a CPU-only server)
+model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
+model.to(DEVICE)
+model.eval() # Set to evaluation mode!
+
+# 3. Define the Image Transform (Must match your val_tf)
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
+
+def predict_disease(request):
+    context = {}
+    
+    if request.method == 'POST' and request.FILES.get('skin_image'):
+        uploaded_file = request.FILES['skin_image']
+        
+        # Save the file temporarily to display it on the HTML page
+        fs = FileSystemStorage()
+        filename = fs.save(uploaded_file.name, uploaded_file)
+        uploaded_file_url = fs.url(filename)
+        context['image_url'] = uploaded_file_url
+        
+        # Process the image for PyTorch
+        try:
+            # Open image and convert to RGB (removes alpha channels from PNGs)
+            img = Image.open(fs.path(filename)).convert('RGB')
+            img_tensor = transform(img).unsqueeze(0).to(DEVICE) # Add batch dimension
+            
+            # Make Prediction
+            with torch.no_grad():
+                outputs = model(img_tensor)
+                probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
+                confidence, predicted_idx = torch.max(probabilities, 0)
+                
+                predicted_class = CLASS_NAMES[predicted_idx.item()]
+                confidence_score = round(confidence.item() * 100, 2)
+                
+                context['predicted_class'] = predicted_class
+                context['confidence'] = confidence_score
+                
+        except Exception as e:
+            context['error'] = f"Error processing image: {str(e)}"
+            
+    return render(request, 'doctor/predict.html', context)
