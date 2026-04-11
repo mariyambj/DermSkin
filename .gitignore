@@ -3,3 +3,4 @@ venv310/
 Dataset/
 db.sqlite3
 media/
+Smart_Derm/settings.py

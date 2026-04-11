@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Patient Registration</title>
+<title>Patient Registration — SmartDerm</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -25,13 +25,61 @@
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
+/* ── Navbar ── */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 58px;
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(37,99,235,.10);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  box-shadow: 0 2px 16px rgba(37,99,235,.07);
+}
+
+.nav-brand {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+.nav-brand-mark {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.nav-brand-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px; font-weight: 400;
+  color: var(--text); letter-spacing: -.01em;
+}
+.nav-brand-name span { color: var(--blue); font-style: italic; }
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+
+.nav-btn-home {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: white; border: none; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37,99,235,.28);
+  transition: all .2s ease;
+  white-space: nowrap;
+}
+.nav-btn-home:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37,99,235,.36); }
+.nav-btn-home:active { transform: translateY(0); }
+.nav-btn-home svg { width: 14px; height: 14px; flex-shrink: 0; }
+
 body {
   font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 20px;
+  padding: 78px 20px 40px;
   background-color: var(--bg);
   background-image:
     radial-gradient(ellipse 80% 60% at 0% 0%, rgba(37,99,235,.07) 0%, transparent 55%),
@@ -77,7 +125,6 @@ body {
   background: rgba(255,255,255,.04);
 }
 
-/* dot texture */
 .card-header .dots {
   position: absolute; inset: 0;
   background: url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='18' cy='18' r='1' fill='white' fill-opacity='0.07'/%3E%3C/svg%3E") repeat;
@@ -280,6 +327,7 @@ textarea { resize: none; }
 .form-footer a:hover { text-decoration: underline; }
 
 @media (max-width: 500px) {
+  .navbar { padding: 0 16px; }
   .grid { grid-template-columns: 1fr; }
   .full { grid-column: span 1; }
   .card { padding: 24px 20px; }
@@ -289,6 +337,23 @@ textarea { resize: none; }
 </style>
 </head>
 <body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <a href="{% url 'webguest:home_page' %}" class="nav-brand">
+    <div class="nav-brand-mark">🏥</div>
+    <span class="nav-brand-name">Smart<span>Derm</span></span>
+  </a>
+  <div class="nav-actions">
+    <a href="{% url 'webguest:home_page' %}" class="nav-btn-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+        <path d="M9 21V12h6v9"/>
+      </svg>
+      Home
+    </a>
+  </div>
+</nav>
 
 <div class="wrapper">
 

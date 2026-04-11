@@ -1,425 +1,615 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #1a1530;
-            --bg-card: #221d3a;
-            --violet-light: #a78bfa;
-            --violet-mid: #7c3aed;
-            --violet-dark: #4c1d95;
-            --blue: #60a5fa;
-            --blue-dark: #1d4ed8;
-            --warm-amber: #fbbf24;
-            --warm-rose: #fb7185;
-            --warm-peach: #fdba74;
-            --text-primary: #f3f0ff;
-            --text-muted: #9490b0;
-            --border: rgba(167, 139, 250, 0.15);
-            --border-focus: rgba(167, 139, 250, 0.6);
-            --input-bg: rgba(124, 58, 237, 0.08);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — SmartDerm</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:       #2563eb;
+  --blue-dark:  #1d4ed8;
+  --blue-light: #3b82f6;
+  --blue-pale:  #eff4ff;
+  --blue-ghost: #f5f8ff;
+  --sky:        #0ea5e9;
+  --bg:         #f1f4fb;
+  --white:      #ffffff;
+  --text:       #1a2a4a;
+  --text-mid:   #3a5070;
+  --text-muted: #7a90b0;
+  --border:     rgba(37,99,235,.14);
+  --border-tan: #dce6f5;
+  --shadow:     0 20px 60px rgba(37,99,235,.11), 0 4px 16px rgba(0,0,0,.05);
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
+/* ── Navbar ── */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 58px;
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(37,99,235,.10);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  box-shadow: 0 2px 16px rgba(37,99,235,.07);
+}
 
-        /* Mesh background */
-        .mesh {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background:
-                radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,58,237,0.28) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 60% at 80% 80%, rgba(251,113,133,0.18) 0%, transparent 55%),
-                radial-gradient(ellipse 40% 40% at 70% 20%, rgba(96,165,250,0.18) 0%, transparent 50%),
-                radial-gradient(ellipse 55% 45% at 30% 85%, rgba(251,191,36,0.12) 0%, transparent 55%);
-        }
+.nav-brand {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+.nav-brand-mark {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--blue), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.nav-brand-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px; font-weight: 400;
+  color: var(--text); letter-spacing: -.01em;
+}
+.nav-brand-name span { color: var(--blue); font-style: italic; }
 
-        /* Floating blobs */
-        .blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(60px);
-            pointer-events: none;
-            z-index: 0;
-            animation: float 8s ease-in-out infinite alternate;
-        }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
 
-        .blob-1 {
-            width: 320px; height: 320px;
-            background: rgba(124,58,237,0.22);
-            top: -80px; left: -60px;
-        }
+.nav-btn-home {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: white; border: none; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37,99,235,.28);
+  transition: all .2s ease;
+  white-space: nowrap;
+}
+.nav-btn-home:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37,99,235,.36); }
+.nav-btn-home:active { transform: translateY(0); }
+.nav-btn-home svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-        .blob-2 {
-            width: 260px; height: 260px;
-            background: rgba(251,113,133,0.18);
-            bottom: -60px; right: -40px;
-            animation-delay: -4s;
-        }
+body {
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 98px 20px 40px;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 0% 0%, rgba(37,99,235,.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(14,165,233,.07) 0%, transparent 55%),
+    url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%232563eb' fill-opacity='0.05'/%3E%3C/svg%3E");
+  background-size: auto, auto, 40px 40px;
+}
 
-        .blob-3 {
-            width: 200px; height: 200px;
-            background: rgba(251,191,36,0.14);
-            bottom: 20%; left: 10%;
-            animation-delay: -2s;
-        }
+.wrapper {
+  width: 100%;
+  max-width: 420px;
+  animation: rise .7s cubic-bezier(.16,1,.3,1) both;
+}
 
-        @keyframes float {
-            from { transform: translate(0, 0) scale(1); }
-            to   { transform: translate(20px, 30px) scale(1.05); }
-        }
+@keyframes rise {
+  from { opacity:0; transform:translateY(28px); }
+  to   { opacity:1; transform:translateY(0); }
+}
 
-        /* Card */
-        .card {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 400px;
-            background: rgba(34, 29, 58, 0.75);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid rgba(167,139,250,0.18);
-            border-radius: 24px;
-            padding: 44px 40px 36px;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.04) inset,
-                0 24px 60px rgba(0,0,0,0.45),
-                0 0 100px rgba(124,58,237,0.12);
-            animation: slideUp 0.65s cubic-bezier(0.16,1,0.3,1) both;
-        }
+.card-header {
+  background: linear-gradient(125deg, var(--blue-dark) 0%, var(--blue) 55%, var(--sky) 100%);
+  border-radius: 20px 20px 0 0;
+  padding: 32px 36px 28px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.98); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
+.card-header .dots {
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='18' cy='18' r='1' fill='white' fill-opacity='0.07'/%3E%3C/svg%3E") repeat;
+  background-size: 36px 36px;
+  pointer-events: none;
+}
 
-        /* Badge */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(96,165,250,0.2));
-            border: 1px solid rgba(167,139,250,0.3);
-            border-radius: 100px;
-            padding: 5px 14px;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--violet-light);
-            margin-bottom: 18px;
-        }
+.card-header .orb1 {
+  position: absolute; right: -40px; top: -40px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255,255,255,.06); pointer-events: none;
+}
+.card-header .orb2 {
+  position: absolute; left: -30px; bottom: -50px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(255,255,255,.04); pointer-events: none;
+}
 
-        .badge-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--warm-amber);
-            box-shadow: 0 0 8px rgba(251,191,36,0.7);
-            animation: pulse 2s ease-in-out infinite;
-        }
+.header-brand {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin-bottom: 18px;
+}
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.8); }
-        }
+.brand-mark {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
 
-        /* Heading */
-        .heading {
-            font-family: 'DM Serif Display', serif;
-            font-size: 30px;
-            font-weight: 400;
-            color: var(--text-primary);
-            line-height: 1.15;
-            margin-bottom: 6px;
-        }
+.brand-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px; font-weight: 400;
+  color: white; letter-spacing: -.01em;
+}
+.brand-name span { color: rgba(255,255,255,.75); font-style: italic; }
 
-        .heading em {
-            font-style: italic;
-            background: linear-gradient(90deg, var(--violet-light), var(--blue), var(--warm-peach));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+.header-eyebrow {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 100px;
+  padding: 4px 12px; margin-bottom: 14px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.85);
+}
 
-        .subtext {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 32px;
-            font-weight: 300;
-        }
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,.9);
+  animation: pulse 2s infinite;
+}
 
-        /* Fields */
-        .field {
-            margin-bottom: 18px;
-            animation: fadeIn 0.5s ease both;
-        }
+@keyframes pulse {
+  0%, 100% { opacity:1; transform:scale(1); }
+  50% { opacity:.5; transform:scale(.8); }
+}
 
-        .field:nth-child(1) { animation-delay: 0.15s; }
-        .field:nth-child(2) { animation-delay: 0.22s; }
+.card-header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px; font-weight: 400;
+  color: white; letter-spacing: -.02em;
+  position: relative; z-index: 1; line-height: 1.2;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-8px); }
-            to   { opacity: 1; transform: translateX(0); }
-        }
+.card-header h1 em { font-style: italic; color: rgba(255,255,255,.8); }
 
-        .field label {
-            display: block;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
+.card-header p {
+  font-size: 13px; color: rgba(255,255,255,.62);
+  margin-top: 5px; position: relative; z-index: 1;
+}
 
-        .input-wrap {
-            position: relative;
-        }
+.card {
+  background: var(--white);
+  border-radius: 0 0 20px 20px;
+  box-shadow: var(--shadow);
+  padding: 36px;
+}
 
-        .input-wrap .icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 14px;
-            pointer-events: none;
-        }
+.field {
+  margin-bottom: 18px;
+  animation: fadeSlide .5s ease both;
+}
+.field:nth-child(1) { animation-delay:.08s; }
+.field:nth-child(2) { animation-delay:.15s; }
 
-        .field input {
-            width: 100%;
-            padding: 13px 16px 13px 40px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 300;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
-        }
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
 
-        .field input::placeholder { color: rgba(255,255,255,0.2); }
+.field-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-mid); margin-bottom: 7px;
+  display: block;
+}
 
-        .field input:focus {
-            border-color: var(--border-focus);
-            background: rgba(124,58,237,0.12);
-            box-shadow: 0 0 0 4px rgba(124,58,237,0.15);
-        }
+.input-wrap { position: relative; }
 
-        /* Forgot */
-        .forgot {
-            text-align: right;
-            font-size: 12px;
-            margin-top: -10px;
-            margin-bottom: 26px;
-        }
+.input-icon {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px; color: var(--text-muted);
+  pointer-events: none; line-height: 1;
+}
 
-        .forgot a {
-            color: var(--violet-light);
-            text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
+.field input {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  border: 1.5px solid var(--border-tan);
+  border-radius: 10px;
+  font-size: 14px; font-family: 'DM Sans', sans-serif;
+  color: var(--text); background: var(--blue-ghost);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.field input::placeholder { color: var(--text-muted); font-weight: 300; }
+.field input:focus {
+  border-color: var(--blue);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.09);
+}
 
-        .forgot a:hover { opacity: 1; }
+.field-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 7px;
+}
+.forgot-link {
+  font-size: 12px; font-weight: 600;
+  color: var(--blue); text-decoration: none;
+  transition: opacity .15s;
+}
+.forgot-link:hover { opacity: .75; }
 
-        /* Buttons */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            animation: fadeIn 0.5s 0.3s ease both;
-        }
+.btn-group {
+  display: flex; gap: 10px; margin-top: 26px;
+  animation: fadeSlide .5s .25s ease both;
+}
 
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
+.btn {
+  flex: 1; padding: 13px;
+  border: none; border-radius: 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; transition: all .22s ease;
+}
 
-        .btn-primary {
-            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4338ca 100%);
-            color: #f3f0ff;
-            box-shadow: 0 6px 24px rgba(124,58,237,0.4), 0 0 0 1px rgba(167,139,250,0.2) inset;
-            position: relative;
-            overflow: hidden;
-        }
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: white; flex: 2;
+  box-shadow: 0 6px 20px rgba(37,99,235,.3);
+  position: relative; overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute; top:0; left:-100%; width:100%; height:100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  transition: left .45s ease;
+}
+.btn-primary:hover::after { left:100%; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(37,99,235,.4); }
+.btn-primary:active { transform:translateY(0); }
 
-        .btn-primary::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s ease;
-        }
+.btn-secondary {
+  background: var(--blue-ghost); color: var(--text-mid);
+  border: 1.5px solid var(--border-tan);
+}
+.btn-secondary:hover { background: var(--border-tan); color: var(--text); }
 
-        .btn-primary:hover::after { left: 100%; }
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 22px 0 18px;
+}
+.divider::before, .divider::after {
+  content:''; flex:1; height:1px; background:var(--border-tan);
+}
+.divider span {
+  font-size: 11px; color: var(--text-muted); letter-spacing:.1em; text-transform:uppercase;
+}
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 32px rgba(124,58,237,0.55), 0 0 0 1px rgba(167,139,250,0.3) inset;
-        }
+.form-footer {
+  text-align: center; margin-top: 22px;
+  font-size: 12px; color: var(--text-muted);
+  animation: fadeSlide .5s .32s ease both;
+}
+.form-footer a { color: var(--blue); font-weight: 600; text-decoration: none; }
+.form-footer a:hover { text-decoration: underline; }
 
-        .btn-primary:active { transform: translateY(0); }
+.accent-strip {
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue-dark), var(--blue), var(--sky));
+  border-radius: 0 0 20px 20px;
+  margin: 28px -36px -36px;
+}
 
-        .btn-secondary {
-            background: rgba(255,255,255,0.04);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(26,42,74,.35);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
 
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.08);
-            color: var(--text-primary);
-            border-color: rgba(167,139,250,0.3);
-        }
+.modal {
+  width: 100%; max-width: 400px;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(37,99,235,.18), 0 4px 16px rgba(0,0,0,.08);
+  overflow: hidden;
+  transform: translateY(20px) scale(.97);
+  transition: transform .3s cubic-bezier(.16,1,.3,1);
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
 
-        /* Divider */
-        .or-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 24px 0 20px;
-        }
+.modal-header {
+  background: linear-gradient(125deg, var(--blue-dark), var(--blue), var(--sky));
+  padding: 24px 28px 20px;
+  position: relative; overflow: hidden;
+}
+.modal-header .dots {
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='36' height='36' viewBox='0 0 36 36' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='18' cy='18' r='1' fill='white' fill-opacity='0.07'/%3E%3C/svg%3E") repeat;
+  background-size: 36px 36px; pointer-events: none;
+}
+.modal-header-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header-title { display: flex; align-items: center; gap: 10px; }
+.modal-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.22);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.modal-header h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; font-weight: 400; color: white;
+}
+.modal-header p { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 2px; }
+.modal-close {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.8);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; line-height: 1;
+  transition: background .15s; flex-shrink: 0;
+}
+.modal-close:hover { background: rgba(255,255,255,.22); }
 
-        .or-divider::before, .or-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
+.modal-body { padding: 26px 28px; }
 
-        .or-divider span {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 0.1em;
-        }
+.modal-field { margin-bottom: 18px; }
+.modal-field label {
+  display: block; font-size: 11px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-mid); margin-bottom: 7px;
+}
+.modal-field .input-wrap { position: relative; }
+.modal-field .input-icon {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px; color: var(--text-muted); pointer-events: none;
+}
+.modal-field input {
+  width: 100%; padding: 12px 14px 12px 40px;
+  border: 1.5px solid var(--border-tan); border-radius: 10px;
+  font-size: 14px; font-family: 'DM Sans', sans-serif;
+  color: var(--text); background: var(--blue-ghost); outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.modal-field input::placeholder { color: var(--text-muted); font-weight: 300; }
+.modal-field input:focus {
+  border-color: var(--blue); background: var(--white);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.09);
+}
 
-        /* Social */
-        .social-row {
-            display: flex;
-            gap: 10px;
-            animation: fadeIn 0.5s 0.38s ease both;
-        }
+.modal-hint {
+  font-size: 12px; color: var(--text-muted);
+  margin-bottom: 22px; line-height: 1.6;
+  display: flex; align-items: flex-start; gap: 7px;
+}
+.modal-hint-icon { flex-shrink: 0; margin-top: 1px; }
 
-        .social-btn {
-            flex: 1;
-            padding: 11px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: rgba(255,255,255,0.03);
-            color: var(--text-muted);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
+.modal-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: white; border: none; border-radius: 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(37,99,235,.28);
+  transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.modal-btn::after {
+  content: '';
+  position: absolute; top:0; left:-100%; width:100%; height:100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  transition: left .45s ease;
+}
+.modal-btn:hover::after { left:100%; }
+.modal-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(37,99,235,.38); }
 
-        .social-btn:hover {
-            background: rgba(255,255,255,0.07);
-            color: var(--text-primary);
-            border-color: rgba(167,139,250,0.3);
-        }
+.success-state {
+  display: none; text-align: center; padding: 32px 28px;
+}
+.success-state.visible { display: block; }
+.modal-body.hidden { display: none; }
 
-        /* Footer */
-        .footer {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 12px;
-            color: var(--text-muted);
-            animation: fadeIn 0.5s 0.44s ease both;
-        }
+.success-icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: rgba(37,99,235,.10);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; margin: 0 auto 16px;
+}
+.success-state h4 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 8px;
+}
+.success-state p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+.success-back {
+  margin-top: 22px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: var(--blue);
+  text-decoration: none; cursor: pointer; background: none; border: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.success-back:hover { text-decoration: underline; }
 
-        .footer a {
-            color: var(--warm-peach);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .footer a:hover { text-decoration: underline; }
-
-        /* Warm accent strip */
-        .warm-strip {
-            height: 3px;
-            border-radius: 0 0 24px 24px;
-            background: linear-gradient(90deg, var(--violet-mid), var(--blue), var(--warm-peach), var(--warm-rose));
-            margin: 28px -40px -36px;
-        }
-    </style>
+@media (max-width: 460px) {
+  .navbar { padding: 0 16px; }
+  .card { padding: 26px 20px; }
+  .card-header { padding: 26px 20px 22px; }
+  .accent-strip { margin: 24px -20px -26px; }
+  .modal-header { padding: 20px 20px 16px; }
+  .modal-body { padding: 22px 20px; }
+}
+</style>
 </head>
 <body>
-    <div class="mesh"></div>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
 
-    <div class="card">
-        <div class="badge">
-            <span class="badge-dot"></span>
-            Secure login
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <a href="{% url 'webguest:home_page' %}" class="nav-brand">
+    <div class="nav-brand-mark">🏥</div>
+    <span class="nav-brand-name">Smart<span>Derm</span></span>
+  </a>
+  <div class="nav-actions">
+    <a href="{% url 'webguest:home_page' %}" class="nav-btn-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+        <path d="M9 21V12h6v9"/>
+      </svg>
+      Home
+    </a>
+  </div>
+</nav>
+
+<!-- ── Forgot Password Modal ── -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="dots"></div>
+      <div class="modal-header-inner">
+        <div class="modal-header-title">
+          <div class="modal-icon">🔑</div>
+          <div>
+            <h3>Reset Password</h3>
+            <p>We'll send a link to your inbox</p>
+          </div>
         </div>
-
-        <h1 class="heading">Welcome <em>back</em></h1>
-        <p class="subtext">Sign in to your account to continue</p>
-
-        <form action="" method="post">
-            {% csrf_token %}
-
-            <div class="field">
-                <label for="txt_email">Email address</label>
-                <div class="input-wrap">
-                    <span class="icon">✉</span>
-                    <input type="text" name="txt_email" id="txt_email" placeholder="email@example.com">
-                </div>
-            </div>
-
-            <div class="field">
-                <label for="txt_password">Password</label>
-                <div class="input-wrap">
-                    <span class="icon">🔒</span>
-                    <input type="password" name="txt_password" id="txt_password" placeholder="••••••••">
-                </div>
-            </div>
-
-
-            <div class="btn-group">
-                <input type="submit" class="btn btn-primary" value="LOGIN">
-                <input type="submit" class="btn btn-secondary" value="CANCEL">
-            </div>
-        </form>
-
-        
-
-        <div class="warm-strip"></div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
     </div>
+
+    <div class="modal-body" id="modalBody">
+      <div class="modal-hint">
+        <span class="modal-hint-icon">ℹ️</span>
+        Enter the email address associated with your account and we'll send you an OTP to reset your password.
+      </div>
+      <form method="POST" action="{% url 'webguest:send_otp' %}">
+        {% csrf_token %}
+        <div class="modal-field">
+          <label for="reset_email">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉</span>
+            <input type="email" name="email" id="reset_email" placeholder="email@example.com" required>
+          </div>
+        </div>
+        <button type="submit" class="modal-btn">Send OTP →</button>
+      </form>
+    </div>
+
+    <div class="success-state" id="successState">
+      <div class="success-icon">📬</div>
+      <h4>Check your inbox</h4>
+      <p>We've sent a password OTP to your email address. It may take a minute to arrive.</p>
+      <button class="success-back" onclick="closeModal()">← Back to login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Login card ── -->
+<div class="wrapper">
+
+  <div class="card-header">
+    <div class="dots"></div>
+    <div class="orb1"></div>
+    <div class="orb2"></div>
+
+    <div class="header-brand">
+      <div class="brand-mark">🏥</div>
+      <span class="brand-name">Smart<span>Derm</span></span>
+    </div>
+
+    <div class="header-eyebrow">
+      <span class="eyebrow-dot"></span> Secure Login
+    </div>
+
+    <h1>Welcome <em>back</em></h1>
+    <p>Sign in to your account to continue</p>
+  </div>
+
+  <div class="card">
+    <form action="" method="post">
+      {% csrf_token %}
+
+      <div class="field">
+        <label class="field-label" for="txt_email">Email Address</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+          <input type="text" name="txt_email" id="txt_email" placeholder="email@example.com">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label class="field-label" for="txt_password">Password</label>
+          <a href="#" class="forgot-link" onclick="openModal(event)">Forgot password?</a>
+        </div>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" name="txt_password" id="txt_password" placeholder="••••••••">
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <input type="reset" class="btn btn-secondary" value="Cancel">
+        <input type="submit" class="btn btn-primary" value="Sign In →">
+      </div>
+    </form>
+
+    <div class="divider"><span>or</span></div>
+
+    <div class="form-footer">
+      Don't have an account? <a href="{% url 'webguest:registration' %}">Register here</a>
+    </div>
+
+    <div class="accent-strip"></div>
+  </div>
+
+</div>
+
+<script>
+  function openModal(e) {
+    if (e) e.preventDefault();
+    document.getElementById('forgotModal').classList.add('open');
+    document.getElementById('modalBody').classList.remove('hidden');
+    document.getElementById('successState').classList.remove('visible');
+    document.getElementById('reset_email').value = '';
+    const loginEmail = document.getElementById('txt_email').value;
+    if (loginEmail) document.getElementById('reset_email').value = loginEmail;
+    setTimeout(() => document.getElementById('reset_email').focus(), 300);
+  }
+
+  function closeModal() {
+    document.getElementById('forgotModal').classList.remove('open');
+  }
+
+  document.getElementById('forgotModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+
 </body>
 </html>

@@ -1,15 +1,20 @@
 import os
 import numpy as np
 import torch
+import random
+import keras
+import tensorflow as tf
 from django.shortcuts import render,redirect
 from django.conf import settings
 from PIL import Image
 from .models import *
 from django.contrib.auth.hashers import check_password
 from clinicadmin.models import tbl_admin,tbl_doctor
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
-import keras
-import tensorflow as tf
+
 
 # =====================================================================
 # CLASS NAMES — must match alphabetical folder order used during training
@@ -124,7 +129,7 @@ def upload_image(request):
     })
 
 
-# Other views
+# login
 def login(request):
     if request.method=='POST':
         email=request.POST.get('txt_email')
@@ -150,7 +155,7 @@ def login(request):
 
 
 #patient registration
-def registration(request):
+'''def registration(request):
     if request.method=='POST':
         first_name=request.POST.get('txt_name')
         address=request.POST.get('txt_address')
@@ -171,14 +176,164 @@ def registration(request):
                             gender=gender)
         patient.save()
         return redirect('webguest:registration')
+    return render(request, 'guest/patient_registration.html')'''
+
+
+
+from .models import tbl_patient
+
+# Patient Registration
+def registration(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('txt_name')
+        address = request.POST.get('txt_address')
+        phone = request.POST.get('txt_phone')
+        email = request.POST.get('txt_email')
+        age = request.POST.get('txt_age')
+        gender = request.POST.get('txt_gender')
+        password = request.POST.get('txt_password')
+        repassword = request.POST.get('txt_repassword')
+        if password != repassword:
+            return render(request,'guest/patient_registration.html',{'error':'Password do not match'})
+        # generate OTP
+        otp = random.randint(1000,9999)
+        # store data in session
+        request.session['otp'] = otp
+        request.session['first_name'] = first_name
+        request.session['address'] = address
+        request.session['phone'] = phone
+        request.session['email'] = email
+        request.session['age'] = age
+        request.session['gender'] = gender
+        request.session['password'] = password
+        # send OTP email
+        send_mail(
+            'Your Registration OTP',
+            f'Your OTP for registration is {otp}',
+            'yourgmail@gmail.com',
+            [email],
+            fail_silently=False,
+        )
+        return redirect('webguest:verify_otp')
     return render(request, 'guest/patient_registration.html')
+
+#otp verification view
+def verify_otp(request):
+    if request.method == "POST":
+        user_otp = request.POST.get('otp')
+        session_otp = request.session.get('otp')
+        if str(user_otp) == str(session_otp):
+            patient = tbl_patient(
+                first_name = request.session.get('first_name'),
+                address = request.session.get('address'),
+                phone = request.session.get('phone'),
+                email = request.session.get('email'),
+                age = request.session.get('age'),
+                gender = request.session.get('gender'),
+                pass_word = request.session.get('password')
+            )
+            patient.save()
+            return redirect('webguest:login')
+        else:
+            return render(request,'guest/verify_otp.html',{'error':'Invalid OTP'})
+    return render(request,'guest/verify_otp.html')
+
+
+#resend otp
+def resend_otp(request):
+    email = request.session.get('email')
+    if not email:
+        return redirect('webguest:registration')
+    otp = random.randint(100000, 999999)
+    request.session['otp'] = otp
+    send_mail(
+        'Your New OTP Code',
+        f'Your new verification OTP is {otp}',
+        'yourgmail@gmail.com',
+        [email],
+        fail_silently=False
+    )
+    return redirect('webguest:verify_otp')
 
 
 #patient list
-
 def patient_list(request):
     patients=tbl_patient.objects.all()
     return render(request,'guest/patient_list.html',{'patients':patients})
 
 def home_page(request):
     return render(request,'guest/home_page.html')
+
+
+#send otp for forgetpassword
+def send_otp(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        user = None
+        role = None
+        # check doctor
+        if tbl_doctor.objects.filter(email=email).exists():
+            user = tbl_doctor.objects.get(email=email)
+            role = "doctor"
+        # check patient
+        elif tbl_patient.objects.filter(email=email).exists():
+            user = tbl_patient.objects.get(email=email)
+            role = "patient"
+        # check admin
+        elif tbl_admin.objects.filter(email=email).exists():
+            user = tbl_admin.objects.get(email=email)
+            role = "admin"
+        else:
+            messages.error(request,"Email not registered")
+            return redirect('webguest:login')
+        otp = random.randint(100000,999999)
+        request.session['reset_otp'] = otp
+        request.session['reset_email'] = email
+        request.session['reset_role'] = role
+        send_mail(
+            "Password Reset OTP",
+            f"Your OTP for resetting password is: {otp}",
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False
+        )
+        return redirect('webguest:verify_otp_forget')
+    
+
+#otp for forget password
+def verify_otp_forget(request):
+    if request.method == "POST":
+        entered_otp = request.POST.get('otp')
+        session_otp = request.session.get('reset_otp')
+        if str(entered_otp) == str(session_otp):
+            return redirect('webguest:new_password')
+        else:
+            messages.error(request,"Invalid OTP")
+    return render(request,'guest/verify_otp.html')
+
+
+#for forget password
+def new_password(request):
+    email = request.session.get('reset_email')
+    role = request.session.get('reset_role')
+    if request.method == "POST":
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        if new_password != confirm_password:
+            messages.error(request,"Passwords do not match")
+            return redirect('webguest:new_password')
+        if role == "doctor":
+            user = tbl_doctor.objects.get(email=email)
+            user.password = new_password
+            user.save()
+        elif role == "patient":
+            user = tbl_patient.objects.get(email=email)
+            user.pass_word = new_password
+            user.save()
+        elif role == "admin":
+            user = tbl_admin.objects.get(email=email)
+            user.password = new_password
+            user.save()
+        messages.success(request,"Password updated successfully")
+        return redirect('webguest:login')
+    return render(request,'guest/new_password.html')
