@@ -30,6 +30,9 @@
                     <div class="col-sm-6">
                         <label class="ds-form-label">Schedule Date</label>
                         <input type="date" id="schedule_date" name="schedule_date" class="ds-form-control" required>
+                        <small id="date_error" style="color:#ef4444; display:none; font-size:0.8rem;">
+                            Schedule cannot be set for past dates
+                        </small>
                     </div>
                     <div class="col-sm-6">
                         <label class="ds-form-label">Day of Week</label>
@@ -119,6 +122,21 @@ document.getElementById('schedule_date').addEventListener('change', function() {
     // Adjust for timezone offset
     const day = days[new Date(d.getTime() + d.getTimezoneOffset() * 60000).getDay()];
     document.getElementById('day_of_week').value = day;
+});
+
+document.getElementById("schedule_date").addEventListener("change", function () {
+    let selectedDate = new Date(this.value);
+    let today = new Date();
+    let error = document.getElementById("date_error");
+    today.setHours(0,0,0,0);
+
+    if (selectedDate < today) {
+        error.style.display = "block";
+        this.value = "";
+    } 
+    else {
+        error.style.display = "none";
+    }
 });
 </script>
 {% endblock %}

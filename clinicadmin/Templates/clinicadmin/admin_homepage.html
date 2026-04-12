@@ -304,7 +304,6 @@
     <a href="{% url 'webguest:home_page' %}" class="nav-link">Logout</a>
   </nav>
   <div class="nav-right">
-    <div class="notif-btn">🔔<span class="notif-dot"></span></div>
     <div class="user-pill">
       <div class="user-avatar">AD</div>
       <span>Admin</span>
@@ -336,12 +335,11 @@
       <span class="stat-arrow">→</span>
     </a>
     <a href="#" class="stat-card">
-      <div class="stat-icon-wrap green">🧑‍⚕️</div>
+      <div class="stat-icon-wrap green">🧑</div>
       <div>
         <div class="stat-value">{{ patient_count }}</div>
         <div class="stat-label">Total Patients</div>
       </div>
-      <span class="stat-arrow">→</span>
     </a>
   </div>
 
@@ -354,7 +352,7 @@
     <div class="panel-body">
       <a href="{% url 'webadmin:doctor_registration' %}" class="btn btn-primary">➕ Add New Doctor</a>
       <a href="{% url 'webadmin:admin_doctor_list' %}" class="btn btn-outline">🩺 Doctor List</a>
-      <a href="#" class="btn btn-danger">🚪 Logout</a>
+      <a href="{% url 'webguest:home_page' %}" class="btn btn-danger">🚪 Logout</a>
     </div>
   </div>
 

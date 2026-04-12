@@ -460,6 +460,18 @@ body {
   .modal-header { padding: 20px 20px 16px; }
   .modal-body { padding: 22px 20px; }
 }
+
+.alert-error {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #fff1f1;
+  border: 1.5px solid #fca5a5;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  animation: fadeSlide .4s ease both;
+}
+.alert-error-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+.alert-error-text { font-size: 13px; color: #b91c1c; font-weight: 500; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -547,14 +559,14 @@ body {
   </div>
 
   <div class="card">
-    <form action="" method="post">
+    <form action="" method="post" autocomplete="off">
       {% csrf_token %}
 
       <div class="field">
         <label class="field-label" for="txt_email">Email Address</label>
         <div class="input-wrap">
           <span class="input-icon">✉</span>
-          <input type="text" name="txt_email" id="txt_email" placeholder="email@example.com">
+          <input type="email" name="txt_email" id="txt_email" placeholder="email@example.com" autocomplete="off" required>
         </div>
       </div>
 
@@ -565,10 +577,19 @@ body {
         </div>
         <div class="input-wrap">
           <span class="input-icon">🔒</span>
-          <input type="password" name="txt_password" id="txt_password" placeholder="••••••••">
+          <input type="password" name="txt_password" id="txt_password" placeholder="••••••••" autocomplete="new-password" required>
         </div>
       </div>
-
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'error' %}
+            <div class="alert-error">
+              <span class="alert-error-icon">⚠</span>
+              <span class="alert-error-text">{{ message }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
       <div class="btn-group">
         <input type="reset" class="btn btn-secondary" value="Cancel">
         <input type="submit" class="btn btn-primary" value="Sign In →">

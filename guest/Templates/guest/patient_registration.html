@@ -379,24 +379,24 @@ textarea { resize: none; }
 
   <!-- Form -->
   <div class="card">
-    <form method="post">
+    <form method="post" onsubmit="return validateForm()">
       {% csrf_token %}
 
       <div class="section-label">Personal Information</div>
       <div class="grid">
         <div class="form-group full">
           <label>Full Name</label>
-          <input type="text" name="txt_name" placeholder="Full Name">
+          <input type="text" name="txt_name" placeholder="Full Name" autocomplete="off">
         </div>
 
         <div class="form-group full">
           <label>Address</label>
-          <textarea name="txt_address" rows="2" placeholder="Enter Address"></textarea>
+          <textarea name="txt_address" rows="2" placeholder="Enter Address" autocomplete="off"></textarea>
         </div>
 
         <div class="form-group">
           <label>Age</label>
-          <input type="number" name="txt_age" placeholder="Years">
+          <input type="number" name="txt_age" placeholder="Years" autocomplete="off">
         </div>
 
         <div class="form-group">
@@ -422,12 +422,12 @@ textarea { resize: none; }
       <div class="grid">
         <div class="form-group">
           <label>Phone Number</label>
-          <input type="number" name="txt_phone" placeholder="+91 XXXXX XXXXX">
+          <input type="number" name="txt_phone" placeholder="+91 XXXXX XXXXX" autocomplete="off">
         </div>
 
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" name="txt_email" placeholder="example@mail.com">
+          <input type="email" name="txt_email" placeholder="example@mail.com" autocomplete="off">
         </div>
       </div>
 
@@ -435,13 +435,13 @@ textarea { resize: none; }
       <div class="grid">
         <div class="form-group">
           <label>Password</label>
-          <input type="password" name="txt_password" placeholder="Min. 8 characters">
+          <input type="password" name="txt_password" placeholder="Min. 8 characters" autocomplete="off">
           <span class="hint">Use letters, numbers &amp; symbols</span>
         </div>
 
         <div class="form-group">
           <label>Confirm Password</label>
-          <input type="password" name="txt_repassword" placeholder="Re-enter password">
+          <input type="password" name="txt_repassword" placeholder="Re-enter password" autocomplete="new-password">
         </div>
       </div>
 
@@ -457,6 +457,54 @@ textarea { resize: none; }
   </div>
 
 </div>
+<script>
 
+function validateForm(){
+
+  let name = document.querySelector('[name="txt_name"]').value.trim();
+  let age = document.querySelector('[name="txt_age"]').value;
+  let phone = document.querySelector('[name="txt_phone"]').value;
+  let email = document.querySelector('[name="txt_email"]').value;
+  let password = document.querySelector('[name="txt_password"]').value;
+  let repassword = document.querySelector('[name="txt_repassword"]').value;
+
+  let namePattern = /^[A-Za-z\s]+$/;
+  let phonePattern = /^[0-9]{10}$/;
+  let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if(!namePattern.test(name)){
+    alert("Name should contain only letters");
+    return false;
+  }
+
+  if(age <= 0 || age > 120){
+    alert("Enter a valid Age");
+    return false;
+  }
+
+  if(!phonePattern.test(phone)){
+    alert("Phone number must be exactly 10 digits");
+    return false;
+  }
+
+  if(!emailPattern.test(email)){
+    alert("Enter a valid email address");
+    return false;
+  }
+
+  if(password.length < 8){
+    alert("Password must be at least 8 characters");
+    return false;
+  }
+
+  if(password !== repassword){
+    alert("Passwords do not match");
+    return false;
+  }
+
+  return true;
+}
+
+</script>
 </body>
 </html>

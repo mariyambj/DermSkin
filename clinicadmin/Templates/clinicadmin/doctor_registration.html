@@ -329,7 +329,7 @@
 <!-- Main -->
 <div class="main">
   <div class="form-card">
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data"  id="doctorForm">
       {% csrf_token %}
 
       <!-- Personal Info -->
@@ -338,11 +338,11 @@
         <div class="field-grid cols-2">
           <div class="field">
             <label>Full Name <span class="required-dot"></span></label>
-            <input type="text" name="name" value="Dr. " required placeholder="Dr. Full Name">
+            <input type="text" name="name" value="Dr. " required placeholder="Full Name">
           </div>
           <div class="field">
             <label>Age <span class="required-dot"></span></label>
-            <input type="number" name="age" required placeholder="e.g. 35">
+            <input type="number" name="age" id="age"  min="25" required placeholder="Enter Age">
           </div>
           <div class="field">
             <label>Gender</label>
@@ -356,13 +356,13 @@
           </div>
           <div class="field">
             <label>Phone Number <span class="required-dot"></span></label>
-            <input type="text" name="phone_number" required placeholder="+91 00000 00000">
+            <input type="text" name="phone_number" id="phone" placeholder="10 digit phone number">
           </div>
         </div>
         <div class="field-grid cols-1">
           <div class="field">
             <label>Address</label>
-            <textarea name="address" placeholder="Clinic or home address"></textarea>
+            <textarea name="address" placeholder="Home address" autocomplete="off"></textarea>
           </div>
         </div>
       </div>
@@ -373,11 +373,11 @@
         <div class="field-grid cols-2">
           <div class="field">
             <label>Email <span class="required-dot"></span></label>
-            <input type="email" name="email" required placeholder="doctor@clinic.com">
+            <input type="email" name="email" required placeholder="Email Address">
           </div>
           <div class="field">
             <label>Password</label>
-            <input type="password" name="password" placeholder="Set a password">
+            <input type="password" name="password" id="password" required placeholder="Set a password">
           </div>
         </div>
       </div>
@@ -399,11 +399,11 @@
           </div>
           <div class="field">
             <label>Qualification</label>
-            <input type="text" name="qualification" placeholder="e.g. MBBS, MD">
+            <input type="text" name="qualification" placeholder="Qualification">
           </div>
           <div class="field" style="grid-column: 1 / -1;">
             <label>Medical Registration Number</label>
-            <input type="text" name="medical_registration_number" placeholder="e.g. MCI-12345">
+            <input type="text" name="medical_registration_number" id="regno" required placeholder="e.g. MCI-12345">
           </div>
         </div>
       </div>
@@ -414,21 +414,23 @@
         <div class="field-grid cols-2">
           <div class="field">
             <label>Profile Picture</label>
-            <div class="file-wrap">
-              <input type="file" name="profile_picture" accept="image/*">
-              <div class="file-label">
-                <span class="file-icon">🖼️</span> Choose photo
+              <div class="file-wrap">
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                  <div class="file-label">
+                    <span class="file-icon">🖼️</span>
+                    <span id="photoText">Choose photo</span>
+                  </div>
               </div>
-            </div>
           </div>
           <div class="field">
             <label>Identification Proof</label>
-            <div class="file-wrap">
-              <input type="file" name="identification_proof">
-              <div class="file-label">
-                <span class="file-icon">📄</span> Upload document
+              <div class="file-wrap">
+                <input type="file" id="id_proof" name="identification_proof">
+                  <div class="file-label">
+                    <span class="file-icon">📄</span>
+                    <span id="proofText">Upload document</span>
+                  </div>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -442,6 +444,61 @@
     </form>
   </div>
 </div>
+<script>
+document.getElementById("doctorForm").addEventListener("submit", function(e){
 
+    let age = document.getElementById("age").value;
+    let phone = document.getElementById("phone").value.trim();
+    let password = document.getElementById("password").value.trim();
+    let regno = document.getElementById("regno").value.trim();
+
+    // Age validation
+    if(age <= 24){
+        alert("Doctor age must be greater than 24");
+        e.preventDefault();
+        return;
+    }
+
+    // Phone validation (10 digits)
+    let phonePattern = /^[0-9]{10}$/;
+    if(!phonePattern.test(phone)){
+        alert("Phone number must contain exactly 10 digits");
+        e.preventDefault();
+        return;
+    }
+
+    // Password validation
+    if(password.length < 6){
+        alert("Password must be at least 6 characters long");
+        e.preventDefault();
+        return;
+    }
+    // Medical registration number validation
+    if(regno !== ""){
+        let regPattern = /^[A-Za-z\-\/0-9]{5,20}$/;
+        if(!regPattern.test(regno)){
+          alert("Enter a valid medical registration number");
+          e.preventDefault();
+        return;
+        }
+    }
+
+});
+  // Profile picture file name
+  document.getElementById("profile_picture").addEventListener("change", function(){
+      let fileName = this.files[0]?.name;
+      if(fileName){
+          document.getElementById("photoText").innerText = fileName;
+      }
+  });
+
+  // Identification proof file name
+  document.getElementById("id_proof").addEventListener("change", function(){
+      let fileName = this.files[0]?.name;
+      if(fileName){
+          document.getElementById("proofText").innerText = fileName;
+      }
+  });
+</script>
 </body>
 </html>

@@ -141,14 +141,16 @@ def login(request):
             patient_data=tbl_patient.objects.get(email=email,pass_word=password)
             request.session['pid']=patient_data.id
             return redirect('webpatient:patient_homepage')
-        if admin_count>0:
+        elif admin_count>0:
             admin_data=tbl_admin.objects.get(email=email,password=password)
             request.session['aid']=admin_data.id
             return redirect('webadmin:admin_homepage')
-        if doctor_count>0:
+        elif doctor_count>0:
             doctor_data=tbl_doctor.objects.get(email=email,password=password)
             request.session['did']=doctor_data.id
             return redirect('webdoctor:doctor_homepage')
+        else:
+            messages.error(request, "Invalid Email or Password")
    
     return render(request, 'guest/login.html')
 
