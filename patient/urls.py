@@ -15,4 +15,5 @@ urlpatterns = [
    path('generate_report/',views.generate_report, name='generate_report'),
    path('myReports/',views.myReports, name='myReports'),
    path('appointment-history/', views.appointment_history, name='appointment_history'),
+   path('cancel-appointment/<int:app_id>/', views.cancel_appointment, name='cancel_appointment'),
 ]

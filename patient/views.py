@@ -160,31 +160,24 @@ from clinicadmin.models import tbl_doctor
 # BOOK APPOINTMENT PAGE (SHOW TOKENS)
 # ==========================================
 def book_appointment(request, doctor_id):
-
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
-
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-
     selected_date = request.GET.get('appointment_date')
     tokens = None   # ❗ No tokens initially
-
     if selected_date:
         selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
-
         # ❌ Prevent past booking
         if selected_date < date.today():
             messages.error(request, "You cannot book past dates.")
             return redirect('webpatient:book_appointment', doctor_id=doctor_id)
-
         # ✔ Check doctor schedule
         schedule = tbl_schedule.objects.filter(
             doctor=doctor,
             schedule_date=selected_date,
             is_available=True
         ).first()
-
         if not schedule:
             messages.error(request, "Doctor is not available on this date.")
         else:
@@ -193,14 +186,12 @@ def book_appointment(request, doctor_id):
                 doctor=doctor,
                 date=selected_date
             ).order_by('token_number')
-
     context = {
         'doctor': doctor,
         'tokens': tokens,
         'selected_date': selected_date,
         'today': date.today()
     }
-
     return render(request, 'patient/booking_appointment.html', context)
 
 # ==========================================
@@ -217,15 +208,17 @@ def confirm_booking(request, token_id):
             messages.error(request, "Sorry, this token is already booked.")
             return redirect('webpatient:book_appointment', doctor_id=token.doctor.id)
         symptoms = request.POST.get('symptoms')
-        tbl_appointment.objects.create(
+        appointment = tbl_appointment.objects.create(
             patient=patient,
             doctor=token.doctor,
             appointment_date=token.date,
             token_number=token.token_number,
             estimated_time=token.estimated_time,
             symptoms=symptoms,
-            status='confirmed'
         )
+    # ✅ STEP 2: force status update properly
+        appointment.status = "confirmed"
+        appointment.save()
         token.is_booked = True
         token.save()
         messages.success(request, "Appointment booked successfully!")
@@ -244,17 +237,24 @@ def myBookings(request):
     patient = tbl_patient.objects.get(id=patient_id)
     appointments = tbl_appointment.objects.filter(
         patient=patient,
-        appointment_date__gte=date.today()   # today + future
-    ).order_by('appointment_date', 'estimated_time')
+        appointment_date__gte=date.today()
+    ).exclude(status="cancelled").order_by('appointment_date', 'estimated_time')
     context = {
         'appointments': appointments
     }
     return render(request, 'patient/myBookings.html', context)   
 
+#cancel appointment
+def cancel_appointment(request, app_id):
+    if request.method == 'POST':
+        appointment = get_object_or_404(tbl_appointment, id=app_id)
+        appointment.status = "cancelled"
+        appointment.save()
+        messages.success(request, "Appointment cancelled successfully.")
+    return redirect('webpatient:myBookings')
 
 
-
-
+#generate report
 def generate_report(request):
     patient_id = request.session.get('pid')
     if not patient_id:
@@ -289,7 +289,6 @@ def myReports(request):
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
-        
     patient = tbl_patient.objects.get(id=patient_id)
     reports = tbl_report.objects.filter(patient=patient).order_by('-report_date')
     
@@ -300,14 +299,27 @@ def myReports(request):
 
 
 
+#Booking history
+'''from django.db.models import Q
+def appointment_history(request):
+    pid = request.session['pid']
+    today = date.today()
+    history = tbl_appointment.objects.filter(
+        patient_id=pid
+    ).filter(
+        Q(appointment_date__lt=today) | Q(status__iexact="cancelled")
+    ).order_by('-appointment_date')
+    return render(request, 'patient/history_booking.html', {'history': history})'''
 
 
 #Booking history
 def appointment_history(request):
-    pid = request.session['pid']   # logged patient id
+    pid = request.session['pid']
     today = date.today()
     history = tbl_appointment.objects.filter(
         patient_id=pid,
         appointment_date__lt=today
+    ).filter(
+        status__in=["confirmed", "cancelled","Cancelled"]   # explicitly include both
     ).order_by('-appointment_date')
     return render(request, 'patient/history_booking.html', {'history': history})

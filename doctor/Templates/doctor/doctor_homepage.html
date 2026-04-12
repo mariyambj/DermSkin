@@ -103,7 +103,7 @@
                             <tbody>
                                 {% for a in appointments %}
                                 <tr>
-                                    <td><strong>{{ a.patient.username }}</strong></td>
+                                    <td><strong>{{ a.patient.first_name }}</strong></td>
                                     <td><span class="fw-bold">#{{ a.token_number }}</span></td>
                                     <td>{{ a.estimated_time }}</td>
                                     <td><span class="status-pill {{ a.status }}">{{ a.status|title }}</span></td>

@@ -1,42 +1,43 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from clinicadmin.models import *
 from .models import *
-from datetime import datetime, timedelta, date
 from django.utils import timezone
 from patient.models import *
 import base64
 from django.core.files.base import ContentFile
-from datetime import datetime
-
-
+from datetime import datetime, timedelta, date
+from .models import tbl_schedule, tbl_token
+from clinicadmin.models import tbl_doctor
+from django.contrib import messages
+from .models import tbl_schedule, tbl_token
+from patient.models import tbl_appointment
 # Create your views here.
 
 
-# doctor/views.py
+
 def doctor_homepage(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
-    
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
     today = date.today()
-    
-    # Fetch today's appointments
-    from patient.models import tbl_appointment
+    # Fetch today's NON-CANCELLED appointments
     todays_appointments = tbl_appointment.objects.filter(
-        doctor=doctor, 
+        doctor=doctor,
         appointment_date=today
-    ).order_by('estimated_time')
-
-    # Stats
+    ).exclude(status="cancelled").order_by('estimated_time')
+    # Fetch recent patients WITHOUT cancelled appointments
+    recent_patients = tbl_appointment.objects.filter(
+        doctor=doctor
+    ).exclude(status="cancelled").order_by('-appointment_date')[:5]
     context = {
         'doctor': doctor,
         'todays_count': todays_appointments.count(),
-        'pending_reports': 5, # Placeholder
-        'avg_time': 15,        # Placeholder
-        'monthly_earnings': 12500, # Placeholder
+        'pending_reports': 5,
+        'avg_time': 15,
+        'monthly_earnings': 12500,
         'appointments': todays_appointments,
-        'recent_patients': tbl_appointment.objects.filter(doctor=doctor).order_by('-appointment_date')[:5],
+        'recent_patients': recent_patients,
         'profile_progress': 85
     }
     return render(request, 'doctor/doctor_homepage.html', context)
@@ -102,23 +103,6 @@ def doctor_changepassword(request):
 
 
 
-
-from datetime import datetime, timedelta, date
-from django.shortcuts import render, redirect
-
-# doctor/views.py
-from datetime import datetime, timedelta
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import tbl_schedule, tbl_token
-from clinicadmin.models import tbl_doctor
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from datetime import datetime, timedelta
-from .models import tbl_schedule, tbl_token
-from clinicadmin.models import tbl_doctor
 
 def doctor_schedule(request):
     # 1. Get ID from session and verify the doctor exists FIRST
@@ -272,20 +256,6 @@ def doctor_patient_bookings(request):
     })
 
 
-def update_booking_status(request, appointment_id, status):
-    from patient.models import tbl_appointment
-    appointment = get_object_or_404(tbl_appointment, id=appointment_id)
-    
-    if status in ['confirmed', 'completed', 'cancelled']:
-        appointment.status = status
-        appointment.save()
-        messages.success(request, f"Appointment status updated to {status}.")
-    else:
-        messages.error(request, "Invalid status update.")
-        
-    return redirect('webdoctor:doctor_patient_bookings')
-
-
 def doctor_reports(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
@@ -427,7 +397,7 @@ def build_model(num_classes=10):
     return model
 
 # Initialize the model globally so it doesn't reload on every single web request
-MODEL_PATH = os.path.join(settings.BASE_DIR, 'doctor', 'dl_model', 'best_densenet.pth')
+MODEL_PATH = os.path.join(settings.BASE_DIR, 'doctor', 'dl_model', 'best_densenet_mixup.pth')
 model = build_model(len(CLASS_NAMES))
 # Load weights safely (map_location ensures it works even on a CPU-only server)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
