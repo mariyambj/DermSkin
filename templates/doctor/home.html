@@ -10,7 +10,7 @@
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h6 class="text-uppercase tracking-wider opacity-75 mb-2">Dashboard Overview</h6>
-                <h2 class="display-6 fw-bold mb-1">Good Morning, Dr. {{ doctor.name }}</h2>
+                <h2 class="display-6 fw-bold mb-1">Good Morning,{{ doctor.name }}</h2>
                 <p class="mb-0 opacity-90"><i class="far fa-calendar-alt me-2"></i> {% now "l, F j, Y" %} | You have <span class="fw-bold text-secondary">{{ todays_count }}</span> appointments today.</p>
             </div>
             <div class="col-md-4 mt-3 mt-md-0">

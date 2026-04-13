@@ -784,15 +784,15 @@
                 <!-- Patient right side -->
                 <div class="nav-right ms-auto">
                     <!-- notification -->
-                    <a href="#" class="notif-btn">
+                    <!--<a href="#" class="notif-btn">
                         <i class="fas fa-bell" style="font-size:0.9rem;"></i>
                         <span class="notif-dot"></span>
-                    </a>
+                    </a>-->
                     <!-- account dropdown -->
                     <div class="ds-dropdown">
                         <a class="nav-account dropdown-toggle" href="#"
                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="nav-avatar patient">{{ request.session.pid|default:"P"|stringformat:"s"|slice:":1"|upper }}P</div>
+                            <!--<div class="nav-avatar patient">{{ request.session.pid|default:"P"|stringformat:"s"|slice:":1"|upper }}</div>-->
                             <span class="nav-account-label">Account</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -833,17 +833,17 @@
                 <!-- Doctor right side -->
                 <div class="nav-right ms-auto">
                     <!-- notification -->
-                    <a href="#" class="notif-btn">
+                    <!-- <a href="#" class="notif-btn">
                         <i class="fas fa-bell" style="font-size:0.9rem;"></i>
                         <span class="notif-dot"></span>
-                    </a>
+                    </a>-->
                     <!-- account dropdown -->
                     <div class="ds-dropdown">
                         <a class="nav-account dropdown-toggle" href="#"
                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="nav-avatar doctor">Dr</div>
+                            <!--<div class="nav-avatar doctor">Dr</div>
                             <span class="nav-account-label">Account</span>
-                        </a>
+                        </a>-->
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{% url 'webdoctor:doctor_profile' %}"><i class="fas fa-user-md"></i>My Profile</a></li>
                             <li><a class="dropdown-item" href="{% url 'webdoctor:doctor_editprofile' %}"><i class="fas fa-user-edit"></i>Edit Profile</a></li>

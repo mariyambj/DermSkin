@@ -197,6 +197,14 @@ def registration(request):
         repassword = request.POST.get('txt_repassword')
         if password != repassword:
             return render(request,'guest/patient_registration.html',{'error':'Password do not match'})
+                # Check if email already exists
+        if tbl_patient.objects.filter(email=email).exists():
+            return render(request, 'guest/patient_registration.html',
+                          {'error': 'Email already registered'})
+        # Check if phone already exists
+        if tbl_patient.objects.filter(phone=phone).exists():
+            return render(request, 'guest/patient_registration.html',
+                          {'error': 'Phone number already registered'})
         # generate OTP
         otp = random.randint(1000,9999)
         # store data in session
@@ -218,6 +226,7 @@ def registration(request):
         )
         return redirect('webguest:verify_otp')
     return render(request, 'guest/patient_registration.html')
+
 
 #otp verification view
 def verify_otp(request):
