@@ -64,23 +64,50 @@
                         </div>
                     </div>
 
-                    <!-- ✅ Cancel Button -->
+                    <!-- Action Button: Cancel OR Feedback OR Already Reviewed -->
                     <div class="col-lg-3 d-flex justify-content-lg-end">
-                        <button
-                            class="btn-ds-cancel"
-                            onclick="confirmCancel('{{ app.id }}', '{{ app.doctor.name }}', '{{ app.appointment_date }}')"
-                        >
-                            <i class="fas fa-times-circle"></i> Cancel
-                        </button>
+                        {% if app.status == 'completed' %}
+                            {% if app.id in feedbacked_ids %}
+                                <!-- Already submitted -->
+                                <span class="btn-ds-reviewed">
+                                    <i class="fas fa-check-circle"></i> Reviewed
+                                </span>
+                            {% else %}
+                                <!-- Show feedback button -->
+                                <button
+                                    class="btn-ds-feedback"
+                                    onclick="openFeedback('{{ app.id }}', '{{ app.doctor.name }}')"
+                                >
+                                    <i class="fas fa-star"></i> Give Feedback
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <!-- Show cancel button for pending/confirmed -->
+                            <button
+                                class="btn-ds-cancel"
+                                onclick="confirmCancel('{{ app.id }}', '{{ app.doctor.name }}', '{{ app.appointment_date }}')"
+                            >
+                                <i class="fas fa-times-circle"></i> Cancel
+                            </button>
+                        {% endif %}
                     </div>
 
                 </div>
 
-                <!-- Symptoms (if any) -->
+                <!-- Symptoms -->
                 {% if app.symptoms %}
                 <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
                     <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Symptoms: </span>
                     <span style="font-size:0.875rem;color:var(--text-mid);">{{ app.symptoms }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Status badge for completed -->
+                {% if app.status == 'completed' %}
+                <div style="margin-top:10px;">
+                    <span style="font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#10b981;text-transform:uppercase;letter-spacing:0.05em;">
+                        ✓ Completed
+                    </span>
                 </div>
                 {% endif %}
 
@@ -105,11 +132,10 @@
 </div>
 </div>
 
-<!-- ✅ Cancel Confirmation Modal -->
+<!-- Cancel Modal -->
 <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden;">
-
       <div class="modal-header" style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;padding:20px 24px;">
         <div class="d-flex align-items-center gap-3">
           <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:white;">
@@ -122,17 +148,13 @@
         </div>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body" style="padding:24px;">
-        <p style="color:var(--text-mid);font-size:0.92rem;margin-bottom:16px;">
-          Are you sure you want to cancel your appointment with:
-        </p>
+        <p style="color:var(--text-mid);font-size:0.92rem;margin-bottom:16px;">Are you sure you want to cancel your appointment with:</p>
         <div style="background:var(--bg-soft,#f8f9ff);border-radius:10px;padding:14px 16px;border:1px solid var(--border);">
           <div style="font-weight:700;color:var(--text-dark);" id="modal-doctor-name">—</div>
           <div style="font-size:0.85rem;color:var(--text-muted);margin-top:3px;" id="modal-appt-date">—</div>
         </div>
       </div>
-
       <div class="modal-footer" style="border:none;padding:0 24px 24px;gap:10px;">
         <button type="button" class="btn-ds-secondary" data-bs-dismiss="modal">
           <i class="fas fa-arrow-left"></i> Keep Appointment
@@ -144,12 +166,79 @@
           </button>
         </form>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⭐ Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;overflow:hidden;">
+
+      <div class="modal-header" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;padding:20px 24px;">
+        <div class="d-flex align-items-center gap-3">
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:white;">
+            <i class="fas fa-star"></i>
+          </div>
+          <div>
+            <h5 class="modal-title" style="color:white;font-weight:700;margin:0;">Rate Your Experience</h5>
+            <p style="color:rgba(255,255,255,0.75);font-size:0.8rem;margin:0;" id="feedback-doctor-sub">—</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="POST" action="{% url 'webpatient:submit_feedback' %}">
+        {% csrf_token %}
+        <input type="hidden" name="appointment_id" id="feedback-appointment-id">
+
+        <div class="modal-body" style="padding:28px 24px;">
+
+          <!-- Star Rating -->
+          <div style="margin-bottom:24px;">
+            <label style="font-size:0.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:12px;">Your Rating</label>
+            <div class="star-rating" id="star-rating">
+              {% for i in "54321" %}
+              <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" required>
+              <label for="star{{ i }}" title="{{ i }} star{% if i != '1' %}s{% endif %}">
+                <i class="fas fa-star"></i>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Comment -->
+          <div>
+            <label style="font-size:0.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:10px;">
+              Comments <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span>
+            </label>
+            <textarea
+              name="comment"
+              rows="4"
+              placeholder="Share your experience with the doctor and our services…"
+              style="width:100%;border-radius:12px;border:1.5px solid var(--border);padding:12px 14px;font-size:0.875rem;color:var(--text-dark);background:var(--bg-soft,#f8f9ff);resize:none;outline:none;font-family:inherit;transition:border-color 0.2s;"
+              onfocus="this.style.borderColor='var(--primary)'"
+              onblur="this.style.borderColor='var(--border)'"
+            ></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer" style="border:none;padding:0 24px 24px;gap:10px;">
+          <button type="button" class="btn-ds-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn-ds-feedback-submit">
+            <i class="fas fa-paper-plane"></i> Submit Feedback
+          </button>
+        </div>
+      </form>
 
     </div>
   </div>
 </div>
 
-<!-- ✅ Button & Modal Styles -->
+<!-- Styles -->
 <style>
 .btn-ds-cancel {
     display: inline-flex; align-items: center; gap: 7px;
@@ -163,44 +252,103 @@
     transition: all 0.2s ease;
 }
 .btn-ds-cancel:hover {
-    background: #ef4444;
-    color: white;
+    background: #ef4444; color: white;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(239,68,68,0.3);
 }
-.btn-ds-danger {
+.btn-ds-feedback {
     display: inline-flex; align-items: center; gap: 7px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    padding: 8px 18px;
+    background: transparent;
+    border: 1.5px solid #7c3aed;
+    color: #7c3aed;
+    border-radius: 10px;
+    font-size: 0.82rem; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-ds-feedback:hover {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124,58,237,0.35);
+    border-color: transparent;
+}
+.btn-ds-reviewed {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 18px;
+    background: rgba(16,185,129,0.08);
+    border: 1.5px solid rgba(16,185,129,0.3);
+    color: #10b981;
+    border-radius: 10px;
+    font-size: 0.82rem; font-weight: 600;
+    cursor: default;
+}
+.btn-ds-feedback-submit {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
     color: white; border: none;
     border-radius: 10px;
     font-size: 0.85rem; font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+    transition: all 0.2s ease;
+}
+.btn-ds-feedback-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.45); }
+.btn-ds-danger {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white; border: none; border-radius: 10px;
+    font-size: 0.85rem; font-weight: 700; cursor: pointer;
     box-shadow: 0 4px 14px rgba(239,68,68,0.3);
     transition: all 0.2s ease;
 }
 .btn-ds-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(239,68,68,0.4); }
 .btn-ds-secondary {
     display: inline-flex; align-items: center; gap: 7px;
-    padding: 10px 20px;
-    background: transparent;
-    border: 1.5px solid var(--border);
-    color: var(--text-mid);
-    border-radius: 10px;
-    font-size: 0.85rem; font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 10px 20px; background: transparent;
+    border: 1.5px solid var(--border); color: var(--text-mid);
+    border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s ease;
 }
 .btn-ds-secondary:hover { background: var(--bg-soft, #f8f9ff); color: var(--text-dark); }
+
+/* ⭐ Star Rating */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 6px;
+}
+.star-rating input { display: none; }
+.star-rating label {
+    font-size: 2rem;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: #f59e0b;
+}
+.star-rating label:hover { transform: scale(1.15); }
 </style>
 
 <script>
 function confirmCancel(appId, doctorName, appDate) {
-    document.getElementById('modal-doctor-name').textContent =doctorName;
+    document.getElementById('modal-doctor-name').textContent = doctorName;
     document.getElementById('modal-appt-date').textContent = 'Date: ' + appDate;
-    document.getElementById('cancelForm').action ='/cancel-appointment/' + appId + '/';
-    const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
-    modal.show();
+    document.getElementById('cancelForm').action = '/cancel-appointment/' + appId + '/';
+    new bootstrap.Modal(document.getElementById('cancelModal')).show();
+}
+
+function openFeedback(appId, doctorName) {
+    document.getElementById('feedback-appointment-id').value = appId;
+    document.getElementById('feedback-doctor-sub').textContent = doctorName;
+    new bootstrap.Modal(document.getElementById('feedbackModal')).show();
 }
 </script>
 

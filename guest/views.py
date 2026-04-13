@@ -13,6 +13,7 @@ from clinicadmin.models import tbl_admin,tbl_doctor
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from patient.models import tbl_appointment
 
 
 
@@ -94,34 +95,28 @@ def upload_image(request):
     prediction = None
     image_data = None          # base64 data-URL shown in the result section
     pid = request.GET.get('pid') or request.POST.get('pid')
-
+    #appointment = tbl_appointment.objects.get(patient_id=pid)
     if request.method == "POST" and request.FILES.get("image"):
         import base64, io
-
         uploaded = request.FILES["image"]
-
         # ── Encode original image for display ──────────────────────────
         uploaded.seek(0)
         img_bytes = uploaded.read()
         b64 = base64.b64encode(img_bytes).decode("utf-8")
         mime = uploaded.content_type or "image/jpeg"
         image_data = f"data:{mime};base64,{b64}"
-
         # ── Run inference ───────────────────────────────────────────────
         uploaded.seek(0)
         model = _get_model()
         img = Image.open(uploaded).convert("RGB")
         processed_img = preprocess_image(img)
-
         preds = model.predict(processed_img)
         idx = int(np.argmax(preds[0]))
-
         prediction = {
             "label": DISPLAY_NAMES[idx],
             "raw_label": CLASS_NAMES[idx],
             "confidence": round(float(preds[0][idx]) * 100, 2),
         }
-
     return render(request, "guest/upload.html", {
         "prediction": prediction,
         "image_data": image_data,
@@ -151,7 +146,6 @@ def login(request):
             return redirect('webdoctor:doctor_homepage')
         else:
             messages.error(request, "Invalid Email or Password")
-   
     return render(request, 'guest/login.html')
 
 

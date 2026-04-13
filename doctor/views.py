@@ -317,13 +317,13 @@ def patient_details(request, id):
         appointment.save()
     # Fetch previous reports
     reports = tbl_report.objects.filter(patient=appointment.patient).order_by('-report_date')
-
     return render(request, 'doctor/patient_details.html', {
         'appointment': appointment,
         'reports': reports
     })
 
 
+#report
 def doctor_save_report(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
@@ -334,9 +334,7 @@ def doctor_save_report(request):
         image_data = request.POST.get('image_data')
         disease = request.POST.get('disease')
         confidence = request.POST.get('confidence')
-        
         patient = get_object_or_404(tbl_patient, id=patient_id)
-        
         report = tbl_report(
             patient=patient,
             disease=disease,
@@ -352,10 +350,17 @@ def doctor_save_report(request):
         messages.success(request, "Patient report generated and saved successfully!")
         # We need to find an appointment ID to redirect back to patient_details
         from patient.models import tbl_appointment
-        latest_appointment = tbl_appointment.objects.filter(patient=patient, doctor_id=doctor_id).order_by('-appointment_date').first()
+        # ── Mark the appointment as completed ──────────────────────────
+        latest_appointment = tbl_appointment.objects.filter(
+            patient=patient,
+            doctor_id=doctor_id,
+            status__in=['pending', 'confirmed']
+        ).order_by('-appointment_date', '-token_number').first()
+
         if latest_appointment:
+            latest_appointment.status = 'completed'
+            latest_appointment.save()
             return redirect('webdoctor:patient_details', id=latest_appointment.id)
-            
     return redirect('webdoctor:doctor_homepage')
 
 

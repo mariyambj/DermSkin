@@ -1,5 +1,5 @@
-{% extends 'base/header.html' %}
-{% block title %}Smart Derm — AI Skin Analysis{% endblock %}
+{% extends 'Doctor/header.html' %}
+{% block title %}Doctor Dashboard | DermSkin{% endblock %}
 
 {% block content %}
 
@@ -1079,7 +1079,7 @@
                     <form method="POST" enctype="multipart/form-data" action="{% url 'webguest:upload_image' %}"
                         id="upload-form">
                         {% csrf_token %}
-                        <input type="hidden" name="pid" value="{{ pid|default:'' }}">
+                        <input type="hidden" name="pid" value="{{ pid}}">
 
                         <!-- Drop Zone -->
                         <div class="drop-zone" id="drop-zone">
@@ -1112,6 +1112,7 @@
                         </div>
 
                         <!-- CTA -->
+                        <input type="hidden" name="pid" value="{{ pid }}">
                         <button type="submit" class="cta-btn" id="submit-btn">
                             <div class="btn-inner">
                                 <span class="btn-text">Analyse Image →</span>
@@ -1299,4 +1300,6 @@
         }
     </script>
     </div><!-- /page-wrapper -->
+
+    
 {% endblock %}
