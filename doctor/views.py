@@ -142,8 +142,18 @@ def doctor_schedule(request):
         end_time_str = request.POST.get('end_time')
         break_start_str = request.POST.get('break_start_time')
         break_end_str = request.POST.get('break_end_time')
-        consultation_duration = int(request.POST.get('consultation_duration'))
-        total_patients = int(request.POST.get('total_patients'))
+        
+        if not start_time_str or not end_time_str:
+            messages.error(request, "Start time and end time are required.")
+            return redirect('webdoctor:doctor_schedule')
+            
+        try:
+            consultation_duration = int(request.POST.get('consultation_duration'))
+            total_patients = int(request.POST.get('total_patients'))
+        except (ValueError, TypeError):
+            messages.error(request, "Please provide valid numbers for consultation duration and total patients.")
+            return redirect('webdoctor:doctor_schedule')
+
 
         # Check if schedule exists on this day to avoid duplicates
         if tbl_schedule.objects.filter(doctor=doctor, schedule_date=schedule_date).exists():
