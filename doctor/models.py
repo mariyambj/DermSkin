@@ -26,9 +26,9 @@ class tbl_schedule(models.Model):
 
     is_available = models.BooleanField(default=True)
 
-    start_time = models.TimeField()
+    start_time = models.TimeField(null=True, blank=True)
 
-    end_time = models.TimeField()
+    end_time = models.TimeField(null=True, blank=True)
 
     # slot_duration removed in favor of total_patients token generation
     # consultation_duration added to automate token count calculation

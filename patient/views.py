@@ -160,31 +160,43 @@ def book_appointment(request, doctor_id):
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
     selected_date = request.GET.get('appointment_date')
     tokens = None   # ❗ No tokens initially
+    is_on_leave = False
     if selected_date:
         selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
         # ❌ Prevent past booking
         if selected_date < date.today():
             messages.error(request, "You cannot book past dates.")
             return redirect('webpatient:book_appointment', doctor_id=doctor_id)
-        # ✔ Check doctor schedule
-        schedule = tbl_schedule.objects.filter(
+        # ✔ Check doctor leave
+        is_on_leave = tbl_schedule.objects.filter(
             doctor=doctor,
             schedule_date=selected_date,
-            is_available=True
-        ).first()
-        if not schedule:
-            messages.error(request, "Doctor is not available on this date.")
+            is_available=False
+        ).exists()
+
+        if is_on_leave:
+            messages.error(request, "The doctor is on leave on this date.")
         else:
-            # ✔ Fetch tokens only if schedule exists
-            tokens = tbl_token.objects.filter(
+            # ✔ Check doctor schedule
+            schedule = tbl_schedule.objects.filter(
                 doctor=doctor,
-                date=selected_date
-            ).order_by('token_number')
+                schedule_date=selected_date,
+                is_available=True
+            ).first()
+            if not schedule:
+                messages.error(request, "Doctor has not scheduled slots for this date yet.")
+            else:
+                # ✔ Fetch tokens only if schedule exists
+                tokens = tbl_token.objects.filter(
+                    doctor=doctor,
+                    date=selected_date
+                ).order_by('token_number')
     context = {
         'doctor': doctor,
         'tokens': tokens,
         'selected_date': selected_date,
-        'today': date.today()
+        'today': date.today(),
+        'is_on_leave': is_on_leave
     }
     return render(request, 'patient/booking_appointment.html', context)
 

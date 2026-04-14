@@ -1,72 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Skin Disease Classifier</title>
+    <title>DermSkin AI Analysis - Premium</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .preview-img { max-height: 300px; object-fit: cover; border-radius: 10px; }
-        .confidence-bar { height: 25px; border-radius: 12px; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --font-main: 'Outfit', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #0b1021, #1a0b2e, #0f2027, #1f0b2f);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Abstract glowing orbs in background */
+        .orb-1, .orb-2 {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            z-index: 0;
+            animation: float 10s ease-in-out infinite;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: #7209b7;
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(50px) scale(1.05); }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            animation: fadeInUp 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header-styled {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .card-header-styled h2 {
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .custom-file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-file-upload:hover {
+            border-color: var(--accent);
+            background: rgba(76, 201, 240, 0.08);
+            transform: scale(1.02);
+        }
+
+        .custom-file-upload i {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .custom-file-upload:hover i {
+            transform: translateY(-10px);
+        }
+
+        /* Hide actual input tightly inside wrapper */
+        input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            padding: 16px 30px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(67, 97, 238, 0.5);
+            background: linear-gradient(135deg, var(--secondary), #560bad);
+        }
+        
+        .btn-analyze::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255,255,255,0.2);
+            transform: rotate(45deg) translateY(100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .btn-analyze:hover::after {
+            transform: rotate(45deg) translateY(-100%);
+        }
+
+        .result-section {
+            animation: fadeIn 1s ease 0.3s forwards;
+            opacity: 0;
+            background: rgba(0,0,0,0.25);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 2rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: scanline 3s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .preview-img {
+            max-height: 280px;
+            width: 100%;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: transform 0.4s ease, border-color 0.4s ease;
+        }
+
+        .preview-img:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .diagnosis-box {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
+            border-radius: 16px;
+            border-left: 5px solid var(--accent);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .diagnosis-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .diagnosis-result {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: linear-gradient(to right, #fff, #b8c1ec);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .confidence-wrapper {
+            margin-top: auto;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .confidence-bar-bg {
+            height: 14px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .confidence-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: shimmer 2.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .bg-high { background: linear-gradient(90deg, #06d6a0, #118ab2); box-shadow: 0 0 10px #06d6a0; }
+        .bg-mid { background: linear-gradient(90deg, #ffd166, #f77f00); box-shadow: 0 0 10px #ffd166; }
+        .bg-low { background: linear-gradient(90deg, #ef476f, #d00000); box-shadow: 0 0 10px #ef476f; }
+
+        .back-link {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .back-link:hover {
+            color: white;
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .file-name-display {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 15px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card p-4">
-                <h2 class="text-center mb-4 text-primary">AI Skin Disease Classifier</h2>
-                
-                <form method="POST" enctype="multipart/form-data" class="mb-4">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="skin_image" class="form-label">Upload a clear image of the skin lesion:</label>
-                        <input class="form-control form-control-lg" type="file" id="skin_image" name="skin_image" accept="image/*" required>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">Analyze Image</button>
-                    </div>
-                </form>
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
 
-                {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-                {% endif %}
+    <div class="container main-container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
 
-                {% if predicted_class %}
-                <hr>
-                <div class="row mt-4 text-center">
-                    <div class="col-md-6 mb-3">
-                        <h5>Uploaded Image:</h5>
-                        <img src="{{ image_url }}" alt="Uploaded Skin Lesion" class="img-fluid preview-img border">
-                    </div>
+                <div class="glass-card p-4 p-md-5">
                     
-                    <div class="col-md-6 d-flex flex-column justify-content-center">
-                        <h4 class="text-muted">Prediction:</h4>
-                        <h2 class="text-danger fw-bold">{{ predicted_class }}</h2>
+                    <div class="card-header-styled">
+                        <h2>DermSkin AI Analyzer</h2>
+                        <p class="text-white-50 mt-2">Powered by DenseNet169 Neuromorphic Architecture</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        {% csrf_token %}
                         
-                        <div class="mt-3 text-start">
-                            <p class="mb-1 fw-bold text-muted">Confidence: {{ confidence }}%</p>
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-{% if confidence > 80 %}success{% elif confidence > 50 %}warning{% else %}danger{% endif %}" 
-                                     role="progressbar" 
-                                     style="width: {{ confidence }}%;" 
-                                     aria-valuenow="{{ confidence }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="custom-file-upload group">
+                            <i class="fas fa-microscope"></i>
+                            <h5 class="mb-2 text-white">Drag & Drop Scan Image Here</h5>
+                            <p class="text-white-50 mb-0 small">or click to browse local files (JPEG, PNG only)</p>
+                            <div class="file-name-display" id="fileName"><i class="fas fa-file-image me-2"></i>No file selected</div>
+                            <input type="file" id="skin_image" name="skin_image" accept="image/*" required onchange="document.getElementById('fileName').innerHTML = this.files[0] ? '<i class=\'fas fa-check-circle text-success me-2\'></i>' + this.files[0].name : '<i class=\'fas fa-file-image me-2\'></i>No file selected';">
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-analyze" id="analyzeBtn">
+                                <i class="fas fa-brain me-2"></i> Initialize Image Analysis
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if error %}
+                    <div class="alert alert-danger border-0 mt-4 d-flex align-items-center rounded-4" style="background: rgba(239, 71, 111, 0.15); backdrop-filter: blur(10px); color: #ff8fa3; border: 1px solid rgba(239, 71, 111, 0.3) !important;" role="alert">
+                        <i class="fas fa-exclamation-triangle fs-4 me-3"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if predicted_class %}
+                    <div class="result-section">
+                        <div class="row g-4 align-items-center">
+                            
+                            <div class="col-md-5 text-center">
+                                <div class="badge bg-dark bg-opacity-75 border border-white border-opacity-25 mb-3 px-3 py-2 text-uppercase rounded-pill" style="letter-spacing: 1px; font-size: 0.75rem;">Source Image</div>
+                                <img src="{{ image_url }}" alt="Skin Lesion" class="img-fluid preview-img shadow">
+                            </div>
+
+                            <div class="col-md-7">
+                                <div class="diagnosis-box">
+                                    <div class="diagnosis-title"><i class="fas fa-project-diagram me-2"></i>Network Prediction</div>
+                                    <div class="diagnosis-result">{{ predicted_class }}</div>
+                                    
+                                    <div class="confidence-wrapper mt-3">
+                                        <div class="confidence-label">
+                                            <span>Confidence Score</span>
+                                            <span class="{% if confidence > 85 %}text-success{% elif confidence > 50 %}text-warning{% else %}text-danger{% endif %} fw-bolder">{{ confidence }}%</span>
+                                        </div>
+                                        <div class="confidence-bar-bg">
+                                            <div class="confidence-fill {% if confidence > 85 %}bg-high{% elif confidence > 50 %}bg-mid{% else %}bg-low{% endif %}" 
+                                                 style="width: 0%;" 
+                                                 data-target="{{ confidence }}%">
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 pt-3 border-top border-light border-opacity-10">
+                                            <p class="text-white-50 mb-0" style="font-size: 0.8rem; line-height: 1.5;">
+                                                <i class="fas fa-shield-alt me-1 text-accent opacity-75"></i> <strong>Disclaimer:</strong> This matrix analysis is strictly for preliminary screening. It does not replace professional dermatological consultation.
+                                            </p>
+                                        </div>
+
+                                        {% if pid %}
+                                        <div class="mt-4">
+                                            <form method="POST" action="{% url 'webdoctor:doctor_save_report' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="patient_id" value="{{ pid }}">
+                                                <input type="hidden" name="image_data" value="{{ image_data }}">
+                                                <input type="hidden" name="disease" value="{{ predicted_class }}">
+                                                <input type="hidden" name="confidence" value="{{ confidence }}">
+                                                <button type="submit" class="btn btn-primary w-100 fw-bold border-0 text-white shadow-sm" style="background: linear-gradient(135deg, #06d6a0, #3f37c9); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
+                                                    <i class="fas fa-file-medical me-2"></i> Generate & Save Report
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
+                    {% endif %}
+
                 </div>
-                {% endif %}
-                
+
+                <div class="text-center mt-5">
+                    <a href="javascript:history.back()" class="back-link">
+                        <i class="fas fa-arrow-left"></i> Return to Patient Dashboard
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
-</div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animate progress bar fill smoothly upon load
+            const fill = document.querySelector('.confidence-fill');
+            if (fill) {
+                setTimeout(() => {
+                    fill.style.width = fill.getAttribute('data-target');
+                }, 150);
+            }
+
+            // Interactive state during matrix processing
+            const form = document.getElementById('uploadForm');
+            if(form) {
+                form.addEventListener('submit', function() {
+                    const btn = document.getElementById('analyzeBtn');
+                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-2"></i> Processing Neural Matrix...';
+                    btn.style.background = 'linear-gradient(135deg, #118ab2, #06d6a0)';
+                    btn.style.pointerEvents = 'none';
+                    btn.classList.add('shadow-lg');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
