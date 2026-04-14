@@ -14,11 +14,8 @@ class tbl_schedule(models.Model):
     ]
 
     # Removed SLOT_CHOICES as they are no longer needed
-
     doctor = models.ForeignKey(tbl_doctor, on_delete=models.CASCADE)
-
     schedule_date = models.DateField()   # ⭐ NEW FIELD
-
     day_of_week = models.CharField(
         max_length=10,
         choices=DAY_CHOICES
