@@ -120,12 +120,35 @@ def doctor_schedule(request):
     if request.method == 'POST':
         schedule_date = request.POST.get('schedule_date')
         day_of_week = request.POST.get('day_of_week')
+        is_leave = request.POST.get('is_leave') == 'on'
+
+        if is_leave:
+            # Create a leave schedule
+            if tbl_schedule.objects.filter(doctor=doctor, schedule_date=schedule_date).exists():
+                messages.error(request, "A schedule already exists for this date. Please delete it first from 'View Schedules'.")
+                return redirect('webdoctor:doctor_schedule')
+
+            tbl_schedule.objects.create(
+                doctor=doctor,
+                schedule_date=schedule_date,
+                day_of_week=day_of_week,
+                is_available=False
+            )
+            messages.success(request, f"Leave allocated successfully for {schedule_date}.")
+            return redirect('webdoctor:doctor_schedule')
+
+        # Normal Shift Generation
         start_time_str = request.POST.get('start_time')
         end_time_str = request.POST.get('end_time')
         break_start_str = request.POST.get('break_start_time')
         break_end_str = request.POST.get('break_end_time')
         consultation_duration = int(request.POST.get('consultation_duration'))
         total_patients = int(request.POST.get('total_patients'))
+
+        # Check if schedule exists on this day to avoid duplicates
+        if tbl_schedule.objects.filter(doctor=doctor, schedule_date=schedule_date).exists():
+            messages.error(request, "A schedule already exists for this date. Please delete it first from 'View Schedules'.")
+            return redirect('webdoctor:doctor_schedule')
 
         # Save the main Schedule record using the 'doctor' variable we securely fetched above
         schedule = tbl_schedule.objects.create(

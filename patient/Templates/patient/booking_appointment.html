@@ -85,11 +85,19 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <h5>No Tokens Available</h5>
-                <p>No appointment slots are available for the selected date. Try another date.</p>
-            </div>
+                {% if is_on_leave %}
+                <div class="empty-state" style="padding:40px 20px; text-align:center; background: rgba(239, 71, 111, 0.03); border: 1px dashed rgba(239, 71, 111, 0.3); border-radius:14px; margin-top:10px;">
+                    <i class="fas fa-plane-departure mb-3" style="font-size:3.5rem; color:var(--danger); opacity:0.8;"></i>
+                    <h5 style="color:var(--danger); font-family:var(--font-display); font-weight:700;">Doctor is on Leave</h5>
+                    <p style="color:var(--text-muted); margin:0;">{{ doctor.name }} is unavailable and has taken a leave on this date.<br>Please select another date from the calendar to book your appointment.</p>
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding:40px 20px; text-align:center;">
+                    <i class="fas fa-calendar-times mb-3" style="font-size:3.5rem; color:#d1d5db;"></i>
+                    <h5 style="color:var(--text-dark); font-family:var(--font-display); font-weight:600;">No Tokens Available</h5>
+                    <p style="color:var(--text-muted); margin:0;">No appointment slots are scheduled for the selected date. Try another date.</p>
+                </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>
