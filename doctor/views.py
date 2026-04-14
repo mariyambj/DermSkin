@@ -311,7 +311,7 @@ def patient_details(request, id):
         return redirect('webguest:login')
     from patient.models import tbl_appointment, tbl_report
     appointment = get_object_or_404(tbl_appointment, id=id, doctor_id=doctor_id)
-    # ✅ Change status when doctor opens patient details
+    # Change status when doctor opens patient details
     if appointment.status == 'confirmed':
         appointment.status = 'pending'
         appointment.save()
@@ -324,7 +324,7 @@ def patient_details(request, id):
 
 
 #report
-def doctor_save_report(request):
+'''def doctor_save_report(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
@@ -360,6 +360,52 @@ def doctor_save_report(request):
         if latest_appointment:
             latest_appointment.status = 'completed'
             latest_appointment.save()
+            return redirect('webdoctor:patient_details', id=latest_appointment.id)
+    return redirect('webdoctor:doctor_homepage')'''
+
+
+# report
+def doctor_save_report(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    if request.method == 'POST':
+        from patient.models import tbl_patient, tbl_report, tbl_appointment
+        patient_id = request.POST.get('patient_id')
+        image_data = request.POST.get('image_data')
+        disease = request.POST.get('disease')
+        confidence = request.POST.get('confidence')
+        patient = get_object_or_404(tbl_patient, id=patient_id)
+        # Get latest appointment
+        latest_appointment = tbl_appointment.objects.filter(
+            patient=patient,
+            doctor_id=doctor_id,
+            status__in=['pending', 'confirmed']
+        ).order_by('-appointment_date', '-token_number').first()
+        # Create report and attach appointment
+        report = tbl_report(
+            patient=patient,
+            appointment=latest_appointment,
+            disease=disease,
+            confidence=confidence
+        )
+        # Save image
+        if image_data and ';base64,' in image_data:
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+
+            data = ContentFile(
+                base64.b64decode(imgstr),
+                name=f'report_{patient.id}_{datetime.now().strftime("%Y%m%d%H%M%S")}.{ext}'
+            )
+            report.image.save(f'report.{ext}', data, save=False)
+        report.save()
+        # Mark appointment completed
+        if latest_appointment:
+            latest_appointment.status = 'completed'
+            latest_appointment.save()
+
+            messages.success(request, "Patient report generated and saved successfully!")
             return redirect('webdoctor:patient_details', id=latest_appointment.id)
     return redirect('webdoctor:doctor_homepage')
 

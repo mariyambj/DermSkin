@@ -37,6 +37,7 @@ class tbl_report(models.Model):
     confidence = models.CharField(max_length=50)
     image = models.ImageField(upload_to='patient_reports/')
     report_date = models.DateTimeField(auto_now_add=True)
+    appointment = models.ForeignKey(tbl_appointment,on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):
         return f"Report - {self.patient.first_name} - {self.disease}"

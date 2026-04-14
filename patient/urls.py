@@ -17,5 +17,6 @@ urlpatterns = [
    path('appointment-history/', views.appointment_history, name='appointment_history'),
    path('cancel-appointment/<int:app_id>/', views.cancel_appointment, name='cancel_appointment'),
    path('submit-feedback/', views.submit_feedback, name='submit_feedback'),
-   path('download-report/<int:rid>/',views.download_report_pdf,name='download_report_pdf')
+   path('download-report/<int:rid>/',views.download_report_pdf,name='download_report_pdf'),
+
 ]
