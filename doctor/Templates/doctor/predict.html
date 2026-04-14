@@ -425,6 +425,21 @@
                                                 <i class="fas fa-shield-alt me-1 text-accent opacity-75"></i> <strong>Disclaimer:</strong> This matrix analysis is strictly for preliminary screening. It does not replace professional dermatological consultation.
                                             </p>
                                         </div>
+
+                                        {% if pid %}
+                                        <div class="mt-4">
+                                            <form method="POST" action="{% url 'webdoctor:doctor_save_report' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="patient_id" value="{{ pid }}">
+                                                <input type="hidden" name="image_data" value="{{ image_data }}">
+                                                <input type="hidden" name="disease" value="{{ predicted_class }}">
+                                                <input type="hidden" name="confidence" value="{{ confidence }}">
+                                                <button type="submit" class="btn btn-primary w-100 fw-bold border-0 text-white shadow-sm" style="background: linear-gradient(135deg, #06d6a0, #3f37c9); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
+                                                    <i class="fas fa-file-medical me-2"></i> Generate & Save Report
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

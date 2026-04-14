@@ -487,10 +487,22 @@ transform = transforms.Compose([
 
 def predict_disease(request):
     context = {}
+    pid = request.GET.get('pid')
+    if pid:
+        context['pid'] = pid
     
     if request.method == 'POST' and request.FILES.get('skin_image'):
         uploaded_file = request.FILES['skin_image']
         
+        # Read file for base64 encoding (needs to be reset for FileSystemStorage)
+        file_bytes = uploaded_file.read()
+        uploaded_file.seek(0)
+        import base64
+        b64_str = base64.b64encode(file_bytes).decode('utf-8')
+        # Handle cases where content_type is not accurately set
+        content_type = getattr(uploaded_file, 'content_type', 'image/jpeg')
+        context['image_data'] = f"data:{content_type};base64,{b64_str}"
+
         # Save the file temporarily to display it on the HTML page
         fs = FileSystemStorage()
         filename = fs.save(uploaded_file.name, uploaded_file)
