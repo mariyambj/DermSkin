@@ -115,19 +115,26 @@ def change_password(request):
 #view doctor
 
 from django.db.models import Q
-
 def doctor_list(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q', '')
+    department = request.GET.get('department', 'All')
+
     doctors = tbl_doctor.objects.all()
+
     if query:
         doctors = doctors.filter(
             Q(name__icontains=query) |
             Q(specialization__icontains=query) |
             Q(qualification__icontains=query)
         )
+
+    if department and department != 'All':
+        doctors = doctors.filter(specialization__icontains=department)
+
     return render(request, 'patient/doctor_list.html', {
         'doctors': doctors,
-        'query': query
+        'query': query,
+        'department': department,
     })
 
 
@@ -199,6 +206,63 @@ def book_appointment(request, doctor_id):
         'is_on_leave': is_on_leave
     }
     return render(request, 'patient/booking_appointment.html', context)
+
+
+
+'''def book_appointment(request, doctor_id):
+    patient_id = request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
+    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
+    selected_date = request.GET.get('appointment_date')
+    tokens = None
+    is_on_leave = False
+
+    if selected_date:
+        selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
+
+        if selected_date < date.today():
+            messages.error(request, "You cannot book past dates.")
+            return redirect('webpatient:book_appointment', doctor_id=doctor_id)
+
+        is_on_leave = tbl_schedule.objects.filter(
+            doctor=doctor,
+            schedule_date=selected_date,
+            is_available=False
+        ).exists()
+
+        if is_on_leave:
+            messages.error(request, "The doctor is on leave on this date.")
+        else:
+            schedule = tbl_schedule.objects.filter(
+                doctor=doctor,
+                schedule_date=selected_date,
+                is_available=True
+            ).first()
+
+            if not schedule:
+                messages.error(request, "Doctor has not scheduled slots for this date yet.")
+            else:
+                # ✅ If start_time is after 1:00 PM, clear break times
+                from datetime import time as dtime
+                if schedule.start_time and schedule.start_time >= dtime(13, 0):
+                    schedule.break_start_time = None
+                    schedule.break_end_time = None
+                    schedule.save()
+
+                tokens = tbl_token.objects.filter(
+                    doctor=doctor,
+                    date=selected_date
+                ).order_by('token_number')
+
+    context = {
+        'doctor': doctor,
+        'tokens': tokens,
+        'selected_date': selected_date,
+        'today': date.today(),
+        'is_on_leave': is_on_leave
+    }
+    return render(request, 'patient/booking_appointment.html', context)'''
 
 # ==========================================
 # CONFIRM BOOKING
