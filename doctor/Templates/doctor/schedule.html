@@ -25,8 +25,8 @@
             <form method="POST" action="{% url 'webdoctor:doctor_schedule' %}">
                 {% csrf_token %}
 
-                <div class="row g-4">
-                    <!-- Date & Day -->
+                <!-- Date & Day -->
+                <div class="row g-4 mb-0">
                     <div class="col-sm-6">
                         <label class="ds-form-label">Schedule Date</label>
                         <input type="date" id="schedule_date" name="schedule_date" class="ds-form-control" required>
@@ -47,64 +47,79 @@
                             <option value="Sunday">Sunday</option>
                         </select>
                     </div>
+                </div>
 
-                    <!-- Leave Toggle -->
-                    <div class="col-12 mt-3">
-                        <div class="form-check form-switch py-3 px-4 rounded" style="background: rgba(239, 71, 111, 0.05); border: 1px dashed rgba(239, 71, 111, 0.3);">
-                            <input class="form-check-input" type="checkbox" id="is_leave" name="is_leave" style="transform: scale(1.3); margin-top: 0.2rem; cursor: pointer;">
-                            <label class="form-check-label fw-bold ms-3" for="is_leave" style="color: var(--danger); cursor: pointer;">Mark entire day as Leave</label>
-                            <small class="d-block text-muted mt-1" style="font-size: 0.85rem; margin-left: 2.5rem;">If checked, no tokens will be generated and patients will see "Doctor on Leave".</small>
-                        </div>
+                <!-- Leave Toggle -->
+                <div class="mt-4">
+                    <div class="form-check form-switch py-3 px-4 rounded" style="background: rgba(239, 71, 111, 0.05); border: 1px dashed rgba(239, 71, 111, 0.3);">
+                        <input class="form-check-input" type="checkbox" id="is_leave" name="is_leave" style="transform: scale(1.3); margin-top: 0.2rem; cursor: pointer;">
+                        <label class="form-check-label fw-bold ms-3" for="is_leave" style="color: var(--danger); cursor: pointer;">Mark entire day as Leave</label>
+                        <small class="d-block text-muted mt-1" style="font-size: 0.85rem; margin-left: 2.5rem;">If checked, no tokens will be generated and patients will see "Doctor on Leave".</small>
                     </div>
+                </div>
 
-                    <div id="shift-details-container" class="row g-4 mt-0 pt-0 w-100 m-0">
+                <!-- ── Shift Details (hidden when leave toggled) ────────── -->
+                <div id="shift-details-container">
+
                     <!-- Shift Times -->
-                    <div class="col-12">
+                    <div class="mt-4">
                         <label class="ds-form-label">Shift Hours</label>
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="position-relative">
                                     <i class="fas fa-clock" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"></i>
-                                    <input type="time" name="start_time" class="ds-form-control" required style="padding-left:40px;">
+                                    <input type="time" id="start_time" name="start_time" class="ds-form-control" required style="padding-left:40px;">
                                 </div>
                                 <div class="ds-form-label mt-1" style="font-size:0.7rem;">START TIME</div>
                             </div>
                             <div class="col-6">
                                 <div class="position-relative">
                                     <i class="fas fa-clock" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"></i>
-                                    <input type="time" name="end_time" class="ds-form-control" required style="padding-left:40px;">
+                                    <input type="time" id="end_time" name="end_time" class="ds-form-control" required style="padding-left:40px;">
                                 </div>
                                 <div class="ds-form-label mt-1" style="font-size:0.7rem;">END TIME</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Break Times -->
-                    <div class="col-12">
-                        <label class="ds-form-label">Break Time <small style="font-weight:400;text-transform:none;color:var(--text-muted)">(optional)</small></label>
+                    <!-- Break Times (shown by JS only when shift spans lunch) -->
+                    <div class="mt-4" id="break-time-section" style="display:none;">
+                        <label class="ds-form-label">
+                            Break Time
+                            <small style="font-weight:400;text-transform:none;color:var(--text-muted)">(optional)</small>
+                        </label>
                         <div class="row g-3">
                             <div class="col-6">
-                                <input type="time" name="break_start_time" class="ds-form-control" placeholder="Break start">
+                                <input type="time" id="break_start_time" name="break_start_time" class="ds-form-control">
                                 <div class="ds-form-label mt-1" style="font-size:0.7rem;">BREAK START</div>
                             </div>
                             <div class="col-6">
-                                <input type="time" name="break_end_time" class="ds-form-control" placeholder="Break end">
+                                <input type="time" id="break_end_time" name="break_end_time" class="ds-form-control">
                                 <div class="ds-form-label mt-1" style="font-size:0.7rem;">BREAK END</div>
                             </div>
                         </div>
+                        <small class="text-muted mt-1 d-block" style="font-size:0.78rem;">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Applies to shifts that span the 12:30 PM – 1:00 PM lunch window.
+                        </small>
                     </div>
 
                     <!-- Token Settings -->
-                    <div class="col-sm-6">
-                        <label class="ds-form-label">Avg. Minutes Per Patient</label>
-                        <input type="number" name="consultation_duration" class="ds-form-control" value="15" min="5" required>
-                    </div>
-                    <div class="col-sm-6">
-                        <label class="ds-form-label">Total Tokens to Generate</label>
-                        <input type="number" id="total_patients" name="total_patients" class="ds-form-control" min="1" placeholder="e.g., 20" required>
-                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-sm-6">
+                            <label class="ds-form-label">Avg. Minutes Per Patient</label>
+                            <input type="number" name="consultation_duration" class="ds-form-control" value="15" min="5" required>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="ds-form-label">Total Tokens to Generate</label>
+                            <input type="number" id="total_patients" name="total_patients" class="ds-form-control" min="1" placeholder="e.g., 20" required>
+                        </div>
                     </div>
 
+                </div>
+                <!-- ── END shift-details-container ────────────────────────── -->
+
+                <!-- ✅ Submit Button — lives OUTSIDE shift-details-container -->
                 <div class="d-flex gap-3 mt-4 pt-3" style="border-top:1px solid var(--border);">
                     <button type="submit" class="btn-ds-primary" id="submitBtn">
                         <i class="fas fa-magic"></i> Generate Schedule &amp; Tokens
@@ -113,6 +128,7 @@
                         <i class="fas fa-list"></i> View Schedules
                     </a>
                 </div>
+
             </form>
         </div>
     </div>
@@ -125,54 +141,78 @@
 
 {% block extra_js %}
 <script>
-// Auto-detect day of week from date input
-document.getElementById('schedule_date').addEventListener('change', function() {
+function toMinutes(timeStr) {
+    if (!timeStr) return null;
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+}
+
+function checkBreakVisibility() {
+    const startVal = document.getElementById('start_time').value;
+    const endVal   = document.getElementById('end_time').value;
+    const breakSection = document.getElementById('break-time-section');
+
+    if (!startVal || !endVal) {
+        breakSection.style.display = 'none';
+        return;
+    }
+
+    const startMins   = toMinutes(startVal);
+    const endMins     = toMinutes(endVal);
+    const LUNCH_START = 12 * 60 + 30;
+    const LUNCH_END   = 13 * 60 + 0;
+    const needsBreak  = startMins < LUNCH_START && endMins > LUNCH_END;
+
+    breakSection.style.display = needsBreak ? 'block' : 'none';
+    if (!needsBreak) {
+        document.getElementById('break_start_time').value = '';
+        document.getElementById('break_end_time').value   = '';
+    }
+}
+
+document.getElementById('start_time').addEventListener('change', checkBreakVisibility);
+document.getElementById('end_time').addEventListener('change',   checkBreakVisibility);
+checkBreakVisibility();
+
+// Auto-detect day of week
+document.getElementById('schedule_date').addEventListener('change', function () {
     const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const d = new Date(this.value);
-    // Adjust for timezone offset
     const day = days[new Date(d.getTime() + d.getTimezoneOffset() * 60000).getDay()];
     document.getElementById('day_of_week').value = day;
 });
 
-document.getElementById("schedule_date").addEventListener("change", function () {
-    let selectedDate = new Date(this.value);
-    let today = new Date();
-    let error = document.getElementById("date_error");
-    today.setHours(0,0,0,0);
-
-    if (selectedDate < today) {
-        error.style.display = "block";
-        this.value = "";
-    } 
-    else {
-        error.style.display = "none";
+// Past date validation
+document.getElementById('schedule_date').addEventListener('change', function () {
+    const selected = new Date(this.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const error = document.getElementById('date_error');
+    if (selected < today) {
+        error.style.display = 'block';
+        this.value = '';
+    } else {
+        error.style.display = 'none';
     }
 });
 
-// Leave Toggle JS
-document.getElementById('is_leave').addEventListener('change', function() {
+// Leave toggle
+document.getElementById('is_leave').addEventListener('change', function () {
     const shiftDetails = document.getElementById('shift-details-container');
-    const submitBtn = document.getElementById('submitBtn');
-    
-    // Inputs inside shift details
-    const inputs = shiftDetails.querySelectorAll('input[required]');
+    const submitBtn    = document.getElementById('submitBtn');
+    const inputs       = shiftDetails.querySelectorAll('input[required]');
 
     if (this.checked) {
-        // Hide shift details and remove required attribute
         shiftDetails.style.display = 'none';
-        inputs.forEach(input => input.removeAttribute('required'));
-        
-        // Update button
+        inputs.forEach(i => i.removeAttribute('required'));
         submitBtn.innerHTML = '<i class="fas fa-calendar-times"></i> Allocate Leave Day';
         submitBtn.className = 'btn-ds-primary bg-danger border-danger';
     } else {
-        // Show shift details and add back required attribute
-        shiftDetails.style.display = 'flex';
-        inputs.forEach(input => input.setAttribute('required', 'required'));
-        
-        // Restore button
+        shiftDetails.style.display = 'block';
+        inputs.forEach(i => i.setAttribute('required', 'required'));
         submitBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Schedule &amp; Tokens';
         submitBtn.className = 'btn-ds-primary';
+        checkBreakVisibility();
     }
 });
 </script>

@@ -191,8 +191,8 @@
   <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <div class="section-title">
-        <div class="section-title-icon"><i class="fas fa-user-md"></i></div>
-        Recommended Specialists
+        <div class="section-title-icon"><i class="fas fa-history"></i></div>
+        Recently Visited Doctors
       </div>
 
       <!-- Search form — GET request preserves department filter -->
@@ -260,12 +260,12 @@
           </div>
           <div class="doc-name">{{ doctor.name }}</div>
           <div class="doc-spec">{{ doctor.specialization }}</div>
-          <div class="doc-rating">
+          <!--<div class="doc-rating">
             <i class="fas fa-star"></i><i class="fas fa-star"></i>
             <i class="fas fa-star"></i><i class="fas fa-star"></i>
             <i class="fas fa-star-half-alt"></i>
             <span>(4.8)</span>
-          </div>
+          </div>-->
           <a href="{% url 'webpatient:book_appointment' doctor.id %}" class="btn-book">Book Now</a>
         </div>
       </div>

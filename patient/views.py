@@ -40,7 +40,14 @@ def home_page(request):
     appointments = tbl_appointment.objects.filter(patient=patient)
     query = request.GET.get('q')
     department = request.GET.get('department')
-    doctors = tbl_doctor.objects.all()
+
+    from patient.models import tbl_feedback
+    from django.db.models import Avg
+
+    # Only doctors this patient has visited
+    visited_doctor_ids = appointments.values_list('doctor_id', flat=True).distinct()
+    doctors = tbl_doctor.objects.filter(id__in=visited_doctor_ids)
+
     if query:
         doctors = doctors.filter(
             Q(name__icontains=query) |
@@ -49,6 +56,13 @@ def home_page(request):
         )
     if department and department != "All":
         doctors = doctors.filter(specialization__icontains=department)
+
+    # Attach real ratings
+    for doctor in doctors:
+        avg = tbl_feedback.objects.filter(doctor=doctor).aggregate(Avg('rating'))['rating__avg']
+        doctor.avg_rating = round(avg, 1) if avg else None
+        doctor.total_reviews = tbl_feedback.objects.filter(doctor=doctor).count()
+
     context = {
         'patient': patient,
         'total_appointments': appointments.count(),
@@ -61,17 +75,16 @@ def home_page(request):
         'recent_appointments': appointments.order_by('-appointment_date')[:5],
         'doctors': doctors,
         'query': query,
-        'department': department
+        'department': department,
     }
     return render(request, 'patient/home.html', context)
-
 
 #Patient Profile
 
 def patient_profile(request):
     patient_id = request.session.get('pid')
     if not patient_id:
-        return redirect('login')
+        return redirect('webguest:login')
     patient = get_object_or_404(tbl_patient, id=patient_id)
     return render(request, 'patient/patient_profile.html', {'patient': patient})
 
@@ -79,7 +92,7 @@ def patient_profile(request):
 def edit_profile(request):
     patient_id=request.session.get('pid')
     if not patient_id:
-        return redirect('login')
+        return redirect('webguest:login')
     patient=tbl_patient.objects.get(id=patient_id)
     if request.method=='POST':
         patient.first_name = request.POST.get('txt_name')
@@ -95,7 +108,7 @@ def edit_profile(request):
 def change_password(request):
     patient_id=request.session.get('pid')
     if not patient_id:
-        return redirect('login')
+        return redirect('webguest:login')
     patient=tbl_patient.objects.get(id=patient_id)
     if request.method=='POST':
         old_pass=request.POST.get('old_password')
@@ -116,6 +129,9 @@ def change_password(request):
 
 from django.db.models import Q
 def doctor_list(request):
+    patient_id=request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
     query = request.GET.get('q', '')
     department = request.GET.get('department', 'All')
 
@@ -140,6 +156,9 @@ def doctor_list(request):
 
 
 def doctor_details(request, id):
+    patient_id=request.session.get('pid')
+    if not patient_id:
+        return redirect('webguest:login')
     doctor = get_object_or_404(tbl_doctor, id=id)
     return render(request, 'patient/view_details.html', {
         'doctor': doctor
@@ -166,11 +185,11 @@ def book_appointment(request, doctor_id):
         return redirect('webguest:login')
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
     selected_date = request.GET.get('appointment_date')
-    tokens = None   # ❗ No tokens initially
+    tokens = None   # No tokens initially
     is_on_leave = False
     if selected_date:
         selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
-        # ❌ Prevent past booking
+        # Prevent past booking
         if selected_date < date.today():
             messages.error(request, "You cannot book past dates.")
             return redirect('webpatient:book_appointment', doctor_id=doctor_id)
@@ -299,20 +318,6 @@ def confirm_booking(request, token_id):
 
 from django.shortcuts import render, redirect
 from patient.models import tbl_appointment, tbl_patient
-
-'''def myBookings(request):
-    patient_id = request.session.get('pid')
-    if not patient_id:
-        return redirect('webguest:login')
-    patient = tbl_patient.objects.get(id=patient_id)
-    appointments = tbl_appointment.objects.filter(
-        patient=patient,
-        appointment_date__gte=date.today()
-    ).exclude(status="cancelled").order_by('appointment_date', 'estimated_time')
-    context = {
-        'appointments': appointments
-    }
-    return render(request, 'patient/myBookings.html', context) '''
 
 
 

@@ -44,6 +44,8 @@ def doctor_homepage(request):
 
 
 def doctor_profile(request):
+    if 'did' not in request.session:
+        return redirect('webguest:login')
     doctor_id = request.session.get('did')
     doctor = tbl_doctor.objects.filter(id=doctor_id).first()
 
@@ -57,6 +59,8 @@ def doctor_profile(request):
 
 #edit profile
 def doctor_editprofile(request):
+    if 'did' not in request.session:
+        return redirect('webguest:login')
     doctor_id = request.session.get('did')  
     if not doctor_id:
         return redirect('webdoctor:doctor_homepage')  
@@ -83,6 +87,8 @@ def doctor_editprofile(request):
 
 
 def doctor_changepassword(request):
+    if 'did' not in request.session:
+        return redirect('webguest:login')
     doctor_id=request.session.get('did')
     if not doctor_id:
         return redirect('login')
@@ -109,25 +115,21 @@ def doctor_schedule(request):
     doctor_id = request.session['did']
     if not doctor_id:
         messages.error(request, "You must be logged in to access this page.")
-        return redirect('webguest:login')  # Update 'login' if your login URL name is different    
+        return redirect('webguest:login')
     try:
         doctor = tbl_doctor.objects.get(id=doctor_id)
     except tbl_doctor.DoesNotExist:
         messages.error(request, "Doctor profile not found.")
         return redirect('webguest:login')
-
     # 2. Handle the Form Submission
     if request.method == 'POST':
         schedule_date = request.POST.get('schedule_date')
         day_of_week = request.POST.get('day_of_week')
         is_leave = request.POST.get('is_leave') == 'on'
-
         if is_leave:
-            # Create a leave schedule
             if tbl_schedule.objects.filter(doctor=doctor, schedule_date=schedule_date).exists():
                 messages.error(request, "A schedule already exists for this date. Please delete it first from 'View Schedules'.")
                 return redirect('webdoctor:doctor_schedule')
-
             tbl_schedule.objects.create(
                 doctor=doctor,
                 schedule_date=schedule_date,
@@ -136,17 +138,13 @@ def doctor_schedule(request):
             )
             messages.success(request, f"Leave allocated successfully for {schedule_date}.")
             return redirect('webdoctor:doctor_schedule')
-
         # Normal Shift Generation
         start_time_str = request.POST.get('start_time')
         end_time_str = request.POST.get('end_time')
-        break_start_str = request.POST.get('break_start_time')
-        break_end_str = request.POST.get('break_end_time')
-        
+
         if not start_time_str or not end_time_str:
             messages.error(request, "Start time and end time are required.")
             return redirect('webdoctor:doctor_schedule')
-            
         try:
             consultation_duration = int(request.POST.get('consultation_duration'))
             total_patients = int(request.POST.get('total_patients'))
@@ -154,13 +152,27 @@ def doctor_schedule(request):
             messages.error(request, "Please provide valid numbers for consultation duration and total patients.")
             return redirect('webdoctor:doctor_schedule')
 
-
+        # ── Break Time Logic ──────────────────────────────────────────────────
+        fmt = '%H:%M'
+        start_dt = datetime.strptime(start_time_str, fmt)
+        end_dt   = datetime.strptime(end_time_str,   fmt)
+        BREAK_CUTOFF_START = datetime.strptime('12:30', fmt)  # 12:30 PM
+        BREAK_CUTOFF_END   = datetime.strptime('13:00', fmt)  # 1:00 PM
+        # Only ask/use break times if the shift actually spans the lunch window
+        needs_break = start_dt < BREAK_CUTOFF_START and end_dt > BREAK_CUTOFF_END
+        if needs_break:
+            # Use whatever the doctor submitted from the form
+            break_start_str = request.POST.get('break_start_time', '').strip() or None
+            break_end_str   = request.POST.get('break_end_time',   '').strip() or None
+        else:
+            # Shift doesn't span lunch — ignore form values, store NULL
+            break_start_str = None
+            break_end_str   = None
         # Check if schedule exists on this day to avoid duplicates
         if tbl_schedule.objects.filter(doctor=doctor, schedule_date=schedule_date).exists():
             messages.error(request, "A schedule already exists for this date. Please delete it first from 'View Schedules'.")
             return redirect('webdoctor:doctor_schedule')
-
-        # Save the main Schedule record using the 'doctor' variable we securely fetched above
+        # Save the main Schedule record
         schedule = tbl_schedule.objects.create(
             doctor=doctor,
             schedule_date=schedule_date,
@@ -170,20 +182,17 @@ def doctor_schedule(request):
             consultation_duration=consultation_duration,
             total_patients=total_patients,
             break_start_time=break_start_str if break_start_str else None,
-            break_end_time=break_end_str if break_end_str else None
+            break_end_time=break_end_str if break_end_str else None,
         )
         # Time Calculations for Tokens
-        fmt = '%H:%M'
-        current_time = datetime.strptime(start_time_str, fmt)
+        current_time = start_dt
         break_start = datetime.strptime(break_start_str, fmt) if break_start_str else None
-        break_end = datetime.strptime(break_end_str, fmt) if break_end_str else None
-
+        break_end   = datetime.strptime(break_end_str,   fmt) if break_end_str   else None
         # Generate Tokens Loop
         for i in range(1, total_patients + 1):
-            # Fast-forward past the break time if we hit it
+            # Fast-forward past the break window if we hit it
             if break_start and break_end and break_start <= current_time < break_end:
                 current_time = break_end
-            # Create the Token
             tbl_token.objects.create(
                 doctor=doctor,
                 schedule=schedule,
@@ -193,13 +202,10 @@ def doctor_schedule(request):
                 estimated_time=current_time.time(),
                 is_booked=False
             )
-            # Increment time for the next token
             current_time += timedelta(minutes=consultation_duration)
-
         messages.success(request, f"Schedule saved! {total_patients} tokens successfully generated.")
-        return redirect('webdoctor:doctor_schedule') # Redirects back to clear the form
-
-    # 3. If GET request, just render the page
+        return redirect('webdoctor:doctor_schedule')
+    # 3. GET request — just render the page
     return render(request, 'doctor/schedule.html')
  
 
@@ -208,28 +214,34 @@ def doctor_view_schedule(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
-    
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-
     today = timezone.localdate()
     schedules = tbl_schedule.objects.filter(
         doctor=doctor,
-        schedule_date__gte=today   # only today and future
+        schedule_date__gte=today
     ).order_by('schedule_date')
-
     schedule_list = []
     for s in schedules:
-        tokens = tbl_token.objects.filter(schedule=s)
-        booked_count = tokens.filter(is_booked=True).count()
-
-        schedule_list.append({
-            'schedule': s,
-            'total_tokens': tokens.count(),
-            'booked_tokens': booked_count,
-            'available_tokens': tokens.count() - booked_count
-        })
+        if not s.is_available:
+            # Leave day — no tokens needed
+            schedule_list.append({
+                'schedule': s,
+                'is_leave': True,
+                'total_tokens': 0,
+                'booked_tokens': 0,
+                'available_tokens': 0,
+            })
+        else:
+            tokens = tbl_token.objects.filter(schedule=s)
+            booked_count = tokens.filter(is_booked=True).count()
+            schedule_list.append({
+                'schedule': s,
+                'is_leave': False,
+                'total_tokens': tokens.count(),
+                'booked_tokens': booked_count,
+                'available_tokens': tokens.count() - booked_count,
+            })
     return render(request, 'doctor/view_schedule.html', {'schedules': schedule_list})
-
 
 
 def delete_schedule(request, id):
@@ -244,28 +256,6 @@ def delete_schedule(request, id):
 
 
 #view bookings
-'''def doctor_patient_bookings(request):
-    doctor_id = request.session.get('did')
-    if not doctor_id:
-        return redirect('webguest:login')
-    doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-    from patient.models import tbl_appointment
-    status_filter = request.GET.get('status')
-    today = timezone.localdate()
-    appointments = tbl_appointment.objects.filter(
-        doctor=doctor,
-        appointment_date__gte=today   # filter from today
-    )
-    if status_filter:
-        appointments = appointments.filter(status=status_filter)
-        
-    appointments = appointments.order_by('appointment_date', 'estimated_time')
-    
-    return render(request, 'doctor/patient_bookings.html', {
-        'appointments': appointments,
-        'current_status': status_filter
-    })
-'''
 
 def doctor_patient_bookings(request):
     doctor_id = request.session.get('did')
@@ -289,53 +279,65 @@ def doctor_patient_bookings(request):
     })
 
 
+#doctor reports
 def doctor_reports(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-    from patient.models import tbl_appointment
-    # Simple statistics
+    from patient.models import tbl_appointment, tbl_feedback
+    from django.db.models import Avg
+
     total_appointments = tbl_appointment.objects.filter(doctor=doctor).count()
     completed_appointments = tbl_appointment.objects.filter(doctor=doctor, status='completed').count()
     cancelled_appointments = tbl_appointment.objects.filter(doctor=doctor, status='cancelled').count()
+
+    # Rating stats
+    feedbacks = tbl_feedback.objects.filter(doctor=doctor)
+    total_reviews = feedbacks.count()
+    avg_rating = feedbacks.aggregate(Avg('rating'))['rating__avg'] or 0
+    avg_rating = round(avg_rating, 1)
+
+    rating_distribution = []
+    for star in range(5, 0, -1):
+        count = feedbacks.filter(rating=star).count()
+        percentage = round((count / total_reviews * 100)) if total_reviews > 0 else 0
+        rating_distribution.append({'star': star, 'count': count, 'percentage': percentage})
+
     # Monthly breakdown (last 6 months)
     today = date.today()
     monthly_stats = []
     for i in range(6):
-        month_start = (today.replace(day=1) - timedelta(days=i*30)).replace(day=1)
-        next_month = (month_start + timedelta(days=32)).replace(day=1)
+        month = today.month - i
+        year = today.year + (month - 1) // 12
+        month = ((month - 1) % 12) + 1
+        month_start = date(year, month, 1)
+        if month == 12:
+            next_month = date(year + 1, 1, 1)
+        else:
+            next_month = date(year, month + 1, 1)
         count = tbl_appointment.objects.filter(
             doctor=doctor,
             appointment_date__gte=month_start,
             appointment_date__lt=next_month
         ).count()
-        monthly_stats.append({
-            'month': month_start.strftime('%B %Y'),
-            'count': count
-        })
+        monthly_stats.append({'month': month_start.strftime('%B %Y'), 'count': count})
+
+    monthly_stats_chart = list(reversed(monthly_stats))
+
     context = {
         'total_appointments': total_appointments,
         'completed_appointments': completed_appointments,
         'cancelled_appointments': cancelled_appointments,
         'monthly_stats': monthly_stats,
+        'monthly_stats_chart': monthly_stats_chart,
+        'avg_rating': avg_rating,
+        'total_reviews': total_reviews,
+        'rating_distribution': rating_distribution,
     }
     return render(request, 'doctor/doctor_reports.html', context)
 
 
-'''def patient_details(request, id):
-    doctor_id = request.session.get('did')
-    if not doctor_id:
-        return redirect('webguest:login')
-    from patient.models import tbl_appointment, tbl_report
-    appointment = get_object_or_404(tbl_appointment, id=id, doctor_id=doctor_id)
-    # Fetch previous reports for this patient
-    reports = tbl_report.objects.filter(patient=appointment.patient).order_by('-report_date')
-    
-    return render(request, 'doctor/patient_details.html', {
-        'appointment': appointment,
-        'reports': reports
-    })'''
 
 
 def patient_details(request, id):
