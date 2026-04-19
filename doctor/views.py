@@ -400,7 +400,7 @@ def patient_details(request, id):
 
 
 # report
-def doctor_save_report(request):
+'''def doctor_save_report(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
@@ -442,6 +442,47 @@ def doctor_save_report(request):
 
             messages.success(request, "Patient report generated and saved successfully!")
             return redirect('webdoctor:patient_details', id=latest_appointment.id)
+    return redirect('webdoctor:doctor_homepage')'''
+
+
+def doctor_save_report(request):
+    doctor_id = request.session.get('did')
+    if not doctor_id:
+        return redirect('webguest:login')
+    if request.method == 'POST':
+        from patient.models import tbl_patient, tbl_report, tbl_appointment
+        patient_id = request.POST.get('patient_id')
+        image_data = request.POST.get('image_data')
+        disease = request.POST.get('disease')
+        confidence = request.POST.get('confidence')
+        prescription = request.POST.get('prescription', '').strip()  # ← new
+        patient = get_object_or_404(tbl_patient, id=patient_id)
+        latest_appointment = tbl_appointment.objects.filter(
+            patient=patient,
+            doctor_id=doctor_id,
+            status__in=['pending', 'confirmed']
+        ).order_by('-appointment_date', '-token_number').first()
+        report = tbl_report(
+            patient=patient,
+            appointment=latest_appointment,
+            disease=disease,
+            confidence=confidence,
+            prescription=prescription  # ← new
+        )
+        if image_data and ';base64,' in image_data:
+            format, imgstr = image_data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(
+                base64.b64decode(imgstr),
+                name=f'report_{patient.id}_{datetime.now().strftime("%Y%m%d%H%M%S")}.{ext}'
+            )
+            report.image.save(f'report.{ext}', data, save=False)
+        report.save()
+        if latest_appointment:
+            latest_appointment.status = 'completed'
+            latest_appointment.save()
+        messages.success(request, "Patient report generated and saved successfully!")
+        return redirect('webdoctor:patient_details', id=latest_appointment.id)
     return redirect('webdoctor:doctor_homepage')
 
 

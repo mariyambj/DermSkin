@@ -358,6 +358,49 @@
         }
         .disclaimer strong { color: #ffd166; }
 
+        /* Prescription box */
+        .prescription-wrap {
+            margin-bottom: 14px;
+        }
+        .prescription-wrap .field-label {
+            font-size: 0.62rem;
+            letter-spacing: 2.2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .prescription-wrap .field-label i {
+            color: #7c9fff;
+            font-size: 0.7rem;
+        }
+        .prescription-textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 12px;
+            padding: 13px 15px;
+            color: #fff;
+            font-family: var(--font);
+            font-size: 0.84rem;
+            line-height: 1.65;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            min-height: 100px;
+        }
+        .prescription-textarea::placeholder {
+            color: rgba(255,255,255,0.22);
+        }
+        .prescription-textarea:focus {
+            border-color: rgba(91,140,255,0.45);
+            background: rgba(91,110,245,0.05);
+            box-shadow: 0 0 0 3px rgba(91,110,245,0.1);
+        }
+
         /* Save btn */
         .btn-save {
             width: 100%; padding: 14px;
@@ -524,12 +567,12 @@
                     <span class="tag green">DenseNet169</span>
                 </div>
 
-                <div class="disclaimer">
+                <!--<div class="disclaimer">
                     ⚠ <strong>Important:</strong> This result is AI-generated and
                     does <strong>not</strong> constitute a clinical diagnosis.
                     Please consult a qualified dermatologist for professional
                     medical advice.
-                </div>
+                </div>-->
 
                 {% if pid %}
                 <form method="POST" action="{% url 'webdoctor:doctor_save_report' %}">
@@ -538,6 +581,20 @@
                     <input type="hidden" name="image_data" value="{{ image_data }}">
                     <input type="hidden" name="disease"    value="{{ predicted_class }}">
                     <input type="hidden" name="confidence" value="{{ confidence }}">
+
+                    <!-- ── Prescription field ── -->
+                    <div class="prescription-wrap">
+                        <div class="field-label">
+                            <i class="fas fa-prescription"></i>
+                            Prescription / Clinical Notes
+                        </div>
+                        <textarea
+                            name="prescription"
+                            class="prescription-textarea"
+                            rows="4"
+                            placeholder="Enter medications, dosage, treatment plan, or clinical notes…"></textarea>
+                    </div>
+
                     <button type="submit" class="btn-save">
                         <i class="fas fa-file-medical me-2"></i>
                         Generate &amp; Save to Patient Records
