@@ -3,7 +3,5 @@ venv310/
 Dataset/
 db.sqlite3
 media/
-Smart_Derm/settings.py
-doctor/dl_model
 __pycache__/
 *.pyc
