@@ -1,7 +1,6 @@
 guest/models/
 venv310/
 Dataset/
-db.sqlite3
 media/
 __pycache__/
 *.pyc
