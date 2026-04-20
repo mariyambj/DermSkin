@@ -64,10 +64,10 @@
                     <a href="{% url 'webpatient:doctor_list' %}" class="btn-ds-primary justify-content-center">
                         <i class="fas fa-stethoscope"></i> Book Appointment
                     </a>
-                    <a href="{% url 'webpatient:myBookings' %}" class="btn-ds-outline justify-content-center">
+                    <a href="{% url 'webpatient:my_bookings' %}" class="btn-ds-outline justify-content-center">
                         <i class="fas fa-history"></i> View My Bookings
                     </a>
-                    <a href="{% url 'webpatient:myReports' %}" class="btn-ds-outline justify-content-center">
+                    <a href="{% url 'webpatient:my_reports' %}" class="btn-ds-outline justify-content-center">
                         <i class="fas fa-file-medical-alt"></i> My Reports
                     </a>
                     <a href="{% url 'webpatient:patient_profile' %}" class="btn-ds-outline justify-content-center">
@@ -88,7 +88,7 @@
             <div class="ds-card h-100">
                 <div class="ds-card-header d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-history text-primary me-1"></i> Recent Appointments</span>
-                    <a href="{% url 'webpatient:myBookings' %}" class="btn-ds-outline py-1 px-3" style="font-size:0.78rem;">View All</a>
+                    <a href="{% url 'webpatient:my_bookings' %}" class="btn-ds-outline py-1 px-3" style="font-size:0.78rem;">View All</a>
                 </div>
                 <!--<div class="ds-card-body p-0">
                     {% if recent_appointments %}

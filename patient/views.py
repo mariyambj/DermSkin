@@ -319,7 +319,7 @@ def confirm_booking(request, token_id):
 from django.shortcuts import render, redirect
 from patient.models import tbl_appointment, tbl_patient
 
-def myBookings(request):
+def my_bookings(request):
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
@@ -338,7 +338,7 @@ def myBookings(request):
         'appointments': appointments,
         'feedbacked_ids': feedbacked_ids,
     }
-    return render(request, 'patient/myBookings.html', context)
+    return render(request, 'patient/mybookings.html', context)
 
 
 
@@ -356,11 +356,11 @@ def submit_feedback(request):
         # Guard: only allow feedback on completed appointments
         if appointment.status != 'completed':
             messages.error(request, "Feedback can only be submitted for completed appointments.")
-            return redirect('webpatient:myBookings')
+            return redirect('webpatient:my_bookings')
         # Guard: prevent duplicate feedback
         if tbl_feedback.objects.filter(appointment=appointment).exists():
             messages.warning(request, "You have already submitted feedback for this appointment.")
-            return redirect('webpatient:myBookings')
+            return redirect('webpatient:my_bookings')
         tbl_feedback.objects.create(
             patient=appointment.patient,
             doctor=appointment.doctor,
@@ -369,7 +369,7 @@ def submit_feedback(request):
             comment=comment or None,
         )
         messages.success(request, "Thank you! Your feedback has been submitted.")
-    return redirect('webpatient:myBookings')
+    return redirect('webpatient:my_bookings')
 
 
 
@@ -380,7 +380,7 @@ def cancel_appointment(request, app_id):
         appointment.status = "cancelled"
         appointment.save()
         messages.success(request, "Appointment cancelled successfully.")
-    return redirect('webpatient:myBookings')
+    return redirect('webpatient:my_bookings')
 
 
 #generate report
@@ -405,13 +405,13 @@ def generate_report(request):
             report.image.save(f'report.{ext}', data, save=False)   
         report.save()
         messages.success(request, "Report generated successfully!")
-        return redirect('webpatient:myReports')  
+        return redirect('webpatient:my_reports')  
     return redirect('webpatient:patient_homepage')
 
 
 
 #Reports
-def myReports(request):
+def my_reports(request):
     patient_id = request.session.get('pid')
     if not patient_id:
         return redirect('webguest:login')
@@ -421,7 +421,7 @@ def myReports(request):
     context = {
         'reports': reports
     }
-    return render(request, 'patient/myReports.html', context)
+    return render(request, 'patient/myreports.html', context)
 
 
 

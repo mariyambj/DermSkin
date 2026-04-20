@@ -768,12 +768,12 @@
                            href="{% url 'webpatient:doctor_list' %}">Book Appointment</a>
                     </li>
                     <li>
-                        <a class="nav-link {% if 'myBookings' in request.path %}active{% endif %}"
-                           href="{% url 'webpatient:myBookings' %}">My Bookings</a>
+                        <a class="nav-link {% if 'mybookings' in request.path %}active{% endif %}"
+                           href="{% url 'webpatient:my_bookings' %}">My Bookings</a>
                     </li>
                     <li>
-                        <a class="nav-link {% if 'myReports' in request.path %}active{% endif %}"
-                           href="{% url 'webpatient:myReports' %}">My Reports</a>
+                        <a class="nav-link {% if 'myreports' in request.path %}active{% endif %}"
+                           href="{% url 'webpatient:my_reports' %}">My Reports</a>
                     </li>
                     <li>
                         <a class="nav-link {% if 'patient_profile' in request.path %}active{% endif %}"
