@@ -319,6 +319,7 @@ def confirm_booking(request, token_id):
 from django.shortcuts import render, redirect
 from patient.models import tbl_appointment, tbl_patient
 
+
 def my_bookings(request):
     patient_id = request.session.get('pid')
     if not patient_id:
@@ -361,6 +362,10 @@ def submit_feedback(request):
         if tbl_feedback.objects.filter(appointment=appointment).exists():
             messages.warning(request, "You have already submitted feedback for this appointment.")
             return redirect('webpatient:my_bookings')
+        # Guard: prevent duplicate feedback
+        if tbl_feedback.objects.filter(appointment=appointment).exists():
+            messages.warning(request, "You have already submitted feedback for this appointment.")
+            return redirect('webpatient:mybookings')
         tbl_feedback.objects.create(
             patient=appointment.patient,
             doctor=appointment.doctor,
@@ -370,6 +375,7 @@ def submit_feedback(request):
         )
         messages.success(request, "Thank you! Your feedback has been submitted.")
     return redirect('webpatient:my_bookings')
+    return redirect('webpatient:mybookings')
 
 
 

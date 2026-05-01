@@ -209,13 +209,13 @@ def doctor_schedule(request):
     return render(request, 'doctor/schedule.html')
  
 
-
+from zoneinfo import ZoneInfo
 def doctor_view_schedule(request):
     doctor_id = request.session.get('did')
     if not doctor_id:
         return redirect('webguest:login')
     doctor = get_object_or_404(tbl_doctor, id=doctor_id)
-    today = timezone.localdate()
+    today = timezone.now().astimezone(ZoneInfo('Asia/Kolkata')).date() 
     schedules = tbl_schedule.objects.filter(
         doctor=doctor,
         schedule_date__gte=today
